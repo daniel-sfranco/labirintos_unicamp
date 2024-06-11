@@ -1,6 +1,7 @@
 import pygame
 from drawer import *
 from player import *
+from maze_generator import *
 
 pygame.init()
 speed = [1 , 1]
@@ -10,6 +11,8 @@ player, playerrect = create_player()
 button_positions = []
 mouse_x, mouse_y = 0, 0
 pressed = False
+drawed_maze = False
+difficulty = 'easy'
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -31,6 +34,9 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
+        maze_width = 15
+        maze_height = 10
+        maze = MazeGenerator(maze_width, maze_height)
         for key in move_keys:
             if keys[key]:
                 playerrect = move_player(key, playerrect)
