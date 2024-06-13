@@ -1,11 +1,14 @@
 import pygame
 from pygame.font import Font
-import sys
+from player import *
+import math
 
-size = width, height = 900, 700
+size = width, height = 1300, 660
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Labirinto da Unicamp')
 clock = pygame.time.Clock()
+wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
+player = pygame.image.load('img/player/human.gif').convert()
 
 def draw_init():
     font = Font(None, 50)
@@ -32,6 +35,24 @@ def draw_init():
     pygame.display.flip()
     return button_positions
 def draw_player(player, playerrect):
-    screen.fill("black")
     screen.blit(player, playerrect)
-    pygame.display.flip()
+
+def draw_maze(maze_object):
+    global player, wall, wall_list, move_keys
+    screen.fill('black')
+    maze = maze_object.maze
+    maze_width = maze_height = len(maze)
+    unit_size = math.trunc(width / maze_width if width < height else height / maze_height)
+    player = pygame.transform.scale(player, (unit_size, unit_size))
+    wall = pygame.transform.scale(wall, (unit_size, unit_size))
+    for x in range(len(maze)):
+        for y in range(len(maze[0])):
+            if maze[x][y] == 1:
+                wall_y = y * unit_size
+                wall_x = x * unit_size
+                screen.blit(wall, (wall_y, wall_x))
+            elif maze[x][y] == 'p':
+                player_y = y * unit_size
+                player_x = x * unit_size
+                screen.blit(player, (player_y, player_x))
+    return unit_size

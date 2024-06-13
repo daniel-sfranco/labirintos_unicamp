@@ -2,17 +2,17 @@ import pygame
 from drawer import *
 from player import *
 from maze_generator import *
+import sys
 
 pygame.init()
 speed = [1 , 1]
 game_part = 'init'
-move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
-player, playerrect = create_player()
 button_positions = []
 mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 difficulty = 'easy'
+unit_size = 0
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -30,19 +30,22 @@ while True:
             for i in range(len(button_positions)):
                 if mouse_x >= button_positions[i][0] and mouse_x <= button_positions[i][1] and mouse_y >= button_positions[i][2] and mouse_y <=  button_positions[i][3]:
                     game_part = buttons[i]
-                    if game_part == 'new':
-                        maze_width = 10
-                        maze_height = 10
-                        maze = MazeGenerator(maze_width, maze_height)
-                        game_part = 'play'
                     break
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
+    elif game_part == 'new':
+        maze_width = 15
+        maze_height = 15
+        maze = MazeGenerator(maze_width, maze_height)
+        game_part = 'play'
+        unit_size = draw_maze(maze)
+        pygame.display.flip()
+        drawed_maze = True
     elif game_part == 'play':
-        for key in move_keys:
-            if keys[key]:
-                playerrect = move_player(key, playerrect)
-        draw_player(player, playerrect)
+        cord, new_cord = move_player(maze, unit_size)
+        if new_cord != cord:
+            draw_maze(maze)
+            pygame.display.flip()
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

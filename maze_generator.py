@@ -17,7 +17,7 @@ class MazeGenerator:
                 if i % 2 == 1 or j % 2 == 1: self.maze[i][j] = 1
         # Recursively generate the maze starting from the current cell
         self.generate_maze_recursive(current_cell, closed)
-
+        self.maze[0][0] = 'p'
         return self.maze
 
     def generate_maze_recursive(self, cell, closed):
