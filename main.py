@@ -30,13 +30,15 @@ while True:
             for i in range(len(button_positions)):
                 if mouse_x >= button_positions[i][0] and mouse_x <= button_positions[i][1] and mouse_y >= button_positions[i][2] and mouse_y <=  button_positions[i][3]:
                     game_part = buttons[i]
+                    if game_part == 'new':
+                        maze_width = 10
+                        maze_height = 10
+                        maze = MazeGenerator(maze_width, maze_height)
+                        game_part = 'play'
                     break
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
-    elif game_part == 'new':
-        maze_width = 15
-        maze_height = 10
-        maze = MazeGenerator(maze_width, maze_height)
+    elif game_part == 'play':
         for key in move_keys:
             if keys[key]:
                 playerrect = move_player(key, playerrect)
