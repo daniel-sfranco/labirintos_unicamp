@@ -3,8 +3,9 @@ from drawer import *
 from player import *
 from maze_generator import *
 import sys
+import os
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-pygame.init()
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 pressed = False
@@ -33,8 +34,8 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
-        maze_width = 15
-        maze_height = 15
+        maze_width = 10
+        maze_height = 10
         maze = MazeGenerator(maze_width, maze_height)
         player = Player()
         game_part = 'play'

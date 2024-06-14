@@ -1,9 +1,15 @@
 import pygame
+import os
 from pygame.font import Font
 from player import *
 
-size = width, height = 1200, 600
-screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+pygame.init()
+screen = ''
+clock = ''
+info = pygame.display.Info()
+size = width, height = info.current_w, info.current_h
+screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+pygame.display.update()
 pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
 
@@ -18,7 +24,8 @@ def draw_init():
     button_backgroundcolor = '#FFFFFF'
     button_textcolor = '#000000'
     button_x = (width - button_width)/2
-    button_y = [150, 210, 270, 330, 390]
+    button_distance = 60
+    button_y = [150 + i * button_distance for i in range(5)]
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Ganhadores', 'Informações', 'Sair']
     button_positions = []
     font = Font(None, 24)
