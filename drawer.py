@@ -1,7 +1,6 @@
 import pygame
 from pygame.font import Font
 from player import *
-import math
 
 size = width, height = 1300, 660
 screen = pygame.display.set_mode(size)
@@ -12,10 +11,10 @@ player = pygame.image.load('img/player/human.gif').convert()
 
 def draw_init():
     font = Font(None, 50)
-    title = font.render('LABIRINTO DA UNICAMP', True, '#FFFFFF')
-    titlerect = title.get_rect()
-    titlerect.top = 50
-    titlerect.centerx = width/2
+    title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
+    title_rect = title.get_rect()
+    title_rect.top = 50
+    title_rect.centerx = width/2
     button_width = 400
     button_height = 50
     button_backgroundcolor = '#FFFFFF'
@@ -31,18 +30,18 @@ def draw_init():
         pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
         screen.blit(text_surface, text_rect)
         button_positions.append((button_x, button_x + button_width, button_y[i], button_y[i] + button_height))
-    screen.blit(title, titlerect)
+    screen.blit(title, title_rect)
     pygame.display.flip()
     return button_positions
-def draw_player(player, playerrect):
-    screen.blit(player, playerrect)
+def draw_player(player, player_rect):
+    screen.blit(player, player_rect)
 
 def draw_maze(maze_object):
     global player, wall, wall_list, move_keys
     screen.fill('black')
     maze = maze_object.maze
     maze_width = maze_height = len(maze)
-    unit_size = math.trunc(width / maze_width if width < height else height / maze_height)
+    unit_size = width // maze_width if width < height else height // maze_height
     player = pygame.transform.scale(player, (unit_size, unit_size))
     wall = pygame.transform.scale(wall, (unit_size, unit_size))
     for x in range(len(maze)):

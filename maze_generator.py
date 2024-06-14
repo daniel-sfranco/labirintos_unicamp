@@ -82,7 +82,7 @@ class MazeGenerator:
             self.grid[wall_x][y1] = 1  # Mark the wall as removed
             return (min(x1, x2) * 2 + 1, y1 * 2)
 
-    def print_maze(self, width, height):
+    def print_maze(self):
         for row in self.maze:
             print(" ".join(["#" if cell else " " for cell in row]))
         print()
@@ -95,4 +95,4 @@ if __name__ == "__main__":
     maze_generator = MazeGenerator(width, height)
 
     # Print the maze representation
-    maze_generator.print_maze(width, height)
+    maze_generator.print_maze()

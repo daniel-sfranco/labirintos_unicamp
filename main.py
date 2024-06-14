@@ -34,8 +34,8 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
-        maze_width = 15
-        maze_height = 15
+        maze_width = 12
+        maze_height = 12
         maze = MazeGenerator(maze_width, maze_height)
         game_part = 'play'
         unit_size = draw_maze(maze)
