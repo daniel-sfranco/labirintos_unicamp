@@ -6,6 +6,7 @@ class MazeGenerator:
         self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
         self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
         self.removed_walls = []
+        self.player_dif = 0
         self.generate_maze()
 
     def generate_maze(self):

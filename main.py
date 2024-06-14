@@ -5,14 +5,13 @@ from maze_generator import *
 import sys
 
 pygame.init()
-speed = [1 , 1]
 game_part = 'init'
-button_positions = []
 mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 difficulty = 'easy'
-unit_size = 0
+maze = []
+player = 0
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -34,18 +33,20 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
-        maze_width = 12
-        maze_height = 12
+        maze_width = 15
+        maze_height = 15
         maze = MazeGenerator(maze_width, maze_height)
+        player = Player()
         game_part = 'play'
-        unit_size = draw_maze(maze)
+        unit_size = draw_maze(player, maze)
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
-        cord, new_cord = move_player(maze, unit_size)
-        if new_cord != cord:
-            draw_maze(maze)
-            pygame.display.flip()
+        player.move_player(maze)
+        draw_maze(player, maze)
+        pygame.display.flip()
+        if player.coordinate == (len(maze.maze) - 1, len(maze.maze[0]) - 1):
+            game_part = 'quit'
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

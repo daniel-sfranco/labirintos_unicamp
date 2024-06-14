@@ -2,12 +2,10 @@ import pygame
 from pygame.font import Font
 from player import *
 
-size = width, height = 1300, 660
-screen = pygame.display.set_mode(size)
-pygame.display.set_caption('Labirinto da Unicamp')
+size = width, height = 1200, 600
+screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
-wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
-player = pygame.image.load('img/player/human.gif').convert()
 
 def draw_init():
     font = Font(None, 50)
@@ -33,25 +31,32 @@ def draw_init():
     screen.blit(title, title_rect)
     pygame.display.flip()
     return button_positions
-def draw_player(player, player_rect):
-    screen.blit(player, player_rect)
 
-def draw_maze(maze_object):
-    global player, wall, wall_list, move_keys
+def draw_name():
+    screen.fill('black')
+    base_font = Font(None, 32)
+    pygame.draw.rect(screen, '#FFFFFF', (width//2 - 300, height // 2 - 100, width//2 + 300, height//2 + 100))
+def draw_maze(player, maze_object):
+    wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
     screen.fill('black')
     maze = maze_object.maze
     maze_width = maze_height = len(maze)
-    unit_size = width // maze_width if width < height else height // maze_height
-    player = pygame.transform.scale(player, (unit_size, unit_size))
+    unit_size = (3 * width // 4) // maze_width if width > height else (3 * height // 4) // maze_height
+    player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
     wall = pygame.transform.scale(wall, (unit_size, unit_size))
+    player_y = player.coordinate[0] * unit_size
+    player_x = player.coordinate[1] * unit_size
+    if player_y > height//2:
+        dif = player_y - height//2
+        max = ((len(maze) - 1) * unit_size) - dif
+        if max >= height - 2 * unit_size:
+            maze_object.player_dif = dif
+    else: maze_object.player_dif = 0
     for x in range(len(maze)):
         for y in range(len(maze[0])):
-            if maze[x][y] == 1:
-                wall_y = y * unit_size
+            if maze[y][x] == 1:
+                wall_y = y * unit_size - maze_object.player_dif
                 wall_x = x * unit_size
-                screen.blit(wall, (wall_y, wall_x))
-            elif maze[x][y] == 'p':
-                player_y = y * unit_size
-                player_x = x * unit_size
-                screen.blit(player, (player_y, player_x))
+                screen.blit(wall, (wall_x, wall_y))
+    screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
     return unit_size
