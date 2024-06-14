@@ -1,12 +1,13 @@
 import random
 class MazeGenerator:
-    def __init__(self, width, height):
+    def __init__(self, width, height, profs):
         self.width = width
         self.height = height
         self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
         self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
         self.removed_walls = []
         self.player_dif = 0
+        self.profs = profs
         self.generate_maze()
 
     def generate_maze(self):

@@ -10,7 +10,7 @@ game_part = 'init'
 mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
-difficulty = 'easy'
+level = 1
 maze = []
 player = 0
 while True:
@@ -34,9 +34,8 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
-        maze_width = 10
-        maze_height = 10
-        maze = MazeGenerator(maze_width, maze_height)
+        maze_width = maze_height = 8 + level * 2
+        maze = MazeGenerator(maze_width, maze_height, 0)
         player = Player()
         game_part = 'play'
         unit_size = draw_maze(player, maze)
@@ -47,7 +46,8 @@ while True:
         draw_maze(player, maze)
         pygame.display.flip()
         if player.coordinate == (len(maze.maze) - 1, len(maze.maze[0]) - 1):
-            game_part = 'quit'
+            level += 1
+            game_part = 'new'
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()
