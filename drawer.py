@@ -14,18 +14,18 @@ pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
 
 def draw_init():
-    font = Font(None, 50)
+    font = Font(None, width//15)
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
-    title_rect.top = 50
+    title_rect.top = height//12
     title_rect.centerx = width/2
-    button_width = 400
-    button_height = 50
+    button_width = width//3
+    button_height = height//15
     button_backgroundcolor = '#FFFFFF'
     button_textcolor = '#000000'
     button_x = (width - button_width)/2
-    button_distance = 60
-    button_y = [150 + i * button_distance for i in range(5)]
+    button_distance = height//10
+    button_y = [width//5 + i * button_distance for i in range(5)]
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Ganhadores', 'Informações', 'Sair']
     button_positions = []
     font = Font(None, 24)
@@ -39,13 +39,21 @@ def draw_init():
     pygame.display.flip()
     return button_positions
 
+def draw_pause_button(unit_size):
+    pause_img = pygame.image.load('img/x.jpeg').convert()
+    pause_img = pygame.transform.scale(pause_img, (unit_size // 2, unit_size // 2))
+    pause_rect = pygame.Rect(width - 2 * unit_size // 2, unit_size // 2, unit_size // 2, unit_size // 2)
+    screen.blit(pause_img, pause_rect)
+    return pause_rect
+
 def draw_name():
     screen.fill('black')
     base_font = Font(None, 32)
     pygame.draw.rect(screen, '#FFFFFF', (width//2 - 300, height // 2 - 100, width//2 + 300, height//2 + 100))
+
 def draw_maze(player, maze_object):
-    wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
     screen.fill('black')
+    wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
     maze = maze_object.maze
     maze_width = maze_height = len(maze)
     unit_size = (3 * width // 4) // maze_width if width > height else (3 * height // 4) // maze_height

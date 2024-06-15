@@ -21,6 +21,7 @@ while True:
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
+        else: pressed = False
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
@@ -43,11 +44,17 @@ while True:
         drawed_maze = True
     elif game_part == 'play':
         player.move_player(maze)
-        draw_maze(player, maze)
+        unit_size = draw_maze(player, maze)
+        pause_rect = draw_pause_button(unit_size)
         pygame.display.flip()
+        if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
+            game_part = 'pause'
         if player.coordinate == (len(maze.maze) - 1, len(maze.maze[0]) - 1):
             level += 1
             game_part = 'new'
+    elif game_part == 'pause':
+        screen.fill('black')
+        pygame.display.flip()
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()
