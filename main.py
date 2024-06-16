@@ -6,6 +6,7 @@ import sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 pressed = False
@@ -18,6 +19,12 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                if game_part == 'play':
+                    game_part = 'pause'
+                else:
+                    game_part = 'play'
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
@@ -53,8 +60,19 @@ while True:
             level += 1
             game_part = 'new'
     elif game_part == 'pause':
-        screen.fill('black')
+        pause_menu = draw_pause_menu()
         pygame.display.flip()
+        if pressed:
+            if pause_menu[0].collidepoint(mouse_x, mouse_y):
+                game_part = 'play'
+                pressed = False
+            if pause_menu[3].collidepoint(mouse_x, mouse_y):
+                game_part = 'new'
+                pressed = False
+            elif pause_menu[4].collidepoint(mouse_x, mouse_y):
+                screen.fill('black')
+                game_part = 'init'
+                pressed = False
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

@@ -8,10 +8,11 @@ screen = ''
 clock = ''
 info = pygame.display.Info()
 size = width, height = info.current_w, info.current_h
-screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+screen = pygame.display.set_mode(size)
 pygame.display.update()
 pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
+surface = pygame.Surface((size), pygame.SRCALPHA)
 
 def draw_init():
     font = Font(None, width//15)
@@ -75,3 +76,47 @@ def draw_maze(player, maze_object):
                 screen.blit(wall, (wall_x, wall_y))
     screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
     return unit_size
+
+def draw_pause_menu():
+    pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])
+    background_height = height//2
+    background_y = (height-background_height)/2
+    background_width = width//2
+    background_X = (width - background_width)/1.65
+    pygame.draw.rect(surface, 'black', [background_X, background_y, 600, 490],0,20)
+    screen.blit(surface, (0,0))
+
+    font = Font(None, width//19)
+    title = font.render('Pausado', True, '#FFFFFF')
+    title_rect = title.get_rect()
+    title_rect.top = height//10
+    title_rect.centerx = width/2
+    screen.blit(title, title_rect)
+
+    button_width = width//3
+    button_height = height//15
+    button_backgroundcolor = '#FFFFFF'
+    button_textcolor = '#000000'
+    button_x = (width - button_width)/2
+    button_distance = height//10
+    button_y = [width//6 + i * button_distance for i in range(5)]
+    button_text = ['Voltar', 'Reiniciar labirinto atual', 'Salvar', 'Novo jogo', 'Sair']
+    button_positions = []
+    font = Font(None, 24)
+    for i in range(5):
+        text_surface = font.render(button_text[i], True, button_textcolor)
+        text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height/2)))
+        if i == 0:
+            resume = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        elif i == 1:
+            restart_game = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        elif i == 2:
+            save_game = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        elif i == 3:
+            new_game = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        else:
+            main_menu = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        screen.blit(text_surface, text_rect)
+        button_positions.append((button_x, button_x + button_width, button_y[i], button_y[i] + button_height))
+
+    return resume, restart_game, save_game, new_game, main_menu
