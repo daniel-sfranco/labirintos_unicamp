@@ -36,7 +36,7 @@ while True:
         buttons = ['new', 'saved', 'winners', 'info', 'quit']
         if pressed:
             for i in range(len(button_positions)):
-                if mouse_x >= button_positions[i][0] and mouse_x <= button_positions[i][1] and mouse_y >= button_positions[i][2] and mouse_y <=  button_positions[i][3]:
+                if button_positions[i].collidepoint(mouse_x, mouse_y):
                     game_part = buttons[i]
                     break
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:

@@ -14,7 +14,7 @@ pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
 surface = pygame.Surface((size), pygame.SRCALPHA)
 
-def draw_init():
+def draw_init() -> list[pygame.Rect]:
     font = Font(None, width//15)
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
@@ -35,7 +35,7 @@ def draw_init():
         text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height/2)))
         pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
         screen.blit(text_surface, text_rect)
-        button_positions.append((button_x, button_x + button_width, button_y[i], button_y[i] + button_height))
+        button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
     screen.blit(title, title_rect)
     pygame.display.flip()
     return button_positions
