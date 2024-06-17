@@ -13,6 +13,13 @@ surface = pygame.Surface((size), pygame.SRCALPHA)
 
 
 def set_screen():
+    info = pygame.display.Info()
+    size = width, height = info.current_w, info.current_h
+    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+    pygame.display.update()
+    pygame.display.set_caption('Labirintos da Unicamp')
+    clock = pygame.time.Clock()
+    surface = pygame.Surface((size), pygame.SRCALPHA)
     return screen, size
 
 

@@ -2,6 +2,7 @@ import pygame
 from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen
 from player import Player
 from maze_generator import MazeGenerator
+from save import save
 import sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -43,10 +44,11 @@ while True:
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
-        level = 1
+        if not drawed_maze:
+            level = 1
         maze_width = maze_height = 8 + level * 2
         maze = MazeGenerator(maze_width, maze_height, 0)
-        player = Player()
+        player = Player('test_player', 0)
         game_part = 'play'
         first_unit = unit_size = draw_maze(player, maze)
         pygame.display.flip()
@@ -71,7 +73,10 @@ while True:
                 player.coordinate = (0, 0)
                 maze.reset()
                 game_part = 'play'
+            elif pause_menu[2].collidepoint(mouse_x, mouse_y):
+                save(maze, player)
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
+                drawed_maze = False
                 game_part = 'new'
             elif pause_menu[4].collidepoint(mouse_x, mouse_y):
                 screen.fill('black')

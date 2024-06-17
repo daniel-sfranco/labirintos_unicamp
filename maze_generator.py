@@ -2,14 +2,15 @@ import random
 
 
 class MazeGenerator:
-    def __init__(self, width: int, height: int, profs):
+    def __init__(self, width: int, height: int, profs, generate: bool = True):
         self.width = width
         self.height = height
         self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
         self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
         self.player_dif = 0
         self.profs = profs
-        self.generate_maze()
+        if generate:
+            self.generate_maze()
 
     def generate_maze(self):
         # Start at a random cell
@@ -96,7 +97,6 @@ class MazeGenerator:
                 j += 1
             i += 1
         self.maze[0][0] = 'p'
-
 
 if __name__ == "__main__":
     width = int(input('Width: '))

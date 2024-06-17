@@ -3,14 +3,16 @@ move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K
 
 
 class Player:
-    def __init__(self) -> None:
-        self.name = ''
+    def __init__(self, name: str, skin: int) -> None:
+        self.name = name
         self.points = 0
-        self.img = pygame.image.load('img/player/human.gif').convert()
         self.lives = 3
         self.bombs = 0
         self.coordinate = (0, 0)
         self.facing_right = True
+        self.skin = skin
+        if self.skin == 0:
+            self.img = pygame.image.load('img/player/human.gif').convert()
 
     def move_player(self, maze_object):
         maze = maze_object.maze
