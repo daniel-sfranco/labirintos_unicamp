@@ -79,11 +79,11 @@ def draw_maze(player, maze_object):
 
 def draw_pause_menu():
     pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])
-    background_height = height//2
-    background_y = (height-background_height)/2
-    background_width = width//2
-    background_X = (width - background_width)/1.65
-    pygame.draw.rect(surface, 'black', [background_X, background_y, 600, 490],0,20)
+    background_height = height//1.75
+    background_y = ((height * 1.05) - background_height)/2
+    background_width = width//2.5
+    background_x = (width - background_width)/2
+    pygame.draw.rect(surface, 'black', [background_x, background_y, background_width, background_height],0,20)
     screen.blit(surface, (0,0))
 
     font = Font(None, width//19)
