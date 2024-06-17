@@ -1,11 +1,10 @@
 import pygame
-from drawer import *
-from player import *
-from maze_generator import *
+from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen
+from player import Player
+from maze_generator import MazeGenerator
 import sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
-
 
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
@@ -13,8 +12,8 @@ pressed = False
 drawed_maze = False
 level = 1
 first_unit = 0
-maze = []
-player = 0
+screen, size = set_screen()
+width, height = size
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -29,11 +28,12 @@ while True:
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
-        else: pressed = False
+        else:
+            pressed = False
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
-        button_positions = draw_init()
+        button_positions = draw_init(screen)
         buttons = ['new', 'saved', 'winners', 'info', 'quit']
         if pressed:
             for i in range(len(button_positions)):
@@ -67,14 +67,16 @@ while True:
         if pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
-                pressed = False
-            if pause_menu[3].collidepoint(mouse_x, mouse_y):
+            elif pause_menu[1].collidepoint(mouse_x, mouse_y):
+                player.coordinate = (0, 0)
+                maze.reset()
+                game_part = 'play'
+            elif pause_menu[3].collidepoint(mouse_x, mouse_y):
                 game_part = 'new'
-                pressed = False
             elif pause_menu[4].collidepoint(mouse_x, mouse_y):
                 screen.fill('black')
                 game_part = 'init'
-                pressed = False
+            pressed = False
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

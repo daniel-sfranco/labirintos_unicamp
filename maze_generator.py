@@ -1,11 +1,12 @@
 import random
+
+
 class MazeGenerator:
-    def __init__(self, width, height, profs):
+    def __init__(self, width: int, height: int, profs):
         self.width = width
         self.height = height
         self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
         self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
-        self.removed_walls = []
         self.player_dif = 0
         self.profs = profs
         self.generate_maze()
@@ -16,7 +17,8 @@ class MazeGenerator:
         closed = []
         for i in range(len(self.maze)):
             for j in range(len(self.maze[i])):
-                if i % 2 == 1 or j % 2 == 1: self.maze[i][j] = 1
+                if i % 2 == 1 or j % 2 == 1:
+                    self.maze[i][j] = 1
         # Recursively generate the maze starting from the current cell
         self.generate_maze_recursive(current_cell, closed)
         self.maze[0][0] = 'p'
@@ -39,18 +41,12 @@ class MazeGenerator:
             # Remove the wall between the current cell and the neighbor
             wall = self.remove_wall(cell, next_cell)
 
-            # Push the removed wall onto the stack
-            self.removed_walls.append(wall)
-            
             # Remove the wall between the current cell and the neighbor
             if next_cell not in closed:
                 self.maze[wall[0]][wall[1]] = 0
 
             # Recursively generate the maze from the neighbor cell
             self.generate_maze_recursive(next_cell, closed)
-
-            # Backtrack by popping the removed wall from the stack
-            self.removed_walls.pop()
 
     def get_unvisited_neighbors(self, cell):
         neighbors = []
@@ -89,12 +85,25 @@ class MazeGenerator:
             print(" ".join(["#" if cell else " " for cell in row]))
         print()
 
+    def reset(self):
+        p_reset = False
+        i = j = 0
+        while i < len(self.maze) and not p_reset:
+            while j < len(self.maze[i]) and not p_reset:
+                if self.maze[i][j] == 'p':
+                    self.maze[i][j] = 0
+                    p_reset = True
+                j += 1
+            i += 1
+        self.maze[0][0] = 'p'
+
+
 if __name__ == "__main__":
     width = int(input('Width: '))
     height = int(input('Height: '))
-    
+
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = MazeGenerator(width, height)
+    maze_generator = MazeGenerator(width, height, 0)
 
     # Print the maze representation
     maze_generator.print_maze()

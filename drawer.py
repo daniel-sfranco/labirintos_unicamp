@@ -1,25 +1,28 @@
 import pygame
-import os
 from pygame.font import Font
-from player import *
 
 pygame.init()
-screen = ''
-clock = ''
+
 info = pygame.display.Info()
 size = width, height = info.current_w, info.current_h
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 pygame.display.update()
 pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
 surface = pygame.Surface((size), pygame.SRCALPHA)
 
-def draw_init() -> list[pygame.Rect]:
+
+def set_screen():
+    return screen, size
+
+
+def draw_init(new_screen) -> list[pygame.Rect]:
+    screen = new_screen
     font = Font(None, width//15)
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
     title_rect.top = height//12
-    title_rect.centerx = width/2
+    title_rect.centerx = width//2
     button_width = width//3
     button_height = height//15
     button_backgroundcolor = '#FFFFFF'
@@ -40,6 +43,7 @@ def draw_init() -> list[pygame.Rect]:
     pygame.display.flip()
     return button_positions
 
+
 def draw_pause_button(unit_size):
     pause_img = pygame.image.load('img/x.jpeg').convert()
     pause_img = pygame.transform.scale(pause_img, (unit_size // 2, unit_size // 2))
@@ -47,10 +51,12 @@ def draw_pause_button(unit_size):
     screen.blit(pause_img, pause_rect)
     return pause_rect
 
+
 def draw_name():
     screen.fill('black')
-    base_font = Font(None, 32)
+    # base_font = Font(None, 32)
     pygame.draw.rect(screen, '#FFFFFF', (width//2 - 300, height // 2 - 100, width//2 + 300, height//2 + 100))
+
 
 def draw_maze(player, maze_object):
     screen.fill('black')
@@ -67,7 +73,8 @@ def draw_maze(player, maze_object):
         max = ((len(maze) - 1) * unit_size) - dif
         if max >= height - 2 * unit_size:
             maze_object.player_dif = dif
-    else: maze_object.player_dif = 0
+    else:
+        maze_object.player_dif = 0
     for x in range(len(maze)):
         for y in range(len(maze[0])):
             if maze[y][x] == 1:
@@ -77,14 +84,15 @@ def draw_maze(player, maze_object):
     screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
     return unit_size
 
+
 def draw_pause_menu():
     pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])
     background_height = height//1.75
     background_y = ((height * 1.05) - background_height)/2
     background_width = width//2.5
     background_x = (width - background_width)/2
-    pygame.draw.rect(surface, 'black', [background_x, background_y, background_width, background_height],0,20)
-    screen.blit(surface, (0,0))
+    pygame.draw.rect(surface, 'black', [background_x, background_y, background_width, background_height], 0, 20)
+    screen.blit(surface, (0, 0))
 
     font = Font(None, width//19)
     title = font.render('Pausado', True, '#FFFFFF')

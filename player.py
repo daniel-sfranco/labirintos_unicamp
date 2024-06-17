@@ -1,6 +1,6 @@
 import pygame
-from drawer import *
 move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
+
 
 class Player:
     def __init__(self) -> None:
@@ -9,8 +9,9 @@ class Player:
         self.img = pygame.image.load('img/player/human.gif').convert()
         self.lives = 3
         self.bombs = 0
-        self.coordinate = (0,0)
+        self.coordinate = (0, 0)
         self.facing_right = True
+
     def move_player(self, maze_object):
         maze = maze_object.maze
         keys = pygame.key.get_pressed()
@@ -20,15 +21,16 @@ class Player:
                 if maze[y][x] == 'p':
                     coordinate = (y, x)
                     break
-            if coordinate: break 
+            if coordinate:
+                break
         actual_key = 0
         for key in move_keys:
-            if keys[key]: 
+            if keys[key]:
                 actual_key = key
                 break
         if actual_key in [pygame.K_DOWN, pygame.K_s] and y < len(maze) - 1:
             next_coordinate = (y + 1, x)
-        elif actual_key in[pygame.K_UP, pygame.K_w] and y > 0:
+        elif actual_key in [pygame.K_UP, pygame.K_w] and y > 0:
             next_coordinate = (y - 1, x)
         elif actual_key in [pygame.K_LEFT, pygame.K_a] and x > 0:
             next_coordinate = (y, x - 1)
@@ -38,9 +40,10 @@ class Player:
         elif actual_key in [pygame.K_RIGHT, pygame.K_d] and x < len(maze[0]) - 1:
             next_coordinate = (y, x + 1)
             if not self.facing_right:
-               self.img = pygame.transform.flip(self.img, True, False)
-               self.facing_right = True
-        else: next_coordinate = (y, x)
+                self.img = pygame.transform.flip(self.img, True, False)
+                self.facing_right = True
+        else:
+            next_coordinate = (y, x)
         if maze[next_coordinate[0]][next_coordinate[1]] != 1:
             maze[coordinate[0]][coordinate[1]] = 0
             maze[next_coordinate[0]][next_coordinate[1]] = 'p'
