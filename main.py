@@ -2,7 +2,7 @@ import pygame
 from drawer import *
 from player import Player
 from maze_generator import MazeGenerator
-from save import save
+from save import count_saves, save
 import sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -50,8 +50,6 @@ while True:
         player = Player('test_player', 0)
         game_part = 'play'
         unit_size = draw_maze(player, maze)
-        if first_unit == 0:
-            first_unit = unit_size
         pygame.display.flip()
         drawed_maze = True
     elif 'load' in game_part:
@@ -64,6 +62,8 @@ while True:
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
+        if first_unit == 0:
+            first_unit = unit_size
         player.move_player(maze)
         unit_size = draw_maze(player, maze)
         pause_rect = draw_pause_button(first_unit)
@@ -96,8 +96,9 @@ while True:
     elif game_part == 'select_save':
         save_menu = draw_select_save()
         buttons: list[str] = []
-        for i in range(1, len(save_menu)):
+        for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
+        buttons.append('clear')
         buttons.append('back')
         if pressed:
             for i in range(len(save_menu)):
@@ -106,6 +107,8 @@ while True:
                         game_part = 'init'
                         pressed = False
                         break
+                    elif buttons[i] == 'clear':
+                        if os.path.exists('save.che'): os.remove('save.che')
                     else:
                         game_part = f'load{buttons[i].replace('game ', '')}'
                         pressed = False

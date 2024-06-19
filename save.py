@@ -81,6 +81,7 @@ def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
                 for j in actual_line:
                     if j.isnumeric():
                         actual_line[actual_line.index(j)] = int(j)
+                actual_line.pop()
                 actual_maze.append(actual_line)
                 if row == (level * 2 + 8) * 2 - 2:
                     if level > -1 and len(games) < game_number:

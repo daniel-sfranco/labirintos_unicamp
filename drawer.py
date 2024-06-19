@@ -60,14 +60,15 @@ def draw_select_save():
     button_height = height//15
     button_backgroundcolor = '#FFFFFF'
     button_textcolor = '#000000'
-    button_x = (width - button_width)/2
-    button_distance = height//10
-    button_y = [width//6 + i * button_distance for i in range(5)]
     games = return_saves()
     button_text = []
     for game in games:
         button_text.append(f'Jogo {game[0]}: nível {game[1].level}')
+    button_text.append('Limpar jogos salvos')
     button_text.append('Voltar')
+    button_x = (width - button_width)/2
+    button_distance = height//10
+    button_y = [width//6 + i * button_distance for i in range(len(button_text))]
     font = Font(None, 24)
     menu:list[pygame.Rect] = []
     for i in range(len(button_text)):
