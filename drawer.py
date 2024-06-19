@@ -24,7 +24,6 @@ def set_screen():
 
 
 def draw_init(new_screen) -> list[pygame.Rect]:
-    screen = new_screen
     font = Font(None, width//15)
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
@@ -91,6 +90,22 @@ def draw_maze(player, maze_object):
     screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
     return unit_size
 
+def draw_HUD(lab = 1, life = 3, bombs = 0, points = 0):
+    hud = pygame.Surface((size), pygame.SRCALPHA)
+    hud_height = height//1.3
+    hud_y = ((height * 1.05) - hud_height)/2
+    hud_width = width//4.5
+    hud_x = (width - hud_width)/1.02
+    pygame.draw.rect(hud, (40,40,40), [hud_x, hud_y, hud_width, hud_height])
+    screen.blit(hud, (0,0))
+
+    text = ["Labirinto: " + str(lab), "Pontos: " + str(points), "s2: " + str(life), "Bombas: " + str(bombs)]
+    font = Font(None, width//30)
+    for i in range(len(text)):
+        height_div = (2)
+        text_surface = font.render(text[i], True, '#FFFFFF')
+        text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height/height_div)))
+        screen.blit(text_surface, text_rect)
 
 def draw_pause_menu():
     pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])

@@ -1,5 +1,5 @@
 import pygame
-from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen
+from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen, draw_HUD
 from player import Player
 from maze_generator import MazeGenerator
 from save import save
@@ -50,13 +50,16 @@ while True:
         maze = MazeGenerator(maze_width, maze_height, 0)
         player = Player('test_player', 0)
         game_part = 'play'
-        first_unit = unit_size = draw_maze(player, maze)
+        unit_size = draw_maze(player, maze)
+        if first_unit == 0:
+            first_unit = unit_size
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
         player.move_player(maze)
         unit_size = draw_maze(player, maze)
         pause_rect = draw_pause_button(first_unit)
+        game_hud = draw_HUD()
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
