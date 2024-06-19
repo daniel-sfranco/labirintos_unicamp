@@ -13,7 +13,6 @@ pressed = False
 drawed_maze = False
 level = 1
 first_unit = 0
-screen, size = set_screen()
 width, height = size
 while True:
     for event in pygame.event.get():
@@ -46,11 +45,12 @@ while True:
     elif game_part == 'new':
         if not drawed_maze:
             level = 1
-        maze_width = maze_height = 8 + level * 2
-        maze = MazeGenerator(maze_width, maze_height, 0)
+        maze = MazeGenerator(level, 0)
         player = Player('test_player', 0)
         game_part = 'play'
-        first_unit = unit_size = draw_maze(player, maze)
+        unit_size = draw_maze(player, maze)
+        if first_unit == 0:
+            first_unit = unit_size
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
@@ -83,7 +83,7 @@ while True:
                 game_part = 'init'
             pressed = False
     elif game_part == 'select_save':
-        draw_select_save()
+        save_menu = draw_select_save()
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

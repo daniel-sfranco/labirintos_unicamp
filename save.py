@@ -1,3 +1,4 @@
+from typing import Any
 from maze_generator import MazeGenerator
 from player import Player
 from os import path
@@ -7,8 +8,8 @@ def count_saves() -> int:
         with open('save.che', 'r') as save_file:
             lines = save_file.readlines()
             game = 0
-            for i in lines:
-                if i[0:6] == 'game: ':
+            for line in lines:
+                if line[0:6] == 'game: ':
                     game += 1
     else:
         game = 0
@@ -31,56 +32,57 @@ def save(maze: MazeGenerator, player: Player):
         save_file.write(f'bombs: {player.bombs}\n')
         save_file.write(f'skin: {player.skin}\n')
         c = '('
-        for i in player.coordinate:
-            if i // 10 == 0:
-                c += '0' + str(i)
+        for line in player.coordinate:
+            if line // 10 == 0:
+                c += '0' + str(line)
             else:
-                c += str(i)
+                c += str(line)
             c += ', '
         c = c[:-2] + ')'
         save_file.write(f'player position: {c}\n')
-        for i in range(maze.height * 2 - 1):
+        for line in range(maze.height * 2 - 1):
             s = ''
             for j in range(maze.width * 2 - 1):
-                s += str(maze.maze[i][j]) + ' '
+                s += str(maze.maze[line][j]) + ' '
             save_file.write(s + '\n')
 
 
-def return_saves() -> list[dict]:
-    games: list[list[int, MazeGenerator, Player]] = []
-    game: list[int, MazeGenerator, Player] = []
-    num_games = count_saves()
-    actual_player = {}
+def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
+    games: list[tuple[int, MazeGenerator, Player]] = []
+    game: tuple[int, MazeGenerator, Player] = (0, MazeGenerator(level=0, maze=[[None]]), Player(name='', skin=0))
+    lines: list[str] = []
     actual_maze = []
     name = ''
     if path.exists('save.che'):
         with open('save.che', 'r') as save_file:
-            lines = save_file.readlines()
-        level = bombs = lives = points = skin = game = -1
+            lines: list[str] = save_file.readlines()
+        game_number = level = bombs = lives = points = skin = -1
         name = ''
-        player_position = (0,0)
-        for i in lines:
-            if 'game' in i:
+        player_position: tuple[int, int] = (0,0)
+        for line in lines:
+            if 'game' in line:
                 if level > -1:
-                    width = height = (level * 2 + 8)
-                    game.append([game, MazeGenerator(width=width, height=height, maze=maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position)])
-                game = int(i[6:])
-            elif 'level' in i:
-                level = int(lines[i][7:])
-            elif 'name' in i:
-                name = lines[i][6:]
-            elif 'points' in i:
-                points = int(lines[i][8:])
-            elif 'lives' in i:
-                lives = int(lines[i][7:])
-            elif 'bombs' in i:
-                bombs = int(lines[i][7:])
-            elif 'skin' in i:
-                skin = int(lines[i][6:])
-            elif 'player position' in i:
-                player_position = tuple(int(i[18:20]), int(i[22:24]))
-
-if __name__ == '__main__':
-    maze = MazeGenerator(10, 10, 0)
-    player = Player('save_test', 0)
-    save(maze, player)
+                    game = (game_number, MazeGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                    games.append(game)
+                game_number = int(line[6:])
+            elif 'level' in line:
+                level = int(line[7:])
+            elif 'name' in line:
+                name = line[6:]
+            elif 'points' in line:
+                points = int(line[8:])
+            elif 'lives' in line:
+                lives = int(line[7:])
+            elif 'bombs' in line:
+                bombs = int(line[7:])
+            elif 'skin' in line:
+                skin = int(line[6:])
+            elif 'player position' in line:
+                player_position = (int(line[18:20]), int(line[22:24]))
+            else:
+                actual_line: list[Any] = line.split(' ')
+                for j in actual_line:
+                    if j.isnumeric():
+                        actual_line[actual_line.index(j)] = int(j)
+                actual_maze.append(actual_line)
+    return games

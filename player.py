@@ -3,7 +3,7 @@ move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K
 
 
 class Player:
-    def __init__(self, name: str, skin: int, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple = (0,0)) -> None:
+    def __init__(self, name: str, skin: int, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple[int, int] = (0,0)) -> None:
         self.name = name
         self.points = points
         self.lives = lives
@@ -17,13 +17,13 @@ class Player:
     def move_player(self, maze_object):
         maze = maze_object.maze
         keys = pygame.key.get_pressed()
-        coordinate = ()
+        coordinate: tuple[int, int] = (0,0)
         for y in range(len(maze)):
             for x in range(len(maze[0])):
                 if maze[y][x] == 'p':
                     coordinate = (y, x)
                     break
-            if coordinate:
+            if coordinate != (0,0) or maze[0][0] == 'p':
                 break
         actual_key = 0
         for key in move_keys:
