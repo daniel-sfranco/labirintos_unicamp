@@ -40,6 +40,7 @@ while True:
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
                     game_part = buttons[i]
                     break
+            pressed = False
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
@@ -53,6 +54,15 @@ while True:
             first_unit = unit_size
         pygame.display.flip()
         drawed_maze = True
+    elif 'load' in game_part:
+        games = return_saves()
+        index = int(game_part[4:]) - 1
+        maze = games[index][1]
+        player = games[index][2]
+        game_part = 'play'
+        unit_size = draw_maze(player, maze, True)
+        pygame.display.flip()
+        drawed_maze = True
     elif game_part == 'play':
         player.move_player(maze)
         unit_size = draw_maze(player, maze)
@@ -60,6 +70,7 @@ while True:
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
+            pressed = False
         if player.coordinate == (len(maze.maze) - 1, len(maze.maze[0]) - 1):
             level += 1
             game_part = 'new'
@@ -84,6 +95,21 @@ while True:
             pressed = False
     elif game_part == 'select_save':
         save_menu = draw_select_save()
+        buttons: list[str] = []
+        for i in range(1, len(save_menu)):
+            buttons.append(f'game {i}')
+        buttons.append('back')
+        if pressed:
+            for i in range(len(save_menu)):
+                if save_menu[i].collidepoint(mouse_x, mouse_y):
+                    if buttons[i] == 'back':
+                        game_part = 'init'
+                        pressed = False
+                        break
+                    else:
+                        game_part = f'load{buttons[i].replace('game ', '')}'
+                        pressed = False
+                        break
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()

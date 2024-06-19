@@ -56,19 +56,15 @@ def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
     if path.exists('save.che'):
         with open('save.che', 'r') as save_file:
             lines: list[str] = save_file.readlines()
-        game_number = level = bombs = lives = points = skin = -1
-        name = ''
+        game_number = level = bombs = lives = points = skin = row = -1
         player_position: tuple[int, int] = (0,0)
         for line in lines:
             if 'game' in line:
-                if level > -1:
-                    game = (game_number, MazeGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
-                    games.append(game)
                 game_number = int(line[6:])
             elif 'level' in line:
                 level = int(line[7:])
             elif 'name' in line:
-                name = line[6:]
+                name = line[6:-1]
             elif 'points' in line:
                 points = int(line[8:])
             elif 'lives' in line:
@@ -80,9 +76,16 @@ def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
             elif 'player position' in line:
                 player_position = (int(line[18:20]), int(line[22:24]))
             else:
+                row += 1
                 actual_line: list[Any] = line.split(' ')
                 for j in actual_line:
                     if j.isnumeric():
                         actual_line[actual_line.index(j)] = int(j)
                 actual_maze.append(actual_line)
+                if row == (level * 2 + 8) * 2 - 2:
+                    if level > -1 and len(games) < game_number:
+                        game = (game_number, MazeGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                        games.append(game)
+                        actual_maze = []
+                        game_number = level = bombs = lives = points = skin = row = -1
     return games

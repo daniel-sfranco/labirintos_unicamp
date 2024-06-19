@@ -14,6 +14,7 @@ surface = pygame.Surface((size), pygame.SRCALPHA)
 
 def draw_init() -> list[pygame.Rect]:
     font = Font(None, width//15)
+    screen.fill('black')
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
     title_rect.top = height//12
@@ -40,7 +41,7 @@ def draw_init() -> list[pygame.Rect]:
 
 
 def draw_select_save():
-    pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])
+    pygame.draw.rect(surface, (128, 128, 128), [0, 0, width, height])
     background_height = height//1.75
     background_y = ((height * 1.05) - background_height)/2
     background_width = width//2.5
@@ -49,7 +50,7 @@ def draw_select_save():
     screen.blit(surface, (0, 0))
 
     font = Font(None, width//19)
-    title = font.render('Pausado', True, '#FFFFFF')
+    title = font.render('Escolha um jogo salvo', True, '#FFFFFF')
     title_rect = title.get_rect()
     title_rect.top = height//10
     title_rect.centerx = width//2
@@ -66,15 +67,16 @@ def draw_select_save():
     button_text = []
     for game in games:
         button_text.append(f'Jogo {game[0]}: nível {game[1].level}')
+    button_text.append('Voltar')
     font = Font(None, 24)
     menu:list[pygame.Rect] = []
-    for i in range(len(games)):
+    for i in range(len(button_text)):
         text_surface = font.render(button_text[i], True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height/2)))
         rect = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
         screen.blit(text_surface, text_rect)
         menu.append(rect)
-
+    pygame.display.flip()
     return menu
 
 
@@ -92,7 +94,7 @@ def draw_name():
     pygame.draw.rect(screen, '#FFFFFF', (width//2 - 300, height // 2 - 100, width//2 + 300, height//2 + 100))
 
 
-def draw_maze(player, maze_object):
+def draw_maze(player, maze_object, first=False):
     screen.fill('black')
     wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
     maze = maze_object.maze
@@ -109,8 +111,8 @@ def draw_maze(player, maze_object):
             maze_object.player_dif = dif
     else:
         maze_object.player_dif = 0
-    for x in range(len(maze)):
-        for y in range(len(maze[0])):
+    for x in range(maze_width):
+        for y in range(maze_height):
             if maze[y][x] == 1:
                 wall_y = y * unit_size - maze_object.player_dif
                 wall_x = x * unit_size
