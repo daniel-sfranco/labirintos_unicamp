@@ -3,12 +3,12 @@ move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K
 
 
 class Player:
-    def __init__(self, name: str, skin: int) -> None:
+    def __init__(self, name: str, skin: int, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple = (0,0)) -> None:
         self.name = name
-        self.points = 0
-        self.lives = 3
-        self.bombs = 0
-        self.coordinate = (0, 0)
+        self.points = points
+        self.lives = lives
+        self.bombs = bombs
+        self.coordinate = coordinate
         self.facing_right = True
         self.skin = skin
         if self.skin == 0:

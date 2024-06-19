@@ -2,15 +2,17 @@ import random
 
 
 class MazeGenerator:
-    def __init__(self, width: int, height: int, profs, generate: bool = True):
+    def __init__(self, width: int, height: int, profs:int = 3, maze: list[list] = []):
         self.width = width
         self.height = height
         self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
-        self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
         self.player_dif = 0
         self.profs = profs
-        if generate:
+        if maze == []:
+            self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
             self.generate_maze()
+        else:
+            self.maze = maze
 
     def generate_maze(self):
         # Start at a random cell

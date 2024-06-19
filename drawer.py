@@ -1,5 +1,6 @@
 import pygame
 from pygame.font import Font
+from save import count_saves
 
 pygame.init()
 
@@ -23,8 +24,7 @@ def set_screen():
     return screen, size
 
 
-def draw_init(new_screen) -> list[pygame.Rect]:
-    screen = new_screen
+def draw_init() -> list[pygame.Rect]:
     font = Font(None, width//15)
     title = font.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
     title_rect = title.get_rect()
@@ -49,6 +49,22 @@ def draw_init(new_screen) -> list[pygame.Rect]:
     screen.blit(title, title_rect)
     pygame.display.flip()
     return button_positions
+
+
+def draw_select_save():
+    font = Font(None, width//15)
+    title = font.render('Escolha um jogo salvo', True, '#FFFFFF')
+    title_rect = title.get_rect()
+    title_rect.top = height//12
+    title_rect.centerx = width//2
+    button_width = width//3
+    button_height = height//15
+    button_backgroundcolor = '#FFFFFF'
+    button_textcolor = '#000000'
+    button_x = (width - button_width)/2
+    button_distance = height//10
+    button_y = [width//5 + i * button_distance for i in range(3)]
+    games = count_saves()
 
 
 def draw_pause_button(unit_size):

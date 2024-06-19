@@ -1,5 +1,5 @@
 import pygame
-from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen
+from drawer import *
 from player import Player
 from maze_generator import MazeGenerator
 from save import save
@@ -34,8 +34,8 @@ while True:
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
-        button_positions = draw_init(screen)
-        buttons = ['new', 'saved', 'winners', 'info', 'quit']
+        button_positions = draw_init()
+        buttons = ['new', 'select_save', 'winners', 'info', 'quit']
         if pressed:
             for i in range(len(button_positions)):
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
@@ -82,6 +82,8 @@ while True:
                 screen.fill('black')
                 game_part = 'init'
             pressed = False
+    elif game_part == 'select_save':
+        draw_select_save()
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()
