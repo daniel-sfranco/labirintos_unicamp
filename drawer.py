@@ -1,6 +1,8 @@
 import pygame
 from pygame.font import Font
 from save import return_saves
+from player import Player
+from maze_generator import MazeGenerator
 
 pygame.init()
 
@@ -10,7 +12,6 @@ screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 pygame.display.update()
 pygame.display.set_caption('Labirintos da Unicamp')
 clock = pygame.time.Clock()
-surface = pygame.Surface((size), pygame.SRCALPHA)
 
 def draw_init() -> list[pygame.Rect]:
     font = Font(None, width//15)
@@ -40,21 +41,27 @@ def draw_init() -> list[pygame.Rect]:
     return button_positions
 
 
-def draw_select_save():
-    pygame.draw.rect(surface, (128, 128, 128), [0, 0, width, height])
+def draw_select_save(type='load', player=Player('', 0), maze=MazeGenerator(1)):
+    surface = pygame.Surface((size), pygame.SRCALPHA)
+    pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
+    font = Font(None, width//19)
+    if type == 'load':
+        title = font.render('Escolha um jogo salvo', True, '#FFFFFF')
+        pygame.draw.rect(surface, 'black', [0, 0, width, height])
+    elif type == 'delete':
+        draw_maze(player, maze)
+        title = font.render('Escolha um jogo para sobreescrever', True, '#FFFFFF')
+        pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
+    title_rect = title.get_rect()
+    title_rect.top = height//10
+    title_rect.centerx = width//2
+    surface.blit(title, title_rect)
+
     background_height = height//1.75
     background_y = ((height * 1.05) - background_height)/2
     background_width = width//2.5
     background_x = (width - background_width)/2
     pygame.draw.rect(surface, 'black', [background_x, background_y, background_width, background_height], 0, 20)
-    screen.blit(surface, (0, 0))
-
-    font = Font(None, width//19)
-    title = font.render('Escolha um jogo salvo', True, '#FFFFFF')
-    title_rect = title.get_rect()
-    title_rect.top = height//10
-    title_rect.centerx = width//2
-    screen.blit(title, title_rect)
 
     button_width = width//3
     button_height = height//15
@@ -63,7 +70,7 @@ def draw_select_save():
     games = return_saves()
     button_text = []
     for game in games:
-        button_text.append(f'Jogo {game[0]}: nível {game[1].level}')
+        button_text.append(f'Jogo {game[0]}: nível {game[1].level}, {game[2].lives} vidas')
     button_text.append('Limpar jogos salvos')
     button_text.append('Voltar')
     button_x = (width - button_width)/2
@@ -74,9 +81,10 @@ def draw_select_save():
     for i in range(len(button_text)):
         text_surface = font.render(button_text[i], True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height/2)))
-        rect = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
-        screen.blit(text_surface, text_rect)
+        rect = pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        surface.blit(text_surface, text_rect)
         menu.append(rect)
+    screen.blit(surface, (0, 0))
     pygame.display.flip()
     return menu
 
@@ -122,21 +130,22 @@ def draw_maze(player, maze_object, first=False):
     return unit_size
 
 
-def draw_pause_menu():
-    pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])
+def draw_pause_menu(player, maze):
+    draw_maze(player, maze)
+    surface = pygame.Surface((size), pygame.SRCALPHA)
+    pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
     background_height = height//1.75
     background_y = ((height * 1.05) - background_height)/2
     background_width = width//2.5
     background_x = (width - background_width)/2
     pygame.draw.rect(surface, 'black', [background_x, background_y, background_width, background_height], 0, 20)
-    screen.blit(surface, (0, 0))
 
     font = Font(None, width//19)
     title = font.render('Pausado', True, '#FFFFFF')
     title_rect = title.get_rect()
     title_rect.top = height//10
     title_rect.centerx = width//2
-    screen.blit(title, title_rect)
+    surface.blit(title, title_rect)
 
     button_width = width//3
     button_height = height//15
@@ -151,8 +160,9 @@ def draw_pause_menu():
     for i in range(5):
         text_surface = font.render(button_text[i], True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height/2)))
-        rect = pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
-        screen.blit(text_surface, text_rect)
+        rect = pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        surface.blit(text_surface, text_rect)
         menu.append(rect)
+    screen.blit(surface, (0, 0, width, height), (0, 0, width, height))
 
     return menu

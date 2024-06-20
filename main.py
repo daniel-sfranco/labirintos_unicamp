@@ -2,7 +2,7 @@ import pygame
 from drawer import *
 from player import Player
 from maze_generator import MazeGenerator
-from save import count_saves, save
+from save import count_saves, order_saves, save, delete_save
 import sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -75,7 +75,7 @@ while True:
             level += 1
             game_part = 'new'
     elif game_part == 'pause':
-        pause_menu = draw_pause_menu()
+        pause_menu = draw_pause_menu(player, maze)
         pygame.display.flip()
         if pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
@@ -85,7 +85,10 @@ while True:
                 maze.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
-                save(maze, player)
+                if count_saves() < 3:
+                    save(maze, player)
+                else:
+                    game_part = 'over_save'
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
                 drawed_maze = False
                 game_part = 'new'
@@ -95,6 +98,7 @@ while True:
             pressed = False
     elif game_part == 'select_save':
         save_menu = draw_select_save()
+        order_saves(return_saves())
         buttons: list[str] = []
         for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
@@ -111,6 +115,31 @@ while True:
                         if os.path.exists('save.che'): os.remove('save.che')
                     else:
                         game_part = f'load{buttons[i].replace('game ', '')}'
+                        pressed = False
+                        break
+    elif game_part == 'over_save':
+        save_menu = draw_select_save('delete', player, maze)
+        buttons: list[str] = []
+        for i in range(1, len(save_menu) - 1):
+            buttons.append(f'game {i}')
+        buttons.append('clear')
+        buttons.append('back')
+        if pressed:
+            for i in range(len(save_menu)):
+                if save_menu[i].collidepoint(mouse_x, mouse_y):
+                    if buttons[i] == 'back':
+                        game_part = 'pause'
+                        pressed = False
+                        break
+                    elif buttons[i] == 'clear':
+                        if os.path.exists('save.che'): os.remove('save.che')
+                    else:
+                        game_number = int(buttons[i].replace('game ', ''))
+                        delete_save(game_number)
+                        save(maze=maze, player=player, game_number=game_number)
+                        now_saves = count_saves()
+                        order_saves(return_saves())
+                        game_part = 'pause'
                         pressed = False
                         break
     elif game_part == 'quit':
