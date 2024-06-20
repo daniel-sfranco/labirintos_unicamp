@@ -2,7 +2,7 @@ import random
 from typing import Any, Union
 
 
-class MazeGenerator:
+class GameGenerator:
     def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = []):
         self.level = level
         self.width = level * 2 + 8
@@ -10,6 +10,7 @@ class MazeGenerator:
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
+        self.time = 60
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = MazeGenerator(level, 0)
+    maze_generator = GameGenerator(level, 0)
 
     # Print the maze representation
     maze_generator.print_maze()

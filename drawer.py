@@ -2,7 +2,7 @@ import pygame
 from pygame.font import Font
 from save import return_saves
 from player import Player
-from maze_generator import MazeGenerator
+from game_generator import GameGenerator
 
 pygame.init()
 
@@ -41,7 +41,7 @@ def draw_init() -> list[pygame.Rect]:
     return button_positions
 
 
-def draw_select_save(type='load', player=Player('', 0), maze=MazeGenerator(1)):
+def draw_select_save(type='load', player=Player('', 0), maze=GameGenerator(1)):
     surface = pygame.Surface((size), pygame.SRCALPHA)
     pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
     font = Font(None, width//19)

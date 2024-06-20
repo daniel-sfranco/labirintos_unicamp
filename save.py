@@ -1,6 +1,6 @@
 import os
 from typing import Any
-from maze_generator import MazeGenerator
+from game_generator import GameGenerator
 from player import Player
 from drawer import *
 from os import path
@@ -18,7 +18,7 @@ def count_saves() -> int:
     return game
 
 
-def save(maze: MazeGenerator, player: Player, game_number: int = 0):
+def save(maze: GameGenerator, player: Player, game_number: int = 0):
     game = count_saves()
     if game == 0:
         type = 'w'
@@ -69,9 +69,8 @@ def delete_save(game_number):
             save_file.write(line)
 
 
-def order_saves(saves: list[tuple[int, MazeGenerator, Player]]) -> None:
+def order_saves(saves: list[tuple[int, GameGenerator, Player]]) -> None:
     saves = sorted(saves, key=lambda x: x[0])
-    num_games = len(saves)
     with open('save.che', 'w') as save_file:
         i = 1
         for game in saves:
@@ -79,9 +78,9 @@ def order_saves(saves: list[tuple[int, MazeGenerator, Player]]) -> None:
             i += 1
 
 
-def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
-    games: list[tuple[int, MazeGenerator, Player]] = []
-    game: tuple[int, MazeGenerator, Player] = (0, MazeGenerator(level=0, maze=[[None]]), Player(name='', skin=0))
+def return_saves() -> list[tuple[int, GameGenerator, Player]]:
+    games: list[tuple[int, GameGenerator, Player]] = []
+    game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name='', skin=0))
     lines: list[str] = []
     actual_maze = []
     name = ''
@@ -118,14 +117,14 @@ def return_saves() -> list[tuple[int, MazeGenerator, Player]]:
                 actual_maze.append(actual_line)
                 if row == (level * 2 + 8) * 2 - 2:
                     if level > -1 and len(games) < num_games:
-                        game = (game_number, MazeGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                        game = (game_number, GameGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
                         games.append(game)
                         actual_maze = []
                         game_number = level = bombs = lives = points = skin = row = -1
     return games
 
 if __name__ == "__main__":
-    maze = MazeGenerator(1)
+    maze = GameGenerator(1)
     player = Player('test_player', 0)
     save(maze, player)
     #delete_save(1)

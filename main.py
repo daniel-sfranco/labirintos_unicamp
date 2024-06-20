@@ -1,7 +1,7 @@
 import pygame
 from drawer import *
 from player import Player
-from maze_generator import MazeGenerator
+from game_generator import GameGenerator
 from save import count_saves, order_saves, save, delete_save
 import sys
 import os
@@ -14,6 +14,9 @@ drawed_maze = False
 level = 1
 first_unit = 0
 width, height = size
+change_time = pygame.USEREVENT
+game: GameGenerator = GameGenerator(1)
+player: Player = Player('', 0)
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -25,6 +28,8 @@ while True:
                     game_part = 'pause'
                 else:
                     game_part = 'play'
+        if event.type == change_time:
+            print('a')
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
@@ -46,47 +51,48 @@ while True:
     elif game_part == 'new':
         if not drawed_maze:
             level = 1
-        maze = MazeGenerator(level, 0)
+        game = GameGenerator(level, 0)
         player = Player('test_player', 0)
         game_part = 'play'
-        unit_size = draw_maze(player, maze)
+        unit_size = draw_maze(player, game)
         pygame.display.flip()
+        pygame.time.set_timer(change_time, 1000, loops=60)
         drawed_maze = True
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
-        maze = games[index][1]
+        game = games[index][1]
         player = games[index][2]
         game_part = 'play'
-        unit_size = draw_maze(player, maze, True)
+        unit_size = draw_maze(player, game, True)
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
         if first_unit == 0:
             first_unit = unit_size
-        player.move_player(maze)
-        unit_size = draw_maze(player, maze)
+        player.move_player(game)
+        unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button(first_unit)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
             pressed = False
-        if player.coordinate == (len(maze.maze) - 1, len(maze.maze[0]) - 1):
+        if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
             game_part = 'new'
     elif game_part == 'pause':
-        pause_menu = draw_pause_menu(player, maze)
+        pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
         if pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
-                maze.reset()
+                game.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
                 if count_saves() < 3:
-                    save(maze, player)
+                    save(game, player)
                 else:
                     game_part = 'over_save'
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
@@ -118,7 +124,7 @@ while True:
                         pressed = False
                         break
     elif game_part == 'over_save':
-        save_menu = draw_select_save('delete', player, maze)
+        save_menu = draw_select_save('delete', player, game)
         buttons: list[str] = []
         for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
@@ -136,7 +142,7 @@ while True:
                     else:
                         game_number = int(buttons[i].replace('game ', ''))
                         delete_save(game_number)
-                        save(maze=maze, player=player, game_number=game_number)
+                        save(maze=game, player=player, game_number=game_number)
                         now_saves = count_saves()
                         order_saves(return_saves())
                         game_part = 'pause'
