@@ -90,7 +90,7 @@ def draw_maze(player, maze_object):
     screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
     return unit_size
 
-def draw_HUD(lab = 1, life = 3, bombs = 0, points = 0):
+def draw_HUD(lab = 1, life = 3, bombs = 0, points = 0, unit = 1):
     hud = pygame.Surface((size), pygame.SRCALPHA)
     hud_height = height//1.3
     hud_y = ((height * 1.05) - hud_height)/2
@@ -99,13 +99,27 @@ def draw_HUD(lab = 1, life = 3, bombs = 0, points = 0):
     pygame.draw.rect(hud, (40,40,40), [hud_x, hud_y, hud_width, hud_height])
     screen.blit(hud, (0,0))
 
-    text = ["Labirinto: " + str(lab), "Pontos: " + str(points), "s2: " + str(life), "Bombas: " + str(bombs)]
+    text = ["Labirinto: " + str(lab), "Pontos: " + str(points), "S2: " + str(life), "Bombas: " + str(bombs)]
     font = Font(None, width//30)
     for i in range(len(text)):
-        height_div = (2)
-        text_surface = font.render(text[i], True, '#FFFFFF')
-        text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height/height_div)))
-        screen.blit(text_surface, text_rect)
+        if i == 2:
+            for j in range(life):
+                heart_icon = pygame.image.load('img/heart.png')
+                heart_icon = pygame.transform.scale(heart_icon, (unit, unit))
+                heart_rect = pygame.Rect(hud_x + (hud_width / ((i+3))) + j*unit, hud_y + (hud_height/(height_div/1.3)), unit , unit)
+                screen.blit(heart_icon, heart_rect)
+        elif i == 3:
+            for j in range(life):
+                heart_icon = pygame.image.load('img/items/bomb.png')
+                heart_icon = pygame.transform.scale(heart_icon, (unit, unit))
+                heart_rect = pygame.Rect(hud_x + (hud_width / ((i+3))) + j*unit, hud_y + (hud_height/(height_div/1.8)), unit , unit)
+                screen.blit(heart_icon, heart_rect)
+        else:
+            height_div = (5/(i+1))
+            text_surface = font.render(text[i], True, '#FFFFFF')
+            text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height/height_div)))
+            screen.blit(text_surface, text_rect)
+
 
 def draw_pause_menu():
     pygame.draw.rect(surface, (128, 128, 128, 2), [0, 0, width, height])

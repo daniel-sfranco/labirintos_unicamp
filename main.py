@@ -59,7 +59,7 @@ while True:
         player.move_player(maze)
         unit_size = draw_maze(player, maze)
         pause_rect = draw_pause_button(first_unit)
-        game_hud = draw_HUD()
+        game_hud = draw_HUD(lab = level, unit = first_unit)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
