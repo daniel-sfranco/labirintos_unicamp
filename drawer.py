@@ -41,7 +41,18 @@ def draw_init() -> list[pygame.Rect]:
     return button_positions
 
 
-def draw_select_save(type='load', player=Player('', 0), maze=GameGenerator(1)):
+def draw_select_save(type='load', player=Player('', 0), game=GameGenerator(1)):
+    """
+    This function draws a menu to select a saved game or to overwrite a game.
+
+    Parameters:
+    type (str): The type of menu to be drawn. It can be 'load' or 'delete'. Default is 'load'.
+    player (Player): The player object. Default is an empty Player object.
+    maze (GameGenerator): The maze object. Default is a GameGenerator object with level 1.
+
+    Returns:
+    list[pygame.Rect]: A list of pygame.Rect objects representing the positions of the menu buttons.
+    """
     surface = pygame.Surface((size), pygame.SRCALPHA)
     pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
     font = Font(None, width//19)
@@ -49,7 +60,7 @@ def draw_select_save(type='load', player=Player('', 0), maze=GameGenerator(1)):
         title = font.render('Escolha um jogo salvo', True, '#FFFFFF')
         pygame.draw.rect(surface, 'black', [0, 0, width, height])
     elif type == 'delete':
-        draw_maze(player, maze)
+        draw_maze(player, game)
         title = font.render('Escolha um jogo para sobreescrever', True, '#FFFFFF')
         pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
     title_rect = title.get_rect()
@@ -103,10 +114,10 @@ def draw_name():
     pygame.draw.rect(screen, '#FFFFFF', (width//2 - 300, height // 2 - 100, width//2 + 300, height//2 + 100))
 
 
-def draw_maze(player, maze_object, first=False):
+def draw_maze(player, game_object):
     screen.fill('black')
     wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
-    maze = maze_object.maze
+    maze = game_object.maze
     maze_width = maze_height = len(maze)
     unit_size = (3 * width // 4) // maze_width if width > height else (3 * height // 4) // maze_height
     player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
@@ -117,16 +128,16 @@ def draw_maze(player, maze_object, first=False):
         dif = player_y - height//2
         max = ((len(maze) - 1) * unit_size) - dif
         if max >= height - 2 * unit_size:
-            maze_object.player_dif = dif
+            game_object.player_dif = dif
     else:
-        maze_object.player_dif = 0
+        game_object.player_dif = 0
     for x in range(maze_width):
         for y in range(maze_height):
             if maze[y][x] == 1:
-                wall_y = y * unit_size - maze_object.player_dif
+                wall_y = y * unit_size - game_object.player_dif
                 wall_x = x * unit_size
                 screen.blit(wall, (wall_x, wall_y))
-    screen.blit(player.img, (player_x, player_y - maze_object.player_dif))
+    screen.blit(player.img, (player_x, player_y - game_object.player_dif))
     return unit_size
 
 

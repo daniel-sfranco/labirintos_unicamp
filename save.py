@@ -18,15 +18,15 @@ def count_saves() -> int:
     return game
 
 
-def save(maze: GameGenerator, player: Player, game_number: int = 0):
-    game = count_saves()
-    if game == 0:
+def save(game: GameGenerator, player: Player, game_number: int = 0):
+    num_game = count_saves()
+    if num_game == 0:
         type = 'w'
     else:
         type = 'a'
     with open('save.che', type) as save_file:
         if game_number == 0:
-            save_file.write(f'game: {game + 1}\n')
+            save_file.write(f'game: {num_game + 1}\n')
         else:
             save_file.write(f'game: {game_number}\n')
         level = (maze.width - 8) // 2
@@ -34,6 +34,7 @@ def save(maze: GameGenerator, player: Player, game_number: int = 0):
         save_file.write(f'name: {player.name}\n')
         save_file.write(f'points: {player.points}\n')
         save_file.write(f'lives: {player.lives}\n')
+        save_file.write(f'time: {game.time}\n')
         save_file.write(f'bombs: {player.bombs}\n')
         save_file.write(f'skin: {player.skin}\n')
         c = '('
@@ -45,10 +46,10 @@ def save(maze: GameGenerator, player: Player, game_number: int = 0):
             c += ', '
         c = c[:-2] + ')'
         save_file.write(f'player position: {c}\n')
-        for line in range(maze.height * 2 - 1):
+        for line in range(game.height * 2 - 1):
             s = ''
-            for j in range(maze.width * 2 - 1):
-                s += str(maze.maze[line][j]) + ' '
+            for j in range(game.width * 2 - 1):
+                s += str(game.maze[line][j]) + ' '
             save_file.write(s + '\n')
 
 

@@ -15,10 +15,12 @@ level = 1
 first_unit = 0
 width, height = size
 change_time = pygame.USEREVENT + 1
-time = 3
+time = 60
 game: GameGenerator = GameGenerator(1)
 player: Player = Player('', 0)
+clock = pygame.time.Clock()
 while True:
+    clock.tick(50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -30,7 +32,7 @@ while True:
                 else:
                     game_part = 'play'
         if event.type == change_time:
-            time -= 1
+            game.time -= 1
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
@@ -41,6 +43,7 @@ while True:
     if game_part == 'init':
         button_positions = draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
+        player = Player('test-player', 0)
         if pressed:
             for i in range(len(button_positions)):
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
@@ -53,11 +56,10 @@ while True:
         if not drawed_maze:
             level = 1
         game = GameGenerator(level, 0)
-        player = Player('test_player', 0)
         game_part = 'play'
+        player.coordinate = (0, 0)
         unit_size = draw_maze(player, game)
         pygame.display.flip()
-        pygame.time.set_timer(change_time, 1000, loops=3)
         drawed_maze = True
     elif 'load' in game_part:
         games = return_saves()
@@ -65,32 +67,40 @@ while True:
         game = games[index][1]
         player = games[index][2]
         game_part = 'play'
-        unit_size = draw_maze(player, game, True)
+        unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
-        game.time = time
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        game.time = time - (pygame.time.get_ticks() - game.start - game.dif) // 1000
         if first_unit == 0:
             first_unit = unit_size
+            game.start = pygame.time.get_ticks()
         if game.time == 0:
             player.lives -= 1
-            game.reset()
-            time = 300
-            print(player.lives)
-            pygame.time.set_timer(change_time, 1000, loops=3)
+            game.reset(time)
+            player.coordinate = (0, 0)
+            game.start = pygame.time.get_ticks()
         if player.lives == 0:
             game_part = 'init'
         player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button(first_unit)
+        hud = ['Lives', player.lives, 'Level', game.level, 'Time', game.time]
+        for i in range(0, 6, 2):
+            text = font.render(f'{hud[i]}: {hud[i+1]}', True, '#FFFFFF')
+            rect = text.get_rect(center=(width//10 * 9, height//10 * (i//2 + 1) + first_unit))
+            screen.blit(text, rect)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
+            game.stop = pygame.time.get_ticks()
             pressed = False
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
             game_part = 'new'
     elif game_part == 'pause':
+        game.dif = pygame.time.get_ticks() - game.stop
         pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
         if pressed:
@@ -98,7 +108,7 @@ while True:
                 game_part = 'play'
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
-                game.reset()
+                game.reset(time)
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
                 if count_saves() < 3:
@@ -153,7 +163,7 @@ while True:
                     else:
                         game_number = int(buttons[i].replace('game ', ''))
                         delete_save(game_number)
-                        save(maze=game, player=player, game_number=game_number)
+                        save(game=game, player=player, game_number=game_number)
                         now_saves = count_saves()
                         order_saves(return_saves())
                         game_part = 'pause'
