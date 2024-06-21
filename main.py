@@ -14,7 +14,8 @@ drawed_maze = False
 level = 1
 first_unit = 0
 width, height = size
-change_time = pygame.USEREVENT
+change_time = pygame.USEREVENT + 1
+time = 3
 game: GameGenerator = GameGenerator(1)
 player: Player = Player('', 0)
 while True:
@@ -29,7 +30,7 @@ while True:
                 else:
                     game_part = 'play'
         if event.type == change_time:
-            print('a')
+            time -= 1
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
@@ -56,7 +57,7 @@ while True:
         game_part = 'play'
         unit_size = draw_maze(player, game)
         pygame.display.flip()
-        pygame.time.set_timer(change_time, 1000, loops=60)
+        pygame.time.set_timer(change_time, 1000, loops=3)
         drawed_maze = True
     elif 'load' in game_part:
         games = return_saves()
@@ -68,8 +69,17 @@ while True:
         pygame.display.flip()
         drawed_maze = True
     elif game_part == 'play':
+        game.time = time
         if first_unit == 0:
             first_unit = unit_size
+        if game.time == 0:
+            player.lives -= 1
+            game.reset()
+            time = 300
+            print(player.lives)
+            pygame.time.set_timer(change_time, 1000, loops=3)
+        if player.lives == 0:
+            game_part = 'init'
         player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button(first_unit)
@@ -100,6 +110,7 @@ while True:
                 game_part = 'new'
             elif pause_menu[4].collidepoint(mouse_x, mouse_y):
                 screen.fill('black')
+                drawed_maze = False
                 game_part = 'init'
             pressed = False
     elif game_part == 'select_save':
@@ -151,3 +162,5 @@ while True:
     elif game_part == 'quit':
         pygame.quit()
         sys.exit()
+    else:
+        game_part = 'init'

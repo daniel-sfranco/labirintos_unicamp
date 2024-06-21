@@ -54,3 +54,8 @@ class Player:
         pygame.time.delay(125)
         if coordinate != next_coordinate:
             self.coordinate = next_coordinate
+
+    def lose_life(self):
+        self.lives -= 1
+        if self.lives == 0:
+            raise Exception('Game Over')
