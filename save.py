@@ -29,8 +29,7 @@ def save(game: GameGenerator, player: Player, game_number: int = 0):
             save_file.write(f'game: {num_game + 1}\n')
         else:
             save_file.write(f'game: {game_number}\n')
-        level = (maze.width - 8) // 2
-        save_file.write(f'level: {level}\n')
+        save_file.write(f'level: {game.level}\n')
         save_file.write(f'name: {player.name}\n')
         save_file.write(f'points: {player.points}\n')
         save_file.write(f'lives: {player.lives}\n')
@@ -46,9 +45,9 @@ def save(game: GameGenerator, player: Player, game_number: int = 0):
             c += ', '
         c = c[:-2] + ')'
         save_file.write(f'player position: {c}\n')
-        for line in range(game.height * 2 - 1):
+        for line in range(len(game.maze)):
             s = ''
-            for j in range(game.width * 2 - 1):
+            for j in range(len(game.maze[line])):
                 s += str(game.maze[line][j]) + ' '
             save_file.write(s + '\n')
 
@@ -62,8 +61,8 @@ def delete_save(game_number):
             line_index = lines.index(line)
             game_level = int(lines[line_index + 1][7:])
             break
-    total_lines = (game_level * 2 + 8) * 2 + 7
-    for i in range(total_lines):
+    total_lines = (game_level + 6) * 2 + 8
+    for _ in range(total_lines):
         del lines[line_index]
     with open('save.che', 'w') as save_file:
         for line in lines:
@@ -72,7 +71,7 @@ def delete_save(game_number):
 
 def order_saves(saves: list[tuple[int, GameGenerator, Player]]) -> None:
     saves = sorted(saves, key=lambda x: x[0])
-    with open('save.che', 'w') as save_file:
+    with open('save.che', 'w'):
         i = 1
         for game in saves:
             save(game[1], game[2], i)
@@ -88,7 +87,7 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
     if path.exists('save.che'):
         with open('save.che', 'r') as save_file:
             lines: list[str] = save_file.readlines()
-        game_number = level = bombs = lives = points = skin = row = -1
+        game_number = level = bombs = lives = points = time = skin = row = -1
         player_position: tuple[int, int] = (0,0)
         num_games = count_saves()
         for line in lines:
@@ -102,6 +101,8 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
                 points = int(line[8:])
             elif 'lives' in line:
                 lives = int(line[7:])
+            elif 'time' in line:
+                time = int(line[6:])
             elif 'bombs' in line:
                 bombs = int(line[7:])
             elif 'skin' in line:
@@ -116,16 +117,21 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
                         actual_line[actual_line.index(j)] = int(j)
                 actual_line.pop()
                 actual_maze.append(actual_line)
-                if row == (level * 2 + 8) * 2 - 2:
+                if row == (level + 6) * 2 - 2:
                     if level > -1 and len(games) < num_games:
-                        game = (game_number, GameGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                        game = (game_number, GameGenerator(level=level, maze=actual_maze, time=time), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
                         games.append(game)
                         actual_maze = []
                         game_number = level = bombs = lives = points = skin = row = -1
+                        actual_line = []
     return games
 
 if __name__ == "__main__":
-    maze = GameGenerator(1)
-    player = Player('test_player', 0)
-    save(maze, player)
+    with open('save.che', 'w') as save_file:
+        pass
+    for i in range(1, 4):
+        maze = GameGenerator(i)
+        player = Player('test_player', 0)
+        save(maze, player)
+    order_saves(return_saves())
     #delete_save(1)

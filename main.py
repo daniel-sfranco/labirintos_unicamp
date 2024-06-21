@@ -61,6 +61,8 @@ while True:
         unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
+        if 'last_time' in locals():
+            del locals()['last_time']
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
@@ -70,9 +72,11 @@ while True:
         unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
+        last_time = game.time
     elif game_part == 'play':
         font = pygame.font.Font('freesansbold.ttf', 32)
         game.time = time - (pygame.time.get_ticks() - game.start - game.dif) // 1000
+        if 'last_time' in locals(): game.time -= time - last_time
         if first_unit == 0:
             first_unit = unit_size
             game.start = pygame.time.get_ticks()
@@ -125,7 +129,8 @@ while True:
             pressed = False
     elif game_part == 'select_save':
         save_menu = draw_select_save()
-        order_saves(return_saves())
+        saves = return_saves()
+        order_saves(saves)
         buttons: list[str] = []
         for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
@@ -139,7 +144,8 @@ while True:
                         pressed = False
                         break
                     elif buttons[i] == 'clear':
-                        if os.path.exists('save.che'): os.remove('save.che')
+                        if os.path.exists('save.che'):
+                            os.remove('save.che')
                     else:
                         game_part = f'load{buttons[i].replace('game ', '')}'
                         pressed = False

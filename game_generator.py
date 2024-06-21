@@ -4,14 +4,14 @@ import pygame
 
 
 class GameGenerator:
-    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = []):
+    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], time=60):
         self.level = level
         self.width = level + 6
         self.height = level + 6
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
-        self.time = 0
+        self.time = time
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
