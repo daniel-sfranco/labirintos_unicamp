@@ -151,19 +151,22 @@ def draw_HUD(lab = 1, life = 3, bombs = 3, points = 0, unit = 1, time = 0):
 
     text = ["Labirinto: " + str(lab), "Pontos: " + str(points), "Tempo: " + str(time),"S2: " + str(life), "Bombas: " + str(bombs)]
     font = Font(None, width//30)
+    mini_size = unit*0.7
     for i in range(len(text)):
         if i == 3:
             for j in range(life):
+                hert_size = (unit*0.7, unit*0.7)
                 heart_icon = pygame.image.load('img/heart.png')
-                heart_icon = pygame.transform.scale(heart_icon, (unit, unit))
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i+1.8)) + j*unit, hud_y + (hud_height/(height_div/1)), unit , unit)
+                heart_icon = pygame.transform.scale(heart_icon, hert_size)
+                heart_rect = pygame.Rect(hud_x + (hud_width / (i+1.8)) + j*mini_size, hud_y + (hud_height/(height_div/1)), mini_size, mini_size)
                 screen.blit(heart_icon, heart_rect)
         elif i == 4:
             for j in range(bombs):
-                heart_icon = pygame.image.load('img/items/bomb.png')
-                heart_icon = pygame.transform.scale(heart_icon, (unit, unit))
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i+0.8)) + j*unit, hud_y + (hud_height/(height_div/1.2)), unit , unit)
-                screen.blit(heart_icon, heart_rect)
+                bomb_size = (unit*0.7, unit*0.7)
+                bomb_icon = pygame.image.load('img/items/bomb.png')
+                bomb_icon = pygame.transform.scale(bomb_icon, bomb_size)
+                heart_rect = pygame.Rect(hud_x + (hud_width / (i+0.8)) + j*mini_size, hud_y + (hud_height/(height_div/1.2)), mini_size , mini_size)
+                screen.blit(bomb_icon, heart_rect)
         else:
             height_div = (5/(i+1))
             text_surface = font.render(text[i], True, '#FFFFFF')
@@ -171,8 +174,9 @@ def draw_HUD(lab = 1, life = 3, bombs = 3, points = 0, unit = 1, time = 0):
             screen.blit(text_surface, text_rect)
 
 
-def draw_pause_menu(player, maze):
-    draw_maze(player, maze)
+def draw_pause_menu(player, game):
+    draw_maze(player, game)
+    draw_HUD(lab = game.level, time = game.time, life = player.lives)
     surface = pygame.Surface((size), pygame.SRCALPHA)
     pygame.draw.rect(surface, (128, 128, 128, 120), [0, 0, width, height])
     background_height = height//1.75

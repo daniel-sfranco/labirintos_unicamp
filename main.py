@@ -1,5 +1,5 @@
 import pygame
-from drawer import draw_init, draw_maze, draw_pause_button, draw_pause_menu, set_screen, draw_HUD
+from drawer import *
 from player import Player
 from game_generator import GameGenerator
 from save import count_saves, order_saves, save, delete_save
@@ -29,8 +29,6 @@ while True:
                     game_part = 'pause'
                 else:
                     game_part = 'play'
-        if event.type == change_time:
-            game.time -= 1
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             pressed = True
@@ -88,7 +86,7 @@ while True:
         player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button(first_unit)
-        game_hud = draw_HUD(lab = level, unit = first_unit)
+        draw_HUD(lab = level, unit = first_unit, time = game.time, life = player.lives)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
