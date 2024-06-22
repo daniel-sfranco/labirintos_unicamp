@@ -5,8 +5,6 @@ from game_generator import GameGenerator
 from save import count_saves, order_saves, save, delete_save
 import sys
 import os
-os.environ['SDL_VIDEO_CENTERED'] = '1'
-
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 pressed = False

@@ -1,8 +1,6 @@
-import os
 from typing import Any
 from game_generator import GameGenerator
 from player import Player
-from drawer import *
 from os import path
 
 def count_saves() -> int:
