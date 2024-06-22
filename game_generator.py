@@ -1,16 +1,25 @@
 import random
+from typing import Any, Union
+import pygame
 
 
-class MazeGenerator:
-    def __init__(self, width: int, height: int, profs, generate: bool = True):
-        self.width = width
-        self.height = height
-        self.grid = [[0 for _ in range(width)] for _ in range(height)]  # Initialize grid as 0s
-        self.maze = [[0 for _ in range(2 * width - 1)] for _ in range(2 * height - 1)]
+class GameGenerator:
+    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], time=60):
+        self.level = level
+        self.width = level + 6
+        self.height = level + 6
+        self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
-        if generate:
+        self.time = time
+        if maze == []:
+            self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
+        else:
+            self.maze = maze
+        self.start = pygame.time.get_ticks()
+        self.stop = 0
+        self.dif = 0
 
     def generate_maze(self):
         # Start at a random cell
@@ -86,7 +95,7 @@ class MazeGenerator:
             print(" ".join(["#" if cell else " " for cell in row]))
         print()
 
-    def reset(self):
+    def reset(self, time):
         p_reset = False
         i = j = 0
         while i < len(self.maze) and not p_reset:
@@ -97,13 +106,15 @@ class MazeGenerator:
                 j += 1
             i += 1
         self.maze[0][0] = 'p'
+        self.time = time
+        self.start = pygame.time.get_ticks()
+        self.dif = 0
 
 if __name__ == "__main__":
-    width = int(input('Width: '))
-    height = int(input('Height: '))
+    level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = MazeGenerator(width, height, 0)
+    maze_generator = GameGenerator(level, 0)
 
     # Print the maze representation
     maze_generator.print_maze()
