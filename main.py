@@ -1,19 +1,20 @@
 import pygame
+from constants import *
 from drawer import *
 from player import Player
 from game_generator import GameGenerator
 from save import count_saves, order_saves, save, delete_save
 import sys
 import os
+import time
+from math import trunc
+
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 level = 1
 first_unit = 0
-width, height = size
-change_time = pygame.USEREVENT + 1
-time = 60
 game: GameGenerator = GameGenerator(1)
 player: Player = Player('', 0)
 clock = pygame.time.Clock()
@@ -57,8 +58,6 @@ while True:
         unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
-        if 'last_time' in locals():
-            del locals()['last_time']
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
@@ -68,19 +67,17 @@ while True:
         unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
-        last_time = game.time
+        start_time = time.perf_counter()
+        def_time = game.time
     elif game_part == 'play':
+        game.time = game.default - trunc(time.perf_counter() - game.start)
         font = pygame.font.Font('freesansbold.ttf', 32)
-        game.time = time - (pygame.time.get_ticks() - game.start - game.dif) // 1000
-        if 'last_time' in locals(): game.time -= time - last_time
         if first_unit == 0:
             first_unit = unit_size
-            game.start = pygame.time.get_ticks()
         if game.time == 0:
             player.lives -= 1
-            game.reset(time)
+            game.reset(TIME)
             player.coordinate = (0, 0)
-            game.start = pygame.time.get_ticks()
         if player.lives == 0:
             game_part = 'init'
         player.move_player(game)
@@ -90,21 +87,21 @@ while True:
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
-            game.stop = pygame.time.get_ticks()
+            start_pause = time.perf_counter()
             pressed = False
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
             game_part = 'new'
     elif game_part == 'pause':
-        game.dif = pygame.time.get_ticks() - game.stop
         pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
         if pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
+                game.default += trunc(time.perf_counter() - start_pause)
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
-                game.reset(time)
+                game.reset(TIME)
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
                 if count_saves() < 3:

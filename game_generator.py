@@ -1,25 +1,25 @@
+from constants import *
 import random
-from typing import Any, Union
-import pygame
+from typing import Any
+import time
 
 
 class GameGenerator:
-    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], time=60):
+    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], game_time=TIME):
         self.level = level
         self.width = level + 6
         self.height = level + 6
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
-        self.time = time
+        self.time = game_time
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
         else:
             self.maze = maze
-        self.start = pygame.time.get_ticks()
-        self.stop = 0
-        self.dif = 0
+        self.start = time.perf_counter()
+        self.default = game_time
 
     def generate_maze(self):
         # Start at a random cell
@@ -95,7 +95,7 @@ class GameGenerator:
             print(" ".join(["#" if cell else " " for cell in row]))
         print()
 
-    def reset(self, time):
+    def reset(self, game_time):
         p_reset = False
         i = j = 0
         while i < len(self.maze) and not p_reset:
@@ -106,9 +106,8 @@ class GameGenerator:
                 j += 1
             i += 1
         self.maze[0][0] = 'p'
-        self.time = time
-        self.start = pygame.time.get_ticks()
-        self.dif = 0
+        self.start = time.perf_counter()
+        self.default = game_time
 
 if __name__ == "__main__":
     level = int(input('Level: '))

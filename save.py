@@ -117,7 +117,7 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
                 actual_maze.append(actual_line)
                 if row == (level + 6) * 2 - 2:
                     if level > -1 and len(games) < num_games:
-                        game = (game_number, GameGenerator(level=level, maze=actual_maze, time=time), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                        game = (game_number, GameGenerator(level=level, maze=actual_maze, game_time=time), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
                         games.append(game)
                         actual_maze = []
                         game_number = level = bombs = lives = points = skin = row = -1
