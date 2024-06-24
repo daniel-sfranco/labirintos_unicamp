@@ -14,8 +14,6 @@ mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 level = 1
-game: GameGenerator = GameGenerator(1)
-player: Player = Player('', 0)
 while True:
     CLOCK.tick(50)
     for event in pygame.event.get():
@@ -36,6 +34,8 @@ while True:
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
+        game: GameGenerator = GameGenerator(1)
+        player: Player = Player('', 0)
         button_positions = draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
         player = Player('test-player', 0)
@@ -104,7 +104,7 @@ while True:
                 bomb_time = time.perf_counter()
                 bomb_start = bomb_time
                 player.bombs -= 1
-                game.maze[player.coordinate[0]][player.coordinate[1]] += 'b'
+                game.maze[player.coordinate[0]][player.coordinate[1]] += 'ab'
                 bomb_coords = player.coordinate
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1

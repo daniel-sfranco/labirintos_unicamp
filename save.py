@@ -49,6 +49,11 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
             for j in range(len(game.maze[line])):
                 s += str(game.maze[line][j]) + ' '
             save_file.write(s + '\n')
+        for i in range(len(game.first_maze)):
+            s = ''
+            for j in range(len(game.first_maze[i])):
+                s += str(game.first_maze[i][j]) + ' '
+            save_file.write(s + '\n')
 
 
 def delete_save(game_number, file=SAVE):
@@ -60,7 +65,7 @@ def delete_save(game_number, file=SAVE):
             line_index = lines.index(line)
             game_level = int(lines[line_index + 1][7:])
             break
-    total_lines = (game_level + 6) * 2 + 8
+    total_lines = ((game_level + 6) * 2 - 1) * 2 + 8
     for _ in range(total_lines):
         del lines[line_index]
     with open(file, 'w') as save_file:
@@ -89,6 +94,7 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
         game_number = level = bombs = lives = points = time = skin = row = -1
         player_position: tuple[int, int] = (0,0)
         num_games = count_saves(SAVE)
+        first_maze = False
         for line in lines:
             if 'game' in line:
                 game_number = int(line[6:])
@@ -109,20 +115,33 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
             elif 'player position' in line:
                 player_position = (int(line[18:20]), int(line[22:24]))
             else:
-                row += 1
-                actual_line: list[Any] = line.split(' ')
-                for j in actual_line:
-                    if j.isnumeric():
-                        actual_line[actual_line.index(j)] = int(j)
-                actual_line.pop()
-                actual_maze.append(actual_line)
-                if row == (level + 6) * 2 - 2:
-                    if level > -1 and len(games) < num_games:
-                        game = (game_number, GameGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
-                        games.append(game)
-                        actual_maze = []
-                        game_number = level = bombs = lives = points = skin = row = -1
-                        actual_line = []
+                if not isinstance(first_maze, list):
+                    row += 1
+                    actual_line: list[Any] = line.split(' ')
+                    for j in actual_line:
+                        if j.isnumeric():
+                            actual_line[actual_line.index(j)] = int(j)
+                    actual_line.pop()
+                    actual_maze.append(actual_line)
+                    if row == (level + 6) * 2 - 2:
+                        first_maze = []
+                        row = 0
+                else:
+                    row += 1
+                    actual_line: list[Any] = line.split(' ')
+                    for j in actual_line:
+                        if j.isnumeric():
+                            actual_line[actual_line.index(j)] = int(j)
+                    actual_line.pop()
+                    first_maze.append(actual_line)
+                    if row == (level + 6) * 2 - 2:
+                        if level > -1 and len(games) < num_games:
+                            game = (game_number, GameGenerator(level=level, maze=actual_maze, first_maze=first_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                            games.append(game)
+                            actual_maze = []
+                            first_maze = False
+                            game_number = level = bombs = lives = points = skin = row = -1
+                            actual_line = []
     return games
 
 
@@ -137,11 +156,9 @@ def store_save(game: GameGenerator, player: Player) -> None:
         delete_save(game_number)
 
 if __name__ == "__main__":
-    with open('save.che', 'w') as save_file:
-        pass
-    for i in range(1, 4):
-        maze = GameGenerator(i)
-        player = Player('test_player', 0)
-        save(maze, player)
+    game = GameGenerator(2)
+    player = Player('test_player', 0)
+    game.maze[2][0] = 'b'
+    save(game, player)
     order_saves(return_saves())
     #delete_save(1)
