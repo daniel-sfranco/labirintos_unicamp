@@ -93,14 +93,13 @@ def draw_name():
 
 def draw_maze(player, game_object):
     screen.fill(BLACK)
-    wall = pygame.image.load("img/tiles/roomWall12.gif").convert()
+    maze_surface = pygame.Surface(SIZE)
     maze = game_object.maze
     maze_width = maze_height = len(maze)
     unit_size = (3 * WIDTH // 4) // maze_width if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height
     player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
-    wall = pygame.transform.scale(wall, (unit_size, unit_size))
+    wall = pygame.transform.scale(WALL, (unit_size, unit_size))
     player_y = player.coordinate[0] * unit_size
-    player_x = player.coordinate[1] * unit_size
     if player_y > HEIGHT//2:
         dif = player_y - HEIGHT//2
         max = ((len(maze) - 1) * unit_size) - dif
@@ -108,13 +107,26 @@ def draw_maze(player, game_object):
             game_object.player_dif = dif
     else:
         game_object.player_dif = 0
-    for x in range(maze_width):
-        for y in range(maze_height):
-            if maze[y][x] == 1:
-                wall_y = y * unit_size - game_object.player_dif
-                wall_x = x * unit_size
-                screen.blit(wall, (wall_x, wall_y))
-    screen.blit(player.img, (player_x, player_y - game_object.player_dif))
+    for x in range(0, maze_width * unit_size, unit_size):
+        for y in range(0, maze_height * unit_size,unit_size):
+            maze_y = y//unit_size
+            maze_x = x//unit_size
+            if maze[maze_y][maze_x] == 1:
+                maze_surface.blit(wall, (x, y - game_object.player_dif))
+            elif maze[maze_y][maze_x] == 0: pass
+            else:
+                if 'p' in maze[maze_y][maze_x]:
+                    maze_surface.blit(player.img, (x, y - game_object.player_dif))
+                if 'g' in maze[maze_y][maze_x]:
+                    ghost = pygame.transform.scale(GHOST, (unit_size, unit_size))
+                    maze_surface.blit(ghost, (x, y - game_object.player_dif))
+                if 't' in maze[maze_y][maze_x]:
+                    prof = pygame.transform.scale(PROF, (unit_size, unit_size))
+                    maze_surface.blit(prof, (x, y - game_object.player_dif))
+                if 'b' in maze[maze_y][maze_x]:
+                    bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
+                    maze_surface.blit(bomb, (x, y - game_object.player_dif))
+    screen.blit(maze_surface, (0, 0))
     return unit_size
 
 def draw_HUD(game, player):

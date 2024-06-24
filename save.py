@@ -4,7 +4,7 @@ from player import Player
 from os import path
 from constants import *
 
-def count_saves(file) -> int:
+def count_saves(file=SAVE) -> int:
     if path.exists(file):
         with open(file, 'r') as save_file:
             lines = save_file.readlines()
@@ -17,7 +17,7 @@ def count_saves(file) -> int:
     return game
 
 
-def save(game: GameGenerator, player: Player, game_number: int = 0, file='save.che'):
+def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
     num_game = count_saves(file)
     if num_game == 0:
         type = 'w'
@@ -51,7 +51,7 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file='save.c
             save_file.write(s + '\n')
 
 
-def delete_save(game_number, file='save.che'):
+def delete_save(game_number, file=SAVE):
     with open(file, 'r') as save_file:
         lines: list[str] = save_file.readlines()
     game_level = 0
@@ -68,23 +68,23 @@ def delete_save(game_number, file='save.che'):
             save_file.write(line)
 
 
-def order_saves(saves: list[tuple[int, GameGenerator, Player]]) -> None:
+def order_saves(saves: list[tuple[int, GameGenerator, Player]], file=SAVE) -> None:
     saves = sorted(saves, key=lambda x: x[0])
-    with open('save.che', 'w'):
+    with open(file, 'w'):
         i = 1
         for game in saves:
             save(game[1], game[2], i)
             i += 1
 
 
-def return_saves() -> list[tuple[int, GameGenerator, Player]]:
+def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
     games: list[tuple[int, GameGenerator, Player]] = []
     game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name='', skin=0))
     lines: list[str] = []
     actual_maze = []
     name = ''
-    if path.exists('save.che'):
-        with open('save.che', 'r') as save_file:
+    if path.exists(file):
+        with open(file, 'r') as save_file:
             lines: list[str] = save_file.readlines()
         game_number = level = bombs = lives = points = time = skin = row = -1
         player_position: tuple[int, int] = (0,0)
@@ -118,7 +118,7 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
                 actual_maze.append(actual_line)
                 if row == (level + 6) * 2 - 2:
                     if level > -1 and len(games) < num_games:
-                        game = (game_number, GameGenerator(level=level, maze=actual_maze, game_time=time), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
+                        game = (game_number, GameGenerator(level=level, maze=actual_maze), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position))
                         games.append(game)
                         actual_maze = []
                         game_number = level = bombs = lives = points = skin = row = -1

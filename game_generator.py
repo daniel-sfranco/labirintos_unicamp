@@ -5,21 +5,20 @@ import time
 
 
 class GameGenerator:
-    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], game_time=TIME):
+    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = []):
         self.level = level
         self.width = level + 6
         self.height = level + 6
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
-        self.time = game_time
+        self.time = TIME
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
         else:
             self.maze = maze
         self.start = time.perf_counter()
-        self.default = game_time
 
     def generate_maze(self):
         # Start at a random cell
@@ -95,7 +94,7 @@ class GameGenerator:
             print(" ".join(["#" if cell else " " for cell in row]))
         print()
 
-    def reset(self, game_time):
+    def reset(self):
         p_reset = False
         i = j = 0
         while i < len(self.maze) and not p_reset:
@@ -107,7 +106,7 @@ class GameGenerator:
             i += 1
         self.maze[0][0] = 'p'
         self.start = time.perf_counter()
-        self.default = game_time
+        self.default = TIME
 
 
 if __name__ == "__main__":

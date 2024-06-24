@@ -69,17 +69,28 @@ while True:
         def_time = game.time
         level = game.level
     elif game_part == 'play':
-        game.time = game.default - trunc(time.perf_counter() - game.start)
-        font = pygame.font.Font('freesansbold.ttf', 32)
+        game.time = TIME - trunc(time.perf_counter() - game.start)
+        if 'bomb_start' in locals() and 'bomb_coords' in locals():
+            bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
+            if bomb_time <= 0:
+                for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
+                    for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
+                        if i >= 0 and i < len(game.maze) and j >= 0 and j < len(game.maze[i]):
+                            if isinstance(game.maze[i][j], str) and 'p' in game.maze[i][j]:
+                                player.lives -= 1
+                                player.coordinate = (0, 0)
+                                game.reset()
+                            game.maze[i][j] = 0
+                del bomb_start, bomb_coords, bomb_time
         if game.time == 0:
             player.lives -= 1
             if player.lives > 0:
-                game.reset(TIME)
+                game.reset()
                 player.coordinate = (0, 0)
         if player.lives == 0:
             store_save(game, player)
             game_part = 'init'
-        player.move_player(game)
+        next = player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button()
         draw_HUD(game, player)
@@ -88,6 +99,13 @@ while True:
             game_part = 'pause'
             start_pause = time.perf_counter()
             pressed = False
+        if keys[pygame.K_SPACE]:
+            if player.bombs > 0:
+                bomb_time = time.perf_counter()
+                bomb_start = bomb_time
+                player.bombs -= 1
+                game.maze[player.coordinate[0]][player.coordinate[1]] += 'b'
+                bomb_coords = player.coordinate
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
             game_part = 'new'
@@ -100,7 +118,7 @@ while True:
                 game.default += trunc(time.perf_counter() - start_pause)
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
-                game.reset(TIME)
+                game.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
                 if count_saves(SAVE) < 3:
