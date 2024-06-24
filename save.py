@@ -156,7 +156,7 @@ def store_save(game: GameGenerator, player: Player) -> None:
         delete_save(game_number)
 
 if __name__ == "__main__":
-    game = GameGenerator(2)
+    game = GameGenerator(1)
     player = Player('test_player', 0)
     game.maze[2][0] = 'b'
     save(game, player)
