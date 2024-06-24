@@ -14,7 +14,6 @@ mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 level = 1
-first_unit = 0
 game: GameGenerator = GameGenerator(1)
 player: Player = Player('', 0)
 clock = pygame.time.Clock()
@@ -56,6 +55,8 @@ while True:
         game_part = 'play'
         player.coordinate = (0, 0)
         unit_size = draw_maze(player, game)
+        if FIRST_UNIT == 0:
+            FIRST_UNIT = unit_size
         pygame.display.flip()
         drawed_maze = True
     elif 'load' in game_part:
@@ -69,11 +70,10 @@ while True:
         drawed_maze = True
         start_time = time.perf_counter()
         def_time = game.time
+        level = game.level
     elif game_part == 'play':
         game.time = game.default - trunc(time.perf_counter() - game.start)
         font = pygame.font.Font('freesansbold.ttf', 32)
-        if first_unit == 0:
-            first_unit = unit_size
         if game.time == 0:
             player.lives -= 1
             game.reset(TIME)
@@ -82,8 +82,8 @@ while True:
             game_part = 'init'
         player.move_player(game)
         unit_size = draw_maze(player, game)
-        pause_rect = draw_pause_button(first_unit)
-        draw_HUD(lab = level, unit = first_unit, time = game.time, life = player.lives)
+        pause_rect = draw_pause_button()
+        draw_HUD(lab = game.level, time = game.time, life = player.lives)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
