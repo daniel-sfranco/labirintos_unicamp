@@ -12,7 +12,7 @@ A letra p pode se sobrepor a outras letras, tendo um tratamento diferente em cad
 INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN=pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
-TIME=5
+TIME=60
 SAVE='save.che'
 HISTORY='history.che'
 GRAY = (128,128,128,120)
