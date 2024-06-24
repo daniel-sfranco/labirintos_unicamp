@@ -39,11 +39,11 @@ class Player:
                 self.facing_right = True
         else:
             next_coordinate = (y, x)
-        if maze[next_coordinate[0]][next_coordinate[1]] == 0:
+        if maze[next_coordinate[0]][next_coordinate[1]] != 1:
             maze[self.coordinate[0]][self.coordinate[1]] = 0
             self.coordinate = next_coordinate
             pygame.time.delay(150)
-        maze[self.coordinate[0]][self.coordinate[1]] = 'p'
+            maze[self.coordinate[0]][self.coordinate[1]] = 'p'
 
 
     def lose_life(self):

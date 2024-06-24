@@ -109,6 +109,7 @@ class GameGenerator:
         self.start = time.perf_counter()
         self.default = game_time
 
+
 if __name__ == "__main__":
     level = int(input('Level: '))
 

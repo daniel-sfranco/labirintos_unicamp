@@ -3,7 +3,7 @@ from constants import *
 from drawer import *
 from player import Player
 from game_generator import GameGenerator
-from save import count_saves, order_saves, save, delete_save
+from save import count_saves, order_saves, save, delete_save, store_save
 import sys
 import os
 import time
@@ -16,9 +16,8 @@ drawed_maze = False
 level = 1
 game: GameGenerator = GameGenerator(1)
 player: Player = Player('', 0)
-clock = pygame.time.Clock()
 while True:
-    clock.tick(50)
+    CLOCK.tick(50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -55,8 +54,6 @@ while True:
         game_part = 'play'
         player.coordinate = (0, 0)
         unit_size = draw_maze(player, game)
-        if FIRST_UNIT == 0:
-            FIRST_UNIT = unit_size
         pygame.display.flip()
         drawed_maze = True
     elif 'load' in game_part:
@@ -76,14 +73,16 @@ while True:
         font = pygame.font.Font('freesansbold.ttf', 32)
         if game.time == 0:
             player.lives -= 1
-            game.reset(TIME)
-            player.coordinate = (0, 0)
+            if player.lives > 0:
+                game.reset(TIME)
+                player.coordinate = (0, 0)
         if player.lives == 0:
+            store_save(game, player)
             game_part = 'init'
         player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button()
-        draw_HUD(lab = game.level, time = game.time, life = player.lives)
+        draw_HUD(game, player)
         pygame.display.flip()
         if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
@@ -104,7 +103,7 @@ while True:
                 game.reset(TIME)
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
-                if count_saves() < 3:
+                if count_saves(SAVE) < 3:
                     save(game, player)
                 else:
                     game_part = 'over_save'
@@ -159,7 +158,7 @@ while True:
                         game_number = int(buttons[i].replace('game ', ''))
                         delete_save(game_number)
                         save(game=game, player=player, game_number=game_number)
-                        now_saves = count_saves()
+                        now_saves = count_saves(SAVE)
                         order_saves(return_saves())
                         game_part = 'pause'
                         pressed = False

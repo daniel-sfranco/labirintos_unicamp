@@ -2,10 +2,11 @@ from typing import Any
 from game_generator import GameGenerator
 from player import Player
 from os import path
+from constants import *
 
-def count_saves() -> int:
-    if path.exists('save.che'):
-        with open('save.che', 'r') as save_file:
+def count_saves(file) -> int:
+    if path.exists(file):
+        with open(file, 'r') as save_file:
             lines = save_file.readlines()
             game = 0
             for line in lines:
@@ -16,13 +17,13 @@ def count_saves() -> int:
     return game
 
 
-def save(game: GameGenerator, player: Player, game_number: int = 0):
-    num_game = count_saves()
+def save(game: GameGenerator, player: Player, game_number: int = 0, file='save.che'):
+    num_game = count_saves(file)
     if num_game == 0:
         type = 'w'
     else:
         type = 'a'
-    with open('save.che', type) as save_file:
+    with open(file, type) as save_file:
         if game_number == 0:
             save_file.write(f'game: {num_game + 1}\n')
         else:
@@ -50,8 +51,8 @@ def save(game: GameGenerator, player: Player, game_number: int = 0):
             save_file.write(s + '\n')
 
 
-def delete_save(game_number):
-    with open('save.che', 'r') as save_file:
+def delete_save(game_number, file='save.che'):
+    with open(file, 'r') as save_file:
         lines: list[str] = save_file.readlines()
     game_level = 0
     for line in lines:
@@ -62,7 +63,7 @@ def delete_save(game_number):
     total_lines = (game_level + 6) * 2 + 8
     for _ in range(total_lines):
         del lines[line_index]
-    with open('save.che', 'w') as save_file:
+    with open(file, 'w') as save_file:
         for line in lines:
             save_file.write(line)
 
@@ -87,7 +88,7 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
             lines: list[str] = save_file.readlines()
         game_number = level = bombs = lives = points = time = skin = row = -1
         player_position: tuple[int, int] = (0,0)
-        num_games = count_saves()
+        num_games = count_saves(SAVE)
         for line in lines:
             if 'game' in line:
                 game_number = int(line[6:])
@@ -123,6 +124,17 @@ def return_saves() -> list[tuple[int, GameGenerator, Player]]:
                         game_number = level = bombs = lives = points = skin = row = -1
                         actual_line = []
     return games
+
+
+def store_save(game: GameGenerator, player: Player) -> None:
+    games = return_saves()
+    for g in games:
+        if g[1] == game and g[2] == player:
+            game_number = g[0]
+            break
+    save(game, player, file='history.che')
+    if 'game_number' in locals():
+        delete_save(game_number)
 
 if __name__ == "__main__":
     with open('save.che', 'w') as save_file:

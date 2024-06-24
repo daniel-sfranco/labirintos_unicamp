@@ -117,7 +117,12 @@ def draw_maze(player, game_object):
     screen.blit(player.img, (player_x, player_y - game_object.player_dif))
     return unit_size
 
-def draw_HUD(lab = 1, life = 3, bombs = 3, points = 0, time = 0):
+def draw_HUD(game, player):
+    lab = game.level
+    points = player.points
+    time = game.time
+    life = player.lives
+    bombs = player.bombs
     hud = pygame.Surface((SIZE), pygame.SRCALPHA)
     hud_height = HEIGHT//1.3
     hud_y = ((HEIGHT * 1.05) - hud_height)/2
@@ -130,19 +135,19 @@ def draw_HUD(lab = 1, life = 3, bombs = 3, points = 0, time = 0):
     mini_size = FIRST_UNIT*0.35
     for i in range(len(text)):
         if i == 3:
+            heart_size = (mini_size, mini_size)
+            heart_icon = pygame.image.load('img/heart.png')
+            heart_icon = pygame.transform.scale(heart_icon, heart_size)
             for j in range(life):
-                heart_size = (mini_size, mini_size)
-                heart_icon = pygame.image.load('img/heart.png')
-                heart_icon = pygame.transform.scale(heart_icon, heart_size)
                 heart_rect = pygame.Rect(hud_x + (hud_width / (i+1.8)) + j*mini_size, hud_y + (hud_height/(height_div/1)), mini_size, mini_size)
                 hud.blit(heart_icon, heart_rect)
         elif i == 4:
+            bomb_size = (mini_size, mini_size)
+            bomb_icon = pygame.image.load('img/items/shortSword.gif')
+            bomb_icon = pygame.transform.scale(bomb_icon, bomb_size)
             for j in range(bombs):
-                bomb_size = (mini_size, mini_size)
-                bomb_icon = pygame.image.load('img/items/bomb.png')
-                bomb_icon = pygame.transform.scale(bomb_icon, bomb_size)
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i+0.8)) + j*mini_size, hud_y + (hud_height/(height_div/1.2)), mini_size , mini_size)
-                hud.blit(bomb_icon, heart_rect)
+                bomb_rect = pygame.Rect(hud_x + (hud_width / (i+0.8)) + j*mini_size, hud_y + (hud_height/(height_div/1.2)), mini_size , mini_size)
+                hud.blit(bomb_icon, bomb_rect)
         else:
             height_div = (5/(i+1))
             text_surface = font.render(text[i], True, WHITE)
@@ -153,7 +158,7 @@ def draw_HUD(lab = 1, life = 3, bombs = 3, points = 0, time = 0):
 
 def draw_pause_menu(player, game):
     draw_maze(player, game)
-    draw_HUD(lab = game.level, time = game.time, life = player.lives)
+    draw_HUD(game, player)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
     pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)

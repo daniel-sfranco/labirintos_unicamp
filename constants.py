@@ -3,13 +3,16 @@ pygame.init()
 INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN=pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
-TIME=60
+TIME=10
+SAVE='save.che'
+HISTORY='history.che'
 GRAY = (128,128,128,120)
 DARKGRAY = '#282828'
 WHITE = '#FFFFFF'
 BLACK = '#000000'
 FIRST_LEVEL = 1
 FIRST_UNIT = (3 * WIDTH // 4) // (6 + FIRST_LEVEL) if WIDTH > HEIGHT else (3 * HEIGHT // 4) // (6 + FIRST_LEVEL)
+CLOCK = pygame.time.Clock()
 button_backgroundcolor = WHITE
 button_textcolor = BLACK
 button_width = WIDTH//3
