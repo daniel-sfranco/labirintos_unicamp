@@ -96,7 +96,7 @@ def draw_maze(player, game_object):
     maze_surface = pygame.Surface(SIZE)
     maze = game_object.maze
     maze_width = maze_height = len(maze)
-    unit_size = (3 * WIDTH // 4) // maze_width if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height
+    unit_size = (3 * WIDTH // 4) // maze_width + 1 if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height + 1
     player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
     wall = pygame.transform.scale(WALL, (unit_size, unit_size))
     player_y = player.coordinate[0] * unit_size
