@@ -23,37 +23,43 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
         type = 'w'
     else:
         type = 'a'
-    with open(file, type) as save_file:
-        if game_number == 0:
-            save_file.write(f'game: {num_game + 1}\n')
-        else:
-            save_file.write(f'game: {game_number}\n')
-        save_file.write(f'level: {game.level}\n')
-        save_file.write(f'name: {player.name}\n')
-        save_file.write(f'points: {player.points}\n')
-        save_file.write(f'lives: {player.lives}\n')
-        save_file.write(f'time: {game.time}\n')
-        save_file.write(f'bombs: {player.bombs}\n')
-        save_file.write(f'skin: {player.skin}\n')
-        c = '('
-        for line in player.coordinate:
-            if line // 10 == 0:
-                c += '0' + str(line)
+    if file == SAVE:
+        with open(file, type) as save_file:
+            if game_number == 0:
+                save_file.write(f'game: {num_game + 1}\n')
             else:
-                c += str(line)
-            c += ', '
-        c = c[:-2] + ')'
-        save_file.write(f'player position: {c}\n')
-        for line in range(len(game.maze)):
-            s = ''
-            for j in range(len(game.maze[line])):
-                s += str(game.maze[line][j]) + ' '
-            save_file.write(s + '\n')
-        for i in range(len(game.first_maze)):
-            s = ''
-            for j in range(len(game.first_maze[i])):
-                s += str(game.first_maze[i][j]) + ' '
-            save_file.write(s + '\n')
+                save_file.write(f'game: {game_number}\n')
+            save_file.write(f'level: {game.level}\n')
+            save_file.write(f'name: {player.name}\n')
+            save_file.write(f'points: {player.points}\n')
+            save_file.write(f'lives: {player.lives}\n')
+            save_file.write(f'time: {game.time}\n')
+            save_file.write(f'bombs: {player.bombs}\n')
+            save_file.write(f'skin: {player.skin}\n')
+            c = '('
+            for line in player.coordinate:
+                if line // 10 == 0:
+                    c += '0' + str(line)
+                else:
+                    c += str(line)
+                c += ', '
+            c = c[:-2] + ')'
+            save_file.write(f'player position: {c}\n')
+            for line in range(len(game.maze)):
+                s = ''
+                for j in range(len(game.maze[line])):
+                    s += str(game.maze[line][j]) + ' '
+                save_file.write(s + '\n')
+            for i in range(len(game.first_maze)):
+                s = ''
+                for j in range(len(game.first_maze[i])):
+                    s += str(game.first_maze[i][j]) + ' '
+                save_file.write(s + '\n')
+    elif file == HISTORY:
+        with open(file, type) as history_file:
+            history_file.write(f'name: {player.name}\n')
+            history_file.write(f'level: {game.level}\n')
+            history_file.write(f'points: {player.points}\n')
 
 
 def delete_save(game_number, file=SAVE):

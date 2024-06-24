@@ -115,8 +115,6 @@ def draw_maze(player, game_object):
                 maze_surface.blit(wall, (x, y - game_object.player_dif))
             elif maze[maze_y][maze_x] == 0: pass
             else:
-                if 'p' in maze[maze_y][maze_x]:
-                    maze_surface.blit(player.img, (x, y - game_object.player_dif))
                 if 'g' in maze[maze_y][maze_x]:
                     ghost = pygame.transform.scale(GHOST, (unit_size, unit_size))
                     maze_surface.blit(ghost, (x, y - game_object.player_dif))
@@ -126,6 +124,7 @@ def draw_maze(player, game_object):
                 if 'b' in maze[maze_y][maze_x]:
                     bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
                     maze_surface.blit(bomb, (x, y - game_object.player_dif))
+    maze_surface.blit(player.img, (player.coordinate[1] * unit_size, player.coordinate[0] * unit_size - game_object.player_dif))
     screen.blit(maze_surface, (0, 0))
     return unit_size
 

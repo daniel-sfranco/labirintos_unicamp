@@ -103,7 +103,11 @@ class GameGenerator:
         print()
 
     def reset(self):
-        self.maze = self.first_maze
+        self.maze = []
+        for i in self.first_maze:
+            self.maze.append([])
+            for j in i:
+                self.maze[self.first_maze.index(i)].append(j)
         self.start = time.perf_counter()
         self.default = TIME
 
