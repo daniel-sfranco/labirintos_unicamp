@@ -3,7 +3,7 @@ move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K
 
 
 class Player:
-    def __init__(self, name: str, skin: int, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple[int, int] = (0,0)) -> None:
+    def __init__(self, name: str, skin: int = 0, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
         self.name = name
         self.points = points
         self.lives = lives
@@ -11,6 +11,7 @@ class Player:
         self.coordinate = coordinate
         self.facing_right = True
         self.skin = skin
+        self.level = level
         if self.skin == 0:
             self.img = pygame.image.load('img/player/human.gif').convert()
 
@@ -62,8 +63,3 @@ class Player:
             pygame.time.delay(150)
             maze[next_coordinate[0]][next_coordinate[1]] = next
             self.coordinate = next_coordinate
-
-    def lose_life(self):
-        self.lives -= 1
-        if self.lives == 0:
-            raise Exception('Game Over')

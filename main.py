@@ -56,6 +56,7 @@ while True:
         unit_size = draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
+        game.time_dif = TIME - game.time
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
@@ -66,10 +67,10 @@ while True:
         pygame.display.flip()
         drawed_maze = True
         start_time = time.perf_counter()
-        def_time = game.time
         level = game.level
+        game.time_dif = TIME - game.time
     elif game_part == 'play':
-        game.time = TIME - trunc(time.perf_counter() - game.start)
+        game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
@@ -87,6 +88,7 @@ while True:
             if player.lives > 0:
                 game.reset()
                 player.coordinate = (0, 0)
+                continue
         if player.lives == 0:
             store_save(game, player)
             game_part = 'init'
@@ -108,6 +110,7 @@ while True:
                 bomb_coords = player.coordinate
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
+            game.reset()
             game_part = 'new'
     elif game_part == 'pause':
         pause_menu = draw_pause_menu(player, game)
@@ -115,7 +118,7 @@ while True:
         if pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
-                game.default += trunc(time.perf_counter() - start_pause)
+                game.time_dif -= trunc(time.perf_counter() - start_pause)
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
                 game.reset()
@@ -153,7 +156,7 @@ while True:
                         if os.path.exists('save.che'):
                             os.remove('save.che')
                     else:
-                        game_part = f'load{buttons[i].replace('game ', '')}'
+                        game_part = f'load{buttons[i].replace("game ", "")}'
                         pressed = False
                         break
     elif game_part == 'over_save':

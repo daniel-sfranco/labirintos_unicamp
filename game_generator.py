@@ -2,17 +2,19 @@ from constants import *
 import random
 from typing import Any
 import time
+from student import set_students, Student
 
 
 class GameGenerator:
-    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], first_maze = []):
+    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], first_maze = [], act_time=TIME):
         self.level = level
         self.width = level + 6
         self.height = level + 6
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
         self.profs = profs
-        self.time = TIME
+        self.time = act_time
+        self.time_dif = TIME - act_time
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
@@ -39,6 +41,9 @@ class GameGenerator:
         # Recursively generate the maze starting from the current cell
         self.generate_maze_recursive(current_cell, closed)
         self.maze[0][0] = 'p'
+        students = set_students(self)
+        for student in students:
+            self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
         return self.maze
 
     def generate_maze_recursive(self, cell, closed):
@@ -104,12 +109,13 @@ class GameGenerator:
 
     def reset(self):
         self.maze = []
-        for i in self.first_maze:
+        for i in range(len(self.first_maze)):
             self.maze.append([])
-            for j in i:
-                self.maze[self.first_maze.index(i)].append(j)
+            for j in range(len(self.first_maze[i])):
+                self.maze[i].append(self.first_maze[i][j])
         self.start = time.perf_counter()
-        self.default = TIME
+        self.time_dif = 0
+        self.time = TIME
 
 
 if __name__ == "__main__":
