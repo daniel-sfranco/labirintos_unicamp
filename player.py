@@ -1,9 +1,11 @@
 import pygame
+from questions import ask_question
+from constants import SPEED, BOMBS, LIVES
 move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
 
 
 class Player:
-    def __init__(self, name: str, skin: int = 0, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
+    def __init__(self, name: str, skin: int = 0, points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
         self.name = name
         self.points = points
         self.lives = lives
@@ -53,13 +55,17 @@ class Player:
             if next == 0:
                 next = 'p'
             elif next == 'b':
-                next = 'p'
                 self.bombs += 1
+            elif next == 's' or next == 't':
+                question = ask_question()
+                print(question)
+                pygame.time.delay(SPEED)
+                return 0
             elif next == 0:
                 next_coordinate = self.coordinate
             else:
-                return next
+                return 0
             maze[self.coordinate[0]][self.coordinate[1]] = first
-            pygame.time.delay(150)
+            pygame.time.delay(SPEED)
             maze[next_coordinate[0]][next_coordinate[1]] = next
             self.coordinate = next_coordinate

@@ -9,9 +9,11 @@ import os
 import time
 from math import trunc
 
+from teacher import set_teachers
+
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
-pressed = False
+key_pressed = mouse_pressed = False
 drawed_maze = False
 level = 1
 while True:
@@ -28,9 +30,9 @@ while True:
                     game_part = 'play'
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            pressed = True
+            mouse_pressed = True
         else:
-            pressed = False
+            mouse_pressed = False
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
@@ -39,12 +41,12 @@ while True:
         button_positions = draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
         player = Player('test-player', 0)
-        if pressed:
+        if mouse_pressed:
             for i in range(len(button_positions)):
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
                     game_part = buttons[i]
                     break
-            pressed = False
+            mouse_pressed = False
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
             game_part = 'new'
     elif game_part == 'new':
@@ -74,6 +76,7 @@ while True:
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
+                key_pressed = False
                 for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
                     for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
                         if i >= 0 and i < len(game.maze) and j >= 0 and j < len(game.maze[i]):
@@ -97,12 +100,13 @@ while True:
         pause_rect = draw_pause_button()
         draw_HUD(game, player)
         pygame.display.flip()
-        if pressed and pause_rect.collidepoint(mouse_x, mouse_y):
+        if mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y):
             game_part = 'pause'
             start_pause = time.perf_counter()
-            pressed = False
-        if keys[pygame.K_SPACE]:
+            mouse_pressed = False
+        if keys[pygame.K_SPACE] and not key_pressed:
             if player.bombs > 0:
+                key_pressed = True
                 bomb_time = time.perf_counter()
                 bomb_start = bomb_time
                 player.bombs -= 1
@@ -110,12 +114,11 @@ while True:
                 bomb_coords = player.coordinate
         if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
             level += 1
-            game.reset()
             game_part = 'new'
     elif game_part == 'pause':
         pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
-        if pressed:
+        if mouse_pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
                 game.time_dif -= trunc(time.perf_counter() - start_pause)
@@ -135,7 +138,7 @@ while True:
                 screen.fill('black')
                 drawed_maze = False
                 game_part = 'init'
-            pressed = False
+            mouse_pressed = False
     elif game_part == 'select_save':
         save_menu = draw_select_save()
         saves = return_saves()
@@ -145,19 +148,19 @@ while True:
             buttons.append(f'game {i}')
         buttons.append('clear')
         buttons.append('back')
-        if pressed:
+        if mouse_pressed:
             for i in range(len(save_menu)):
                 if save_menu[i].collidepoint(mouse_x, mouse_y):
                     if buttons[i] == 'back':
                         game_part = 'init'
-                        pressed = False
+                        mouse_pressed = False
                         break
                     elif buttons[i] == 'clear':
                         if os.path.exists('save.che'):
                             os.remove('save.che')
                     else:
                         game_part = f'load{buttons[i].replace("game ", "")}'
-                        pressed = False
+                        mouse_pressed = False
                         break
     elif game_part == 'over_save':
         save_menu = draw_select_save('delete', player, game)
@@ -166,12 +169,12 @@ while True:
             buttons.append(f'game {i}')
         buttons.append('clear')
         buttons.append('back')
-        if pressed:
+        if mouse_pressed:
             for i in range(len(save_menu)):
                 if save_menu[i].collidepoint(mouse_x, mouse_y):
                     if buttons[i] == 'back':
                         game_part = 'pause'
-                        pressed = False
+                        mouse_pressed = False
                         break
                     elif buttons[i] == 'clear':
                         if os.path.exists('save.che'): os.remove('save.che')
@@ -182,7 +185,7 @@ while True:
                         now_saves = count_saves(SAVE)
                         order_saves(return_saves())
                         game_part = 'pause'
-                        pressed = False
+                        mouse_pressed = False
                         break
     elif game_part == 'quit':
         pygame.quit()
