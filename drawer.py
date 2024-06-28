@@ -193,3 +193,30 @@ def draw_pause_menu(player, game):
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
     return menu
+
+def draw_game_over(game,player):
+   draw_maze(player, game)
+   draw_HUD(game, player)
+   surface = pygame.Surface((SIZE), pygame.SRCALPHA)
+   pygame.draw.rect(surface, RED, [0, 0, WIDTH, HEIGHT])
+   pygame.draw.rect(surface, BLACK, [menu_x, menu_y*1.3, menu_width, menu_height*0.7], 0, 20)
+
+   title = subfont.render('FIM DE JOGO', True, WHITE)
+   title_rect = title.get_rect()
+   title_rect.top = HEIGHT//10
+   title_rect.centerx = WIDTH//2
+   surface.blit(title, title_rect)
+
+   button_distance = HEIGHT//10
+   button_y = [(WIDTH//6 + i * button_distance)*1.2 for i in range(3)]
+   button_text = ['Novo jogo', 'Exibir ganhadores', 'Sair']
+   menu:list[pygame.Rect] = []
+   for i in range(3):
+       text_surface = textfont.render(button_text[i], True, button_textcolor)
+       text_rect = text_surface.get_rect(center=(button_centerx + (button_width / 2), button_y[i] + (button_height/2)))
+       rect = pygame.draw.rect(surface, button_backgroundcolor, (button_centerx, button_y[i], button_width, button_height))
+       surface.blit(text_surface, text_rect)
+       menu.append(rect)
+   screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+
+   return menu
