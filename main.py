@@ -53,7 +53,6 @@ while True:
             game_part = 'new'
     elif game_part == 'new':
         if not drawed_maze:
-            draw_character_sel()
             player = Player('test_player')
             level = 1
         game = GameGenerator(level, 0)
@@ -90,14 +89,11 @@ while True:
                 for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
                     for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
                         if i >= 0 and i < len(game.maze) and j >= 0 and j < len(game.maze[i]):
-<<<<<<< HEAD
                             if isinstance(game.maze[i][j], str) and 'p' in game.maze[i][j]:
                                 player.lives -= 1
                                 if player.lives > 0:
                                     player.coordinate = (0,0)
                                 game.reset()
-=======
->>>>>>> 7b4c289 (Starting resolving bombs)
                             game.maze[i][j] = 0
                 bomb_start = -1
         if game.time == 0:
