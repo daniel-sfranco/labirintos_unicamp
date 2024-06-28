@@ -100,13 +100,13 @@ def draw_maze(player, game_object):
     player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
     wall = pygame.transform.scale(WALL, (unit_size, unit_size))
     player_y = player.coordinate[0] * unit_size
-    if player_y > HEIGHT//2:
-        dif = player_y - HEIGHT//2
-        max = ((len(maze) - 1) * unit_size) - dif
-        if max >= HEIGHT - 2 * unit_size:
-            game_object.player_dif = dif
-    else:
-        game_object.player_dif = 0
+    dif = 0
+    max = len(maze) * unit_size
+    while player_y > HEIGHT//2 and max > HEIGHT:
+        dif += unit_size
+        player_y -= unit_size
+        max -= unit_size
+    game_object.player_dif = dif
     for x in range(0, maze_width * unit_size, unit_size):
         for y in range(0, maze_height * unit_size,unit_size):
             maze_y = y//unit_size
