@@ -3,7 +3,7 @@ import random
 from typing import Any
 import time
 from student import set_students, Student
-from prof import Teacher, set_teachers
+from teacher import Teacher, set_teachers
 
 
 class GameGenerator:

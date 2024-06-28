@@ -8,7 +8,7 @@ import sys
 import os
 import time
 from math import trunc
-from prof import set_teachers
+from teacher import set_teachers
 
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
