@@ -220,3 +220,6 @@ def draw_game_over(game,player):
    screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
    return menu
+
+def draw_character_sel():
+    return
