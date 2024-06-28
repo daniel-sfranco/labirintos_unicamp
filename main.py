@@ -14,6 +14,7 @@ mouse_x, mouse_y = 0, 0
 pressed = False
 drawed_maze = False
 level = 1
+saved = False
 while True:
     CLOCK.tick(50)
     for event in pygame.event.get():
@@ -24,7 +25,7 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 if game_part == 'play':
                     game_part = 'pause'
-                else:
+                elif game_part == 'pause':
                     game_part = 'play'
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -49,6 +50,7 @@ while True:
             game_part = 'new'
     elif game_part == 'new':
         if not drawed_maze:
+            player = Player('test_player')
             level = 1
         game = GameGenerator(level, 0)
         game_part = 'play'
@@ -90,8 +92,7 @@ while True:
                 player.coordinate = (0, 0)
                 continue
         if player.lives == 0:
-            store_save(game, player)
-            game_part = 'init'
+            game_part = 'game_over'
         next = player.move_player(game)
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button()
@@ -112,6 +113,25 @@ while True:
             level += 1
             game.reset()
             game_part = 'new'
+    elif game_part == 'game_over':
+        over_menu = draw_game_over(game, player)
+        if saved == False:
+            store_save(game, player)
+            saved = True
+        pygame.display.flip()
+        if pressed:
+            if over_menu[0].collidepoint(mouse_x, mouse_y):
+                drawed_maze = False
+                saved = False
+                game_part = 'new'
+            elif over_menu[1].collidepoint(mouse_x, mouse_y):
+                print(":)")
+            elif over_menu[2].collidepoint(mouse_x, mouse_y):
+                screen.fill('black')
+                drawed_maze = False
+                saved = False
+                game_part = 'init'
+            pressed = False
     elif game_part == 'pause':
         pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
