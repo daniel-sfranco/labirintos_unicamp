@@ -25,7 +25,7 @@ def set_students(game):
             else:
                 if 'name' in locals() and level == game.level:
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinates))
-    if len(students) < game.level + 2:
+    if len(students) < game.level:
         i = len(students)
         while i < game.level + 2:
             name = 'Student' + str(i + 1)

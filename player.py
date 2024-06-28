@@ -56,6 +56,7 @@ class Player:
                 next = 'p'
             elif next == 'b':
                 self.bombs += 1
+                next = 'p'
             elif next == 's' or next == 't':
                 question = ask_question()
                 print(question)
