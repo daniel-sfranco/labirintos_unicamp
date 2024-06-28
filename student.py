@@ -27,11 +27,12 @@ def set_students(game):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinates))
     if len(students) < game.level + 2:
         i = len(students)
-        while i < 3:
+        while i < game.level + 2:
             name = 'Student' + str(i + 1)
             level = game.level
             points = 0
             coordinate = (choice(range(len(game.maze))), choice(range(len(game.maze[0]))))
+            if coordinate == (len(game.maze), len(game.maze[-1])): continue
             students.append(Student(name=name, level=level, points=points, coordinate=coordinate))
             i += 1
     return students

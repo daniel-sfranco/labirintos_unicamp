@@ -3,6 +3,7 @@ import random
 from typing import Any
 import time
 from student import set_students, Student
+from teacher import Teacher, set_teachers
 
 
 class GameGenerator:
@@ -44,6 +45,9 @@ class GameGenerator:
         students = set_students(self)
         for student in students:
             self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
+        teachers: list[Teacher] = set_teachers(self)
+        for teacher in teachers:
+            self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
         return self.maze
 
     def generate_maze_recursive(self, cell, closed):
@@ -102,11 +106,6 @@ class GameGenerator:
             self.grid[wall_x][y1] = 1  # Mark the wall as removed
             return (min(x1, x2) * 2 + 1, y1 * 2)
 
-    def print_maze(self):
-        for row in self.maze:
-            print(" ".join(["#" if cell else " " for cell in row]))
-        print()
-
     def reset(self):
         self.maze = []
         for i in range(len(self.first_maze)):
@@ -124,5 +123,3 @@ if __name__ == "__main__":
     # Create a maze generator instance and specify the maze dimensions
     maze_generator = GameGenerator(level, 0)
 
-    # Print the maze representation
-    maze_generator.print_maze()

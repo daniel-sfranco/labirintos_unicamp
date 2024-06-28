@@ -1,3 +1,6 @@
+from random import randint
+
+
 class Question:
     def __init__(self, number):
         self.number = number
@@ -23,6 +26,11 @@ class Question:
 {self.b}
 {self.c}
 {self.d}"""
+
+def ask_question():
+    num_question = randint(1, 100)
+    question = Question(num_question)
+    return question
 
 if __name__ == "__main__":
     num = int(input())

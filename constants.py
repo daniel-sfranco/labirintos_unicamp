@@ -13,6 +13,9 @@ INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN=pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
 TIME=60
+SPEED=150
+BOMBS=3
+LIVES=3
 SAVE='save.che'
 HISTORY='history.che'
 GRAY = (128,128,128,120)
