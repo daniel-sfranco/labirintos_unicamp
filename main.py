@@ -77,20 +77,29 @@ while True:
         game.time_dif = TIME - game.time
     elif game_part == 'play':
         game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
-        if 'bomb_start' in locals() and 'bomb_coords' in locals():
+        if 'bomb_start' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
                 key_pressed = False
+                if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
+                    player.lives -= 1
+                    player.coordinate = (0, 0)
+                    game.reset()
+                    bomb_start = -1
+                    continue
                 for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
                     for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
                         if i >= 0 and i < len(game.maze) and j >= 0 and j < len(game.maze[i]):
+<<<<<<< HEAD
                             if isinstance(game.maze[i][j], str) and 'p' in game.maze[i][j]:
                                 player.lives -= 1
                                 if player.lives > 0:
                                     player.coordinate = (0,0)
                                 game.reset()
+=======
+>>>>>>> 7b4c289 (Starting resolving bombs)
                             game.maze[i][j] = 0
-                del bomb_start, bomb_coords, bomb_time
+                bomb_start = -1
         if game.time == 0:
             player.lives -= 1
             if player.lives > 0:
@@ -106,6 +115,7 @@ while True:
         pygame.display.flip()
         if (mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y)):
             game_part = 'pause'
+            start_pause = time.perf_counter()
             mouse_pressed = False
         if keys[pygame.K_SPACE] and not key_pressed:
             if player.bombs > 0:
@@ -146,6 +156,7 @@ while True:
                 game.time_dif -= trunc(time.perf_counter() - start_pause)
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
+                player.lives = 3
                 game.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
