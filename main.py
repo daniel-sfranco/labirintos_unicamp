@@ -8,8 +8,7 @@ import sys
 import os
 import time
 from math import trunc
-
-from teacher import set_teachers
+from prof import set_teachers
 
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
@@ -26,8 +25,10 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 if game_part == 'play':
+                    start_pause = time.perf_counter()
                     game_part = 'pause'
                 elif game_part == 'pause':
+                    game.time_dif -= trunc(time.perf_counter() - start_pause)
                     game_part = 'play'
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -101,9 +102,8 @@ while True:
         pause_rect = draw_pause_button()
         draw_HUD(game, player)
         pygame.display.flip()
-        if mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y):
+        if (mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y)):
             game_part = 'pause'
-            start_pause = time.perf_counter()
             mouse_pressed = False
         if keys[pygame.K_SPACE] and not key_pressed:
             if player.bombs > 0:
@@ -122,7 +122,7 @@ while True:
             store_save(game, player)
             saved = True
         pygame.display.flip()
-        if pressed:
+        if mouse_pressed:
             if over_menu[0].collidepoint(mouse_x, mouse_y):
                 drawed_maze = False
                 saved = False
@@ -134,7 +134,7 @@ while True:
                 drawed_maze = False
                 saved = False
                 game_part = 'init'
-            pressed = False
+            mouse_pressed = False
     elif game_part == 'pause':
         pause_menu = draw_pause_menu(player, game)
         pygame.display.flip()
