@@ -3,7 +3,7 @@ move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K
 
 
 class Player:
-    def __init__(self, name: str, skin: int = 0, points: int = 0, lives: int = 1, bombs: int = 3, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
+    def __init__(self, name: str, skin: int = 0, points: int = 0, lives: int = 3, bombs: int = 0, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
         self.name = name
         self.points = points
         self.lives = lives
