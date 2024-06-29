@@ -25,7 +25,7 @@ def set_students(game):
                 coordinates = tuple(map(int, line[14:-2].split(', ')))
             else:
                 num = line[6:]
-                if 'name' in locals() and level == game.level:
+                if 'name' in locals() and level == game.level and coordinates != (0,0):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinates, num=num))
     if len(students) < game.level:
         i = len(students)

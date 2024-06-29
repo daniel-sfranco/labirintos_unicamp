@@ -2,18 +2,17 @@ from constants import *
 import random
 from typing import Any
 import time
-from student import set_students, Student
+from student import set_students
 from teacher import Teacher, set_teachers
 
 
 class GameGenerator:
-    def __init__(self, level: int, profs:int = 3, maze: list[list[Any]] = [], first_maze = [], act_time=TIME):
+    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze = [], act_time=TIME):
         self.level = level
         self.width = level + 6
         self.height = level + 6
         self.grid = [[0 for _ in range(self.width)] for _ in range(self.height)]  # Initialize grid as 0s
         self.player_dif = 0
-        self.profs = profs
         self.time = act_time
         self.time_dif = TIME - act_time
         if maze == []:
@@ -45,8 +44,8 @@ class GameGenerator:
         students = set_students(self)
         for student in students:
             self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
-        teachers: list[Teacher] = set_teachers(self)
-        for teacher in teachers:
+        self.teachers: list[Teacher] = set_teachers(self)
+        for teacher in self.teachers:
             self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
         return self.maze
 
@@ -113,6 +112,8 @@ class GameGenerator:
             for j in range(len(self.first_maze[i])):
                 self.maze[i].append(self.first_maze[i][j])
         self.start = time.perf_counter()
+        for teacher in self.teachers:
+            teacher.coordinate = teacher.first_coordinate
         self.time_dif = 0
         self.time = TIME
 
@@ -121,5 +122,5 @@ if __name__ == "__main__":
     level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = GameGenerator(level, 0)
+    maze_generator = GameGenerator(level)
 

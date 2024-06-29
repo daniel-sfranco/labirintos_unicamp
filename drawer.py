@@ -128,6 +128,7 @@ def draw_maze(player, game_object):
     screen.blit(maze_surface, (0, 0))
     return unit_size
 
+
 def draw_HUD(game, player):
     lab = game.level
     points = player.points
@@ -193,6 +194,7 @@ def draw_pause_menu(player, game):
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
     return menu
+
 
 def draw_game_over(game,player):
    draw_maze(player, game)
