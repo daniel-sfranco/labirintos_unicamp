@@ -1,17 +1,12 @@
-from cgitb import text
-import pygame
+import pygame, sys, os, time
 from constants import *
 from drawer import *
 from player import Player
 from game_generator import GameGenerator
 from save import count_saves, order_saves, save, delete_save, store_save
-import sys
-import os
-import time
 from math import trunc
 from teacher import set_teachers
 from questions import ask_question
-
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 key_pressed = mouse_pressed = False
@@ -19,7 +14,8 @@ drawed_maze = False
 level = 1
 saved = False
 user_input = ''
-while True:
+def check_events():
+    global mouse_x, mouse_y, mouse_pressed, user_input, game_part
     CLOCK.tick(50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -50,12 +46,13 @@ while True:
             mouse_pressed = False
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
+    return keys, mouse
+
+while True:
+    keys, mouse = check_events()
     if game_part == 'init':
-        game: GameGenerator = GameGenerator(1)
-        player: Player = Player('', 0)
         button_positions = draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
-        player = Player('test-player', 0)
         if mouse_pressed:
             for i in range(len(button_positions)):
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
@@ -77,6 +74,7 @@ while True:
             game.time_dif = TIME - game.time
     elif game_part == "character_sel":
         buttons_char = draw_character_sel(user_input)
+        player: Player = Player('')
         if mouse_pressed:
             if buttons_char[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'init'
@@ -88,14 +86,6 @@ while True:
             mouse_pressed = False
             player = Player('test_player')
             level = 1
-        game = GameGenerator(level)
-        game_part = 'play'
-        player.coordinate = (0, 0)
-        unit_size = draw_maze(player, game)
-        pygame.display.flip()
-        drawed_maze = True
-        game.time_dif = TIME - game.time
-        teachers = set_teachers(game)
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
@@ -113,22 +103,8 @@ while True:
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
+                player = game.detonate(player, bomb_coords, bomb_start)
                 key_pressed = False
-                if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
-                    player.lives -= 1
-                    player.coordinate = (0, 0)
-                    game.reset()
-                    del bomb_coords, bomb_start
-                    continue
-                for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
-                    for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
-                        if i >= 0 and i < len(game.maze) and j >= 0 and j < len(game.maze[i]):
-                            if isinstance(game.maze[i][j], str) and 'p' in game.maze[i][j]:
-                                player.lives -= 1
-                                if player.lives > 0:
-                                    player.coordinate = (0,0)
-                                game.reset()
-                            game.maze[i][j] = 0
                 del bomb_start, bomb_coords
         if game.time == 0:
             player.lives -= 1
@@ -183,10 +159,11 @@ while True:
                     game_part = 'over_save'
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
                 drawed_maze = False
+                level = 1
                 game_part = 'new'
             elif pause_menu[4].collidepoint(mouse_x, mouse_y):
-                screen.fill('black')
                 drawed_maze = False
+                level = 1
                 game_part = 'init'
             mouse_pressed = False
     elif game_part == 'select_save':

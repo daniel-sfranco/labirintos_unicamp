@@ -20,6 +20,9 @@ class GameGenerator:
             self.generate_maze()
         else:
             self.maze = maze
+            self.teachers: list[Teacher] = set_teachers(self)
+            for teacher in self.teachers:
+                self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
         self.start = time.perf_counter()
         if first_maze == []:
             self.first_maze = []
@@ -117,6 +120,19 @@ class GameGenerator:
         self.time_dif = 0
         self.time = TIME
 
+    def detonate(self, player, bomb_coords, bomb_start):
+        if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
+            player.lives -= 1
+            player.coordinate = (0, 0)
+            self.reset()
+        for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
+            for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
+                if i >= 0 and i < len(self.maze) and j >= 0 and j < len(self.maze[i]):
+                    for t in range(len(self.teachers)):
+                        if self.teachers[t].coordinate == [i, j]:
+                            del self.teachers[t]
+                    self.maze[i][j] = 0
+        return player
 
 if __name__ == "__main__":
     level = int(input('Level: '))

@@ -6,7 +6,7 @@ pygame.init()
 p - jogador
 b - bomba
 t - professor
-g - fantasma
+s - estudante
 A letra p pode se sobrepor a outras letras, tendo um tratamento diferente em cada caso.
 """
 INFO = pygame.display.Info()
