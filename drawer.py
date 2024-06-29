@@ -221,5 +221,36 @@ def draw_game_over(game,player):
 
    return menu
 
-def draw_character_sel():
-    return
+def draw_character_sel(user_input):
+    char_button_wi = button_width*0.3
+    char_button_hei = button_height*0.6
+    screen.fill(BLACK)
+    title = titlefont.render('SELECIONE SEU PERSONAGEM', True, '#FFFFFF')
+    title_rect = title.get_rect()
+    title_rect.top = HEIGHT//12
+    title_rect.centerx = WIDTH//2
+    
+    button_x = [WIDTH//8, WIDTH//1.3]
+    button_y = HEIGHT//1.2
+
+    font = Font(None, 24)
+    input_box = pygame.Rect(100, 100, 140, 32)
+    color_inactive = pygame.Color(RED)
+    color_active = pygame.Color('dodgerblue2')
+    color = color_inactive
+    active = False
+    input_text = font.render(user_input, True, color)
+    pygame.draw.rect(screen, color, input_box)
+    screen.blit(input_text, input_box)
+
+    button_text = ['Voltar', 'Concluir']
+    button_positions = []
+    for i in range(2):
+        text_surface = font.render(button_text[i], True, button_textcolor)
+        text_rect = text_surface.get_rect(center=(button_x[i] + (char_button_wi / 2), button_y + (char_button_hei/2)))
+        pygame.draw.rect(screen, button_backgroundcolor, (button_x[i], button_y, char_button_wi, char_button_hei))
+        screen.blit(text_surface, text_rect)
+        button_positions.append(pygame.Rect(button_x[i], button_y, char_button_wi, char_button_hei))
+    screen.blit(title, title_rect)
+    pygame.display.flip()
+    return button_positions

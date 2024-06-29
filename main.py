@@ -1,3 +1,4 @@
+from cgitb import text
 import pygame
 from constants import *
 from drawer import *
@@ -16,6 +17,7 @@ key_pressed = mouse_pressed = False
 drawed_maze = False
 level = 1
 saved = False
+user_input = ''
 while True:
     CLOCK.tick(50)
     for event in pygame.event.get():
@@ -30,6 +32,14 @@ while True:
                 elif game_part == 'pause':
                     game.time_dif -= trunc(time.perf_counter() - start_pause)
                     game_part = 'play'
+                if game_part == 'character_sel':
+                    game_part = "init"
+            if game_part == 'character_sel':
+                if event.key == pygame.K_BACKSPACE:
+                    user_input = user_input[:-1]
+                else:
+                    user_input += event.unicode
+                    print(user_input)
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             mouse_pressed = True
@@ -53,15 +63,26 @@ while True:
             game_part = 'new'
     elif game_part == 'new':
         if not drawed_maze:
-            player = Player('test_player')
-            level = 1
-        game = GameGenerator(level, 0)
-        game_part = 'play'
-        player.coordinate = (0, 0)
-        unit_size = draw_maze(player, game)
-        pygame.display.flip()
-        drawed_maze = True
-        game.time_dif = TIME - game.time
+            game_part = "character_sel"
+        else:
+            game = GameGenerator(level, 0)
+            game_part = 'play'
+            player.coordinate = (0, 0)
+            unit_size = draw_maze(player, game)
+            pygame.display.flip()
+            drawed_maze = True
+            game.time_dif = TIME - game.time
+    elif game_part == "character_sel":
+        buttons_char = draw_character_sel(user_input)
+        if mouse_pressed:
+            if buttons_char[0].collidepoint(mouse_x, mouse_y):
+                game_part = 'init'
+            elif buttons_char[1].collidepoint(mouse_x, mouse_y):
+                player = Player(user_input)
+                level = 1
+                game_part = 'new'
+                drawed_maze = True
+            mouse_pressed = False
     elif 'load' in game_part:
         games = return_saves()
         index = int(game_part[4:]) - 1
