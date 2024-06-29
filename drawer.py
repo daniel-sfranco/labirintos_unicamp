@@ -107,8 +107,8 @@ def draw_maze(player, game_object):
         player_y -= unit_size
         max -= unit_size
     game_object.player_dif = dif
-    for x in range(0, maze_width * unit_size, unit_size):
-        for y in range(0, maze_height * unit_size,unit_size):
+    for y in range(0, maze_height * unit_size, unit_size):
+        for x in range(0, maze_width * unit_size,unit_size):
             maze_y = y//unit_size
             maze_x = x//unit_size
             if maze[maze_y][maze_x] == 1:

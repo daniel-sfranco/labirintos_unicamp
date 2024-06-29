@@ -76,7 +76,7 @@ while True:
         game.time_dif = TIME - game.time
     elif game_part == 'play':
         game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
-        if 'bomb_start' in locals():
+        if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
                 key_pressed = False
@@ -84,7 +84,7 @@ while True:
                     player.lives -= 1
                     player.coordinate = (0, 0)
                     game.reset()
-                    bomb_start = -1
+                    del bomb_coords, bomb_start
                     continue
                 for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
                     for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
@@ -95,7 +95,7 @@ while True:
                                     player.coordinate = (0,0)
                                 game.reset()
                             game.maze[i][j] = 0
-                bomb_start = -1
+                del bomb_start, bomb_coords
         if game.time == 0:
             player.lives -= 1
             if player.lives > 0:
