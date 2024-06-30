@@ -14,8 +14,8 @@ drawed_maze = False
 level = 1
 saved = False
 user_input = ''
-def check_events():
-    global mouse_x, mouse_y, mouse_pressed, user_input, game_part
+
+while True:
     CLOCK.tick(50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -46,10 +46,6 @@ def check_events():
             mouse_pressed = False
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
-    return keys, mouse
-
-while True:
-    keys, mouse = check_events()
     if game_part == 'init':
         button_positions = draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
@@ -183,8 +179,8 @@ while True:
                         mouse_pressed = False
                         break
                     elif buttons[i] == 'clear':
-                        if os.path.exists('save.che'):
-                            os.remove('save.che')
+                        if os.path.exists(SAVE):
+                            os.remove(SAVE)
                     else:
                         game_part = f'load{buttons[i].replace("game ", "")}'
                         mouse_pressed = False

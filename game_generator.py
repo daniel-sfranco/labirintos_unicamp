@@ -3,7 +3,7 @@ import random
 from typing import Any
 import time
 from student import set_students
-from teacher import Teacher, set_teachers
+from teacher import Teacher, set_teachers, get_teachers
 
 
 class GameGenerator:
@@ -20,7 +20,7 @@ class GameGenerator:
             self.generate_maze()
         else:
             self.maze = maze
-            self.teachers: list[Teacher] = set_teachers(self)
+            self.teachers = get_teachers(self)
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
         self.start = time.perf_counter()
