@@ -31,7 +31,7 @@ def draw_init() -> list[pygame.Rect]:
     return button_positions
 
 
-def draw_select_save(type='load', player=Player('', 0), game=GameGenerator(1)):
+def draw_select_save(type='load', player=Player('', 'human'), game=GameGenerator(1)):
     """
     This function draws a menu to select a saved game or to overwrite a game.
 
@@ -223,7 +223,7 @@ def draw_game_over(game,player):
 
    return menu
 
-def draw_character_sel(user_input):
+def draw_character_sel(user_input, input_active, skin_sel):
     char_button_wi = button_width*0.3
     char_button_hei = button_height*0.6
     screen.fill(BLACK)
@@ -236,14 +236,21 @@ def draw_character_sel(user_input):
     button_y = HEIGHT//1.2
 
     font = Font(None, 24)
-    input_box = pygame.Rect(100, 100, 140, 32)
-    color_inactive = pygame.Color(RED)
-    color_active = pygame.Color('dodgerblue2')
-    color = color_inactive
+    input_box = pygame.Rect(WIDTH/3, button_y, WIDTH//3, button_height*0.6)
+    color_inactive = pygame.Color('#575757')
+    color_active = pygame.Color('#ffffff')
+    if input_active:
+        color = color_active
+    else:
+        color = color_inactive
     active = False
-    input_text = font.render(user_input, True, color)
+    if user_input == "":
+        input_text = font.render("Escolha o nome do seu personagem", True, '#000000')
+    else:
+        input_text = font.render(user_input, True, '#000000')
+    input_rect = input_text.get_rect(center=(input_box.centerx, input_box.centery))
     pygame.draw.rect(screen, color, input_box)
-    screen.blit(input_text, input_box)
+    screen.blit(input_text, input_rect)
 
     button_text = ['Voltar', 'Concluir']
     button_positions = []
@@ -254,5 +261,47 @@ def draw_character_sel(user_input):
         screen.blit(text_surface, text_rect)
         button_positions.append(pygame.Rect(button_x[i], button_y, char_button_wi, char_button_hei))
     screen.blit(title, title_rect)
+
+    slide_y = HEIGHT//3
+    character_wi = FIRST_UNIT // 0.5
+    character_hei = FIRST_UNIT // 0.4
+    character_distance = 600
+    characters = ["human","paladin","cyborg","barbarian"]
+    for i in range(len(characters)):
+        slide_x = (WIDTH//2.5 - (character_distance * skin_sel)) + i * character_distance
+        if i == skin_sel:
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/'+characters[i]+'.gif'), (11, 11))
+        else:
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/'+characters[i]+'.gif').convert_alpha(), (8, 8))
+            darken_surface = pygame.Surface(character_img.get_size()).convert_alpha()
+            darken_surface.fill((255, 255, 255, 150))
+            character_img.blit(darken_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        character_rect = pygame.Rect(slide_x, slide_y, character_wi, character_hei)
+        screen.blit(character_img, character_rect)
+
+    skin_choice = characters[skin_sel]
+    print(type(skin_choice))
+
+    arrow_wi = FIRST_UNIT // 4
+    arrow_hei = FIRST_UNIT // 2
+    arrow_left_img = pygame.transform.scale(pygame.image.load('img/arrowLeft.png'), (arrow_wi, arrow_hei))
+    arrow_left_rect = pygame.Rect(WIDTH//12, HEIGHT//2.3, arrow_wi, arrow_hei)
+    screen.blit(arrow_left_img, arrow_left_rect)
+    arrow_right_img = pygame.transform.flip(arrow_left_img, True, False)
+    arrow_right_rect = pygame.Rect(WIDTH/1.12, HEIGHT//2.3, arrow_wi, arrow_hei)
+    screen.blit(arrow_right_img, arrow_right_rect)
+    arrow_positions = [arrow_left_rect, arrow_right_rect]
+
+   # x = 300
+   # vel = 1
+   # anim_finish = False
+   # if not anim_finish:
+   #     for i in range(500):
+   #         x += vel
+   #         pygame.draw.rect(screen, (0, 0, 0), (x-vel, HEIGHT//2, 50, 50))
+   #         pygame.draw.rect(screen, (255, 0, 0), (x, HEIGHT//2, 50, 50))
+   #         pygame.display.flip()
+   #     anim = False
+   # 
     pygame.display.flip()
-    return button_positions
+    return button_positions, arrow_positions, input_box, skin_choice

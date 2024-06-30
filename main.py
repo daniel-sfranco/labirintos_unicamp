@@ -10,10 +10,11 @@ from questions import ask_question
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
 key_pressed = mouse_pressed = False
-drawed_maze = False
+drawed_maze = input_active = False
 level = 1
 saved = False
 user_input = ''
+skin_sel = 0
 
 while True:
     CLOCK.tick(50)
@@ -32,11 +33,17 @@ while True:
                 if game_part == 'character_sel':
                     game_part = "init"
             if game_part == 'character_sel':
-                if event.key == pygame.K_BACKSPACE:
-                    user_input = user_input[:-1]
-                else:
-                    user_input += event.unicode
-                    print(user_input)
+                if input_active:
+                    if event.key == pygame.K_BACKSPACE:
+                        user_input = user_input[:-1]
+                    else:
+                        user_input += event.unicode
+                if event.key == pygame.K_LEFT:
+                    if skin_sel != 0:
+                        skin_sel -= 1
+                elif event.key == pygame.K_RIGHT:
+                    if skin_sel != 3:
+                        skin_sel += 1
             elif game_part == 'new':
                 game_part = 'init'
         if pygame.mouse.get_pressed()[0]:
@@ -69,18 +76,31 @@ while True:
             drawed_maze = True
             game.time_dif = TIME - game.time
     elif game_part == "character_sel":
-        buttons_char = draw_character_sel(user_input)
+        buttons_char, arrows, input_box, skin_choice = draw_character_sel(user_input, input_active, skin_sel)
         player: Player = Player('')
         if mouse_pressed:
             if buttons_char[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'init'
             elif buttons_char[1].collidepoint(mouse_x, mouse_y):
-                player = Player(user_input)
+                player = Player(name = user_input)
                 level = 1
                 game_part = 'new'
                 drawed_maze = True
+            elif arrows[0].collidepoint(mouse_x, mouse_y):
+                if skin_sel != 0:
+                        skin_sel -= 1
+            elif arrows[1].collidepoint(mouse_x, mouse_y):
+                if skin_sel != 3:
+                        skin_sel += 1
+            elif input_box.collidepoint(mouse_x,mouse_y):
+                input_active = True
+            else:
+                input_active = False
             mouse_pressed = False
-            player = Player('test_player')
+            if user_input != "":
+                player = Player(name = user_input, skin = skin_choice)
+            else:
+                player = Player(name = 'jogador', skin = skin_choice)
             level = 1
     elif 'load' in game_part:
         games = return_saves()
