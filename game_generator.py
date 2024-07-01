@@ -2,12 +2,13 @@ from constants import *
 import random
 from typing import Any
 import time
+from player import Player
 from student import set_students
 from teacher import Teacher, set_teachers, get_teachers
 
 
-class GameGenerator:
-    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze=[], act_time=TIME):
+class Game:
+    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze=[], act_time=TIME) -> None:
         self.level = level
         self.width = level + 6
         self.height = level + 6
@@ -37,7 +38,7 @@ class GameGenerator:
         else:
             self.first_maze = first_maze
 
-    def generate_maze(self):
+    def generate_maze(self) -> list[list[Any]]:
         # Start at a random cell
         current_x = random.randint(0, self.width - 1)
         current_y = random.randint(0, self.height - 1)
@@ -65,7 +66,7 @@ class GameGenerator:
                 i += 1
         return self.maze
 
-    def generate_maze_recursive(self, cell, closed):
+    def generate_maze_recursive(self, cell: tuple[int, int], closed: list[tuple[int, int]]) -> None:
         # Mark the current cell as visited
         self.grid[cell[0]][cell[1]] = 1
 
@@ -89,7 +90,7 @@ class GameGenerator:
             # Recursively generate the maze from the neighbor cell
             self.generate_maze_recursive(next_cell, closed)
 
-    def get_unvisited_neighbors(self, cell):
+    def get_unvisited_neighbors(self, cell: tuple[int, int]) -> list[tuple[int, int]]:
         neighbors = []
         x, y = cell
 
@@ -105,7 +106,7 @@ class GameGenerator:
 
         return neighbors
 
-    def remove_wall(self, cell1, cell2):
+    def remove_wall(self, cell1: tuple[int, int], cell2: tuple[int, int]) -> tuple[int, int]:
         x1, y1 = cell1
         x2, y2 = cell2
 
@@ -121,7 +122,7 @@ class GameGenerator:
             self.grid[wall_x][y1] = 1  # Mark the wall as removed
             return (min(x1, x2) * 2 + 1, y1 * 2)
 
-    def reset(self):
+    def reset(self) -> None:
         self.maze = []
         for i in range(len(self.first_maze)):
             self.maze.append([])
@@ -133,7 +134,7 @@ class GameGenerator:
         self.time_dif = 0
         self.time = TIME
 
-    def detonate(self, player, bomb_coords, bomb_start):
+    def detonate(self, player: Player, bomb_coords: tuple[int, int]) -> Player:
         for i in range(bomb_coords[0] - 1, bomb_coords[0] + 2):
             for j in range(bomb_coords[1] - 1, bomb_coords[1] + 2):
                 if i >= 0 and i < len(self.maze) and j >= 0 and j < len(self.maze[i]):
@@ -155,4 +156,4 @@ if __name__ == "__main__":
     level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = GameGenerator(level)
+    maze_generator = Game(level)

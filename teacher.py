@@ -1,5 +1,6 @@
 from random import randint
 from pygame import time
+from player import Player
 
 
 class Teacher:
@@ -20,7 +21,7 @@ class Teacher:
             self.coordinate = coordinate
             self.first_coordinate = first_coordinate
 
-    def move(self, player, game):
+    def move(self, player: Player, game):
         free = False
         next_coord = (-1, -1)
         if self.coordinate[0] == player.coordinate[0]:

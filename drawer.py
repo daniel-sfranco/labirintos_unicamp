@@ -3,36 +3,42 @@ from constants import *
 from pygame.font import Font
 from save import return_saves
 from player import Player
-from game_generator import GameGenerator
-
-screen = SCREEN
-pygame.display.set_caption('Labirintos da Unicamp')
+from game_generator import Game
 
 
 def draw_init() -> list[pygame.Rect]:
     screen.fill(BLACK)
-    title = titlefont.render('LABIRINTOS DA UNICAMP', True, '#FFFFFF')
-    title_rect = title.get_rect()
-    title_rect.top = HEIGHT // 12
-    title_rect.centerx = WIDTH // 2
-    button_x = (WIDTH - button_width) / 2
-    button_distance = HEIGHT // 10
-    button_y = [WIDTH // 5 + i * button_distance for i in range(5)]
+    draw_title('LABIRINTOS DA UNICAMP', titlefont, WHITE)
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Ganhadores', 'Informações', 'Sair']
-    button_positions = []
-    font = Font(None, 24)
-    for i in range(5):
-        text_surface = font.render(button_text[i], True, button_textcolor)
-        text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height / 2)))
-        pygame.draw.rect(screen, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
-        screen.blit(text_surface, text_rect)
-        button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
-    screen.blit(title, title_rect)
+    button_positions: list[pygame.Rect] = draw_menu(button_text, 5)
     pygame.display.flip()
     return button_positions
 
 
-def draw_select_save(type='load', player=Player(''), game=GameGenerator(1)):
+def draw_menu(button_text: list[str], min_y: int, surface: pygame.Surface=SCREEN) -> list[pygame.Rect]:
+    num_buttons = len(button_text)
+    button_x = (WIDTH - button_width) / 2
+    button_y = [WIDTH // min_y + i * button_distance for i in range(num_buttons)]
+    if surface != SCREEN:
+        print()
+    button_positions: list[pygame.Rect] = []
+    for i in range(num_buttons):
+        text_surface = textfont.render(button_text[i], True, button_textcolor)
+        text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height / 2)))
+        pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        surface.blit(text_surface, text_rect)
+        button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
+    return button_positions
+
+def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK):
+    title = font.render(text, True, color)
+    title_rect = title.get_rect()
+    title_rect.top = HEIGHT // 10
+    title_rect.centerx = WIDTH // 2
+    surface.blit(title, title_rect)
+
+
+def draw_select_save(type: str='load', player: Player=Player(''), game: Game=Game(1)) -> list[pygame.Rect]:
     """
     This function draws a menu to select a saved game or to overwrite a game.
 
@@ -47,38 +53,26 @@ def draw_select_save(type='load', player=Player(''), game=GameGenerator(1)):
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
     if type == 'load':
-        title = subfont.render('Escolha um jogo salvo', True, WHITE)
         pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
+        draw_title('Escolha um jogo salvo', subfont, WHITE, surface)
     elif type == 'delete':
         draw_maze(player, game)
-        title = subfont.render('Escolha um jogo para sobreescrever', True, WHITE)
         pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
-    title_rect = title.get_rect()
-    title_rect.top = HEIGHT // 10
-    title_rect.centerx = WIDTH // 2
-    surface.blit(title, title_rect)
-    pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
-
+        draw_title('Escolha um jogo para sobreescrever', subfont, WHITE, surface)
+        pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
     games = return_saves()
     button_text = []
-    for game in games:
-        button_text.append(f'{game[2].name}: nível {game[1].level}, {game[2].lives} vidas')
+    for save in games:
+        button_text.append(f'{save[2].name}: nível {save[1].level}, {save[2].lives} vidas')
     button_text.append('Limpar jogos salvos')
     button_text.append('Voltar')
-    button_y = [WIDTH // 6 + i * button_distance for i in range(len(button_text))]
-    menu: list[pygame.Rect] = []
-    for i in range(len(button_text)):
-        text_surface = textfont.render(button_text[i], True, button_textcolor)
-        text_rect = text_surface.get_rect(center=(button_centerx + (button_width / 2), button_y[i] + (button_height / 2)))
-        rect = pygame.draw.rect(surface, button_backgroundcolor, (button_centerx, button_y[i], button_width, button_height))
-        surface.blit(text_surface, text_rect)
-        menu.append(rect)
+    menu: list[pygame.Rect] = draw_menu(button_text, 6, surface)
     screen.blit(surface, (0, 0))
     pygame.display.flip()
     return menu
 
 
-def draw_pause_button():
+def draw_pause_button() -> pygame.Rect:
     button_size = FIRST_UNIT // 4
     pause_img = pygame.transform.scale(pygame.image.load('img/x.jpeg').convert(), (button_size, button_size))
     pause_rect = pygame.Rect(WIDTH - 2 * button_size, button_size, button_size, button_size)
@@ -86,7 +80,7 @@ def draw_pause_button():
     return pause_rect
 
 
-def draw_maze(player, game_object):
+def draw_maze(player, game_object) -> int:
     screen.fill(BLACK)
     maze_surface = pygame.Surface(SIZE)
     maze = game_object.maze
@@ -128,7 +122,7 @@ def draw_maze(player, game_object):
     return unit_size
 
 
-def draw_HUD(game, player):
+def draw_HUD(game, player) -> None:
     lab = game.level
     actual_points = game.points
     total_points = player.points
@@ -168,7 +162,7 @@ def draw_HUD(game, player):
     screen.blit(hud, (0, 0))
 
 
-def draw_pause_menu(player, game):
+def draw_pause_menu(player, game) -> list[pygame.Rect]:
     draw_maze(player, game)
     draw_HUD(game, player)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
@@ -196,7 +190,7 @@ def draw_pause_menu(player, game):
     return menu
 
 
-def draw_game_over(game, player):
+def draw_game_over(game, player) -> list[pygame.Rect]:
     draw_maze(player, game)
     draw_HUD(game, player)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
@@ -224,7 +218,7 @@ def draw_game_over(game, player):
     return menu
 
 
-def draw_character_sel(user_input, input_active, skin_sel):
+def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.Rect], list[pygame.Rect], pygame.Rect, str]:
     char_button_w = button_width * 0.3
     char_button_h = button_height * 0.6
     screen.fill(BLACK)
@@ -253,7 +247,7 @@ def draw_character_sel(user_input, input_active, skin_sel):
     screen.blit(input_text, input_rect)
 
     button_text = ['Voltar', 'Concluir']
-    button_positions = []
+    button_positions: list[pygame.Rect] = []
     for i in range(2):
         text_surface = font.render(button_text[i], True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x[i] + (char_button_w / 2), button_y + (char_button_h / 2)))
@@ -279,7 +273,7 @@ def draw_character_sel(user_input, input_active, skin_sel):
         character_rect = pygame.Rect(slide_x, slide_y, character_w, character_h)
         screen.blit(character_img, character_rect)
 
-    skin_choice = characters[skin_sel]
+    skin_choice: str = characters[skin_sel]
 
     arrow_w = FIRST_UNIT // 4
     arrow_h = FIRST_UNIT // 2

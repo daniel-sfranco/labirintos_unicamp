@@ -1,17 +1,7 @@
 import pygame
 import os
 from questions import ask_question
-from constants import SPEED, BOMBS, LIVES, TIME
-move_keys = [
-    pygame.K_UP,
-    pygame.K_DOWN,
-    pygame.K_RIGHT,
-    pygame.K_LEFT,
-    pygame.K_a,
-    pygame.K_s,
-    pygame.K_w,
-    pygame.K_d
-]
+from constants import SPEED, BOMBS, LIVES, TIME, move_keys
 
 
 class Player:
@@ -30,7 +20,7 @@ class Player:
         path: str = os.path.join('img', 'player', f'{self.skin}.gif')
         self.img = pygame.image.load(path).convert()
 
-    def move_player(self, game):
+    def move_player(self, game) -> bool:
         maze = game.maze
         keys = pygame.key.get_pressed()
         y, x = self.coordinate

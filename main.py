@@ -7,20 +7,12 @@ import drawer
 import save
 from constants import *
 from player import Player
-from game_generator import GameGenerator
+from game_generator import Game
 from math import trunc
 from questions import ask_question
-game_part = 'init'
-mouse_x, mouse_y = 0, 0
-game = GameGenerator(0)
+
+game = Game(0)
 player = Player('')
-key_pressed = mouse_pressed = False
-drawed_maze = input_active = False
-level = 1
-saved = False
-questioned = False
-user_input = chosen_answer = ''
-skin_sel = 0
 
 while True:
     CLOCK.tick(50)
@@ -79,7 +71,7 @@ while True:
         if not drawed_maze:
             game_part = "character_sel"
         else:
-            game = GameGenerator(level)
+            game = Game(level)
             game_part = 'play'
             player.coordinate = (0, 0)
             unit_size = drawer.draw_maze(player, game)
@@ -162,7 +154,7 @@ while True:
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
-                player = game.detonate(player, bomb_coords, bomb_start)
+                player = game.detonate(player, bomb_coords)
                 key_pressed = False
                 del bomb_start, bomb_coords
         if game.time == 0:
