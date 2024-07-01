@@ -94,14 +94,15 @@ def order_saves(saves: list[tuple[int, GameGenerator, Player]], file=SAVE) -> No
 
 def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
     games: list[tuple[int, GameGenerator, Player]] = []
-    game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name='', skin=0))
+    game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name=''))
     lines: list[str] = []
     actual_maze = []
     name = ''
     if path.exists(file):
         with open(file, 'r') as save_file:
             lines: list[str] = save_file.readlines()
-        game_number = level = bombs = lives = points = skin = row = -1
+        game_number = level = bombs = lives = points = row = -1
+        skin = ''
         player_position: tuple[int, int] = (0,0)
         num_games = count_saves(file)
         first_maze = False
@@ -121,7 +122,7 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
             elif 'bombs' in line:
                 bombs = int(line[7:])
             elif 'skin' in line:
-                skin = int(line[6:])
+                skin = line[6:]
             elif 'player position' in line:
                 player_position = (int(line[18:20]), int(line[22:24]))
             else:
@@ -150,7 +151,8 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
                             games.append(game)
                             actual_maze = []
                             first_maze = False
-                            game_number = level = bombs = lives = points = skin = row = -1
+                            game_number = level = bombs = lives = points = row = -1
+                            skin = ''
                             actual_line = []
     return games
 
@@ -167,7 +169,7 @@ def store_save(game: GameGenerator, player: Player) -> None:
 
 if __name__ == "__main__":
     game = GameGenerator(1)
-    player = Player('test_player', 0)
+    player = Player('test_player')
     game.maze[2][0] = 'b'
     save(game, player)
     order_saves(return_saves())

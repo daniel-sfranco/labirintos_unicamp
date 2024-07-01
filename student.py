@@ -5,7 +5,7 @@ from os import path
 
 class Student(Player):
     def __init__(self, name, level, points, coordinate, num):
-        super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='')
+        super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
         self.num=num
         self.item = choice(['b', 'l', 't'])
 

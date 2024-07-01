@@ -31,7 +31,7 @@ def draw_init() -> list[pygame.Rect]:
     return button_positions
 
 
-def draw_select_save(type='load', player=Player('', 'human'), game=GameGenerator(1)):
+def draw_select_save(type='load', player=Player(''), game=GameGenerator(1)):
     """
     This function draws a menu to select a saved game or to overwrite a game.
 

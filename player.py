@@ -2,7 +2,8 @@ import pygame
 from questions import ask_question
 from constants import SPEED, BOMBS, LIVES, TIME
 move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
-
+import os
+import sys
 
 class Player:
     def __init__(self, name: str, skin: str = 'human', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
@@ -11,13 +12,14 @@ class Player:
         self.lives = lives
         self.bombs = bombs
         self.coordinate = coordinate
-        self.skin = skin
+        if '\n' in skin:
+            self.skin = skin[:-1]
+        else:
+            self.skin = skin
         self.facing_right = True
         self.level = level
-        if self.skin == "":
-            self.img = pygame.image.load('img/player/human.gif').convert()
-        else:
-            self.img = pygame.image.load('img/player/'+ skin +'.gif').convert()
+        path: str = os.path.join('img', 'player', f'{self.skin}.gif')
+        self.img = pygame.image.load(path).convert()
 
     def move_player(self, game):
         maze = game.maze
