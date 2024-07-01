@@ -13,7 +13,8 @@ key_pressed = mouse_pressed = False
 drawed_maze = input_active = False
 level = 1
 saved = False
-user_input = ''
+questioned = False
+user_input = chosen_answer = ''
 skin_sel = 0
 
 while True:
@@ -44,6 +45,11 @@ while True:
                 elif event.key == pygame.K_RIGHT:
                     if skin_sel != 3:
                         skin_sel += 1
+                elif event.key == pygame.K_RETURN:
+                    player = Player(name = user_input, skin = skin_choice)
+                    level = 1
+                    game_part = 'new'
+                    drawed_maze = True
             elif game_part == 'new':
                 game_part = 'init'
         if pygame.mouse.get_pressed()[0]:
@@ -82,7 +88,7 @@ while True:
             if buttons_char[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'init'
             elif buttons_char[1].collidepoint(mouse_x, mouse_y):
-                player = Player(name = user_input)
+                player = Player(name = user_input, skin = skin_choice)
                 level = 1
                 game_part = 'new'
                 drawed_maze = True
@@ -100,7 +106,7 @@ while True:
             if user_input != "":
                 player = Player(name = user_input, skin = skin_choice)
             else:
-                player = Player(name = 'jogador', skin = skin_choice)
+                player = Player(name = 'Jogador', skin = skin_choice)
             level = 1
     elif 'load' in game_part:
         games = return_saves()
@@ -114,6 +120,27 @@ while True:
         start_time = time.perf_counter()
         level = game.level
         game.time_dif = TIME - game.time
+        
+    elif game_part == 'question':
+        if not questioned:
+            question = ask_question()
+            questioned = True
+        answer_buttons, isAnswered = draw_question(question, chosen_answer, player)
+        if mouse_pressed:
+            if answer_buttons[0].collidepoint(mouse_x, mouse_y):
+                chosen_answer = 'a'
+            elif answer_buttons[1].collidepoint(mouse_x, mouse_y):
+                chosen_answer = 'b'
+            elif answer_buttons[2].collidepoint(mouse_x, mouse_y):
+                chosen_answer = 'c'
+            elif answer_buttons[3].collidepoint(mouse_x, mouse_y):
+                chosen_answer = 'd'
+        if isAnswered:
+            time.sleep(1.5)
+            game_part = 'play'
+            game.time_dif -= trunc(time.perf_counter() - start_question)
+            chosen_answer = ''
+
     elif game_part == 'play':
         game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
@@ -133,10 +160,11 @@ while True:
         next = player.move_player(game)
         for teacher in game.teachers:
             game.maze = teacher.move(player, game)
-            questioned = False
             if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1 and not questioned:
-                questioned = True
-                print(ask_question())
+                game_part = 'question'
+                start_question = time.perf_counter()
+            elif abs(teacher.coordinate[0] - player.coordinate[0]) > 1 and abs(teacher.coordinate[1] - player.coordinate[1]) > 1 and questioned:
+                questioned = False
         unit_size = draw_maze(player, game)
         pause_rect = draw_pause_button()
         draw_HUD(game, player)

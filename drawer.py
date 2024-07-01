@@ -280,7 +280,6 @@ def draw_character_sel(user_input, input_active, skin_sel):
         screen.blit(character_img, character_rect)
 
     skin_choice = characters[skin_sel]
-    print(type(skin_choice))
 
     arrow_wi = FIRST_UNIT // 4
     arrow_hei = FIRST_UNIT // 2
@@ -292,16 +291,86 @@ def draw_character_sel(user_input, input_active, skin_sel):
     screen.blit(arrow_right_img, arrow_right_rect)
     arrow_positions = [arrow_left_rect, arrow_right_rect]
 
-   # x = 300
-   # vel = 1
-   # anim_finish = False
-   # if not anim_finish:
-   #     for i in range(500):
-   #         x += vel
-   #         pygame.draw.rect(screen, (0, 0, 0), (x-vel, HEIGHT//2, 50, 50))
-   #         pygame.draw.rect(screen, (255, 0, 0), (x, HEIGHT//2, 50, 50))
-   #         pygame.display.flip()
-   #     anim = False
-   # 
     pygame.display.flip()
     return button_positions, arrow_positions, input_box, skin_choice
+
+def draw_question(question, chosen_answer, player):
+
+    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
+    question_width = WIDTH // 1.2
+    question_height = HEIGHT // 1.4
+    question_rect = pygame.Rect(0, 0, question_width, question_height)
+    question_rect.center = (WIDTH // 2, HEIGHT // 2)
+
+    if chosen_answer == '':
+        pygame.draw.rect(surface, LIGHTGRAY, question_rect, 0, 20)
+        isAnswered = False
+    else:
+        if chosen_answer == question.answer.lower()[0]:
+            pygame.draw.rect(surface, GREEN, question_rect, 0, 20)
+            isAnswered = True
+        else:
+            pygame.draw.rect(surface, DARKRED, question_rect, 0, 20)
+            isAnswered = True
+            player.lives -= 1
+    screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+
+    if len(question.question) < 40:
+        title = subfont.render(question.question, True, WHITE)
+        title_rect = title.get_rect()
+        title_rect.top = HEIGHT//4
+        title_rect.centerx = WIDTH//2
+        surface.blit(title, title_rect)
+    else:
+        position = 0
+        count = 0
+        for i in range(len(question.question), 0, -1):
+            if question.question[i-1] == " ":
+                count += 1
+            if count == 3:
+                part1 = question.question[0:i]
+                part2 = question.question[i:len(question.question)]
+                break
+
+        title = subfont.render(part1, True, WHITE)
+        title_rect = title.get_rect()
+        title_rect.top = HEIGHT // 5
+        title_rect.centerx = WIDTH // 2
+        surface.blit(title, title_rect)
+
+        title_down = subfont.render(part2, True, WHITE)
+        title_down_rect = title_down.get_rect()
+        title_down_rect.top = HEIGHT // 3.5
+        title_down_rect.centerx = WIDTH // 2
+        surface.blit(title_down, title_down_rect)
+
+    button_distance = HEIGHT // 10
+    button_text = [question.a, question.b, question.c, question.d]
+    answer_buttons:list[pygame.Rect] = []
+    buttonx = [WIDTH // 7, WIDTH // 1.9]
+    buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
+    
+    button_height = HEIGHT // 8
+    textfont = pygame.font.Font(None, WIDTH // 30)
+
+    for i in range(4):
+        text_surface = textfont.render(button_text[i], True, button_textcolor)
+        if i == 0:
+            text_rect = text_surface.get_rect(center=(buttonx[i] + (button_width / 2), buttony[i] + (button_height / 2)))
+            rect = pygame.draw.rect(surface, button_backgroundcolor, (buttonx[i], buttony[i], button_width, button_height))
+        elif i == 1:
+            text_rect = text_surface.get_rect(center=(buttonx[i] + (button_width / 2), buttony[0] + (button_height / 2)))
+            rect = pygame.draw.rect(surface, button_backgroundcolor, (buttonx[i], buttony[0], button_width, button_height))
+        elif i == 2:
+            text_rect = text_surface.get_rect(center=(buttonx[0] + (button_width / 2), buttony[1] + (button_height / 2)))
+            rect = pygame.draw.rect(surface, button_backgroundcolor, (buttonx[0], buttony[1], button_width, button_height))
+        else:
+            text_rect = text_surface.get_rect(center=(buttonx[1] + (button_width / 2), buttony[1] + (button_height / 2)))
+            rect = pygame.draw.rect(surface, button_backgroundcolor, (buttonx[1], buttony[1], button_width, button_height))
+        surface.blit(text_surface, text_rect)
+        answer_buttons.append(rect)
+
+    screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
+    pygame.display.flip()
+    
+    return answer_buttons, isAnswered

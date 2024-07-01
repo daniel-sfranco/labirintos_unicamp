@@ -4,7 +4,7 @@ from random import randint
 class Question:
     def __init__(self, number):
         self.number = number
-        with open('questions.che', 'r') as file:
+        with open('questions.che', 'r', encoding='utf-8') as file:
             lines = file.readlines()
             for line in lines:
                 if line.startswith(str(number)):
@@ -35,7 +35,6 @@ def ask_question():
 if __name__ == "__main__":
     num = int(input())
     question = Question(num)
-    print(question)
     selected = input("Your answer: ")
     if selected.lower()[0] == question.answer.lower()[0]:
         print("Correct!")
