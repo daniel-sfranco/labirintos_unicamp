@@ -15,6 +15,9 @@ class GameGenerator:
         self.player_dif = 0
         self.time = act_time
         self.time_dif = TIME - act_time
+        self.points = 0
+        self.act_points = 0
+        self.end = False
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
@@ -23,6 +26,7 @@ class GameGenerator:
             self.teachers = get_teachers(self)
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+            i = 0
         self.start = time.perf_counter()
         if first_maze == []:
             self.first_maze = []
@@ -50,6 +54,13 @@ class GameGenerator:
         self.teachers: list[Teacher] = set_teachers(self)
         for teacher in self.teachers:
             self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+        i = 0
+        while i < self.level + 6:
+                random_x = random.randint(0, len(self.maze[0]) - 1)
+                random_y = random.randint(0, len(self.maze) - 1)
+                if self.maze[random_y][random_x] == 0:
+                    self.maze[random_y][random_x] = 'n'
+                    i += 1
         return self.maze
 
     def generate_maze_recursive(self, cell, closed):

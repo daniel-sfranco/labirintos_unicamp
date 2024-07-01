@@ -48,6 +48,7 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
             for line in range(len(game.maze)):
                 s = ''
                 for j in range(len(game.maze[line])):
+                    if game.maze[line][j] == 'n': game.maze[line][j] = 0
                     s += str(game.maze[line][j]) + ' '
                 save_file.write(s + '\n')
             for i in range(len(game.first_maze)):

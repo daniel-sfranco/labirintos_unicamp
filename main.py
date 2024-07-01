@@ -1,3 +1,4 @@
+import random
 import pygame, sys, os, time
 from constants import *
 from drawer import *
@@ -75,6 +76,7 @@ while True:
             pygame.display.flip()
             drawed_maze = True
             game.time_dif = TIME - game.time
+            i = 0
     elif game_part == "character_sel":
         buttons_char, arrows, input_box, skin_choice = draw_character_sel(user_input, input_active, skin_sel)
         player: Player = Player('')
@@ -107,6 +109,13 @@ while True:
         index = int(game_part[4:]) - 1
         game = games[index][1]
         player = games[index][2]
+        i = 0
+        while i < game.level + 6:
+            random_x = random.randint(0, len(game.maze[0]) - 1)
+            random_y = random.randint(0, len(game.maze) - 1)
+            if game.maze[random_y][random_x] == 0:
+                game.maze[random_y][random_x] = 'n'
+                i += 1
         game_part = 'play'
         unit_size = draw_maze(player, game)
         pygame.display.flip()
@@ -116,6 +125,8 @@ while True:
         game.time_dif = TIME - game.time
     elif game_part == 'play':
         game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
+        if game.act_points > 0:
+            game.points = game.level * trunc((game.act_points - ((TIME - game.time)/60) * game.act_points)*100)
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
@@ -130,7 +141,7 @@ while True:
                 continue
         if player.lives == 0:
             game_part = 'game_over'
-        next = player.move_player(game)
+        end = player.move_player(game)
         for teacher in game.teachers:
             game.maze = teacher.move(player, game)
             questioned = False
@@ -153,8 +164,9 @@ while True:
                 player.bombs -= 1
                 game.maze[player.coordinate[0]][player.coordinate[1]] += 'ab'
                 bomb_coords = player.coordinate
-        if player.coordinate == (len(game.maze) - 1, len(game.maze[0]) - 1):
+        if end:
             level += 1
+            player.points += game.points
             game_part = 'new'
     elif game_part == 'pause':
         pause_menu = draw_pause_menu(player, game)

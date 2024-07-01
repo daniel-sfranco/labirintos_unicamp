@@ -1,6 +1,6 @@
 import pygame
 from questions import ask_question
-from constants import SPEED, BOMBS, LIVES
+from constants import SPEED, BOMBS, LIVES, TIME
 move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
 
 
@@ -30,6 +30,8 @@ class Player:
                 break
         if actual_key in [pygame.K_DOWN, pygame.K_s] and y < len(maze) - 1:
             next_coordinate = (y + 1, x)
+            if self.coordinate == (len(game.maze) - 1, len(game.maze) - 1):
+                return True
         elif actual_key in [pygame.K_UP, pygame.K_w] and y > 0:
             next_coordinate = (y - 1, x)
         elif actual_key in [pygame.K_LEFT, pygame.K_a] and x > 0:
@@ -42,6 +44,8 @@ class Player:
             if not self.facing_right:
                 self.img = pygame.transform.flip(self.img, True, False)
                 self.facing_right = True
+        elif self.coordinate == (len(game.maze) - 1, len(game.maze) - 1) and actual_key in [pygame.K_RIGHT, pygame.K_d, pygame.K_DOWN, pygame.K_s]:
+            return True
         else:
             next_coordinate = (y, x)
         first = maze[self.coordinate[0]][self.coordinate[1]]
@@ -56,6 +60,9 @@ class Player:
                 first = ''.join([letter for letter in letters if letter!= 'p'])
             if next == 0:
                 next = 'p'
+            elif next == 'n':
+                next = 'p'
+                game.act_points += 1
             elif next == 'b':
                 self.bombs += 1
                 next = 'p'
@@ -63,12 +70,11 @@ class Player:
                 question = ask_question()
                 print(question)
                 pygame.time.delay(SPEED)
-                return 0
-            elif next == 0:
-                next_coordinate = self.coordinate
+                return False
             else:
-                return 0
+                return False
             maze[self.coordinate[0]][self.coordinate[1]] = first
             pygame.time.delay(SPEED)
             maze[next_coordinate[0]][next_coordinate[1]] = next
             self.coordinate = next_coordinate
+        return False

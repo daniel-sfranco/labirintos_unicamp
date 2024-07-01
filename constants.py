@@ -30,6 +30,7 @@ GHOST = pygame.image.load('img/monsters/ghost.gif').convert()
 WALL = pygame.image.load("img/tiles/roomWall12.gif").convert()
 PROF = pygame.image.load('img/player/scientist.gif').convert()
 BOMB = pygame.image.load('img/items/shortSword.gif').convert()
+POINT = pygame.image.load('img/electricity.gif').convert()
 BOMB_TIME = 2
 button_backgroundcolor = WHITE
 button_textcolor = BLACK

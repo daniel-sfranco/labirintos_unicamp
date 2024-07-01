@@ -124,6 +124,9 @@ def draw_maze(player, game_object):
                 if 'b' in maze[maze_y][maze_x]:
                     bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
                     maze_surface.blit(bomb, (x, y - game_object.player_dif))
+                if 'n' in maze[maze_y][maze_x]:
+                    point = pygame.transform.scale(POINT, (unit_size // 2, unit_size // 2))
+                    maze_surface.blit(point, (x + unit_size // 4, y - game_object.player_dif + unit_size // 4))
     maze_surface.blit(player.img, (player.coordinate[1] * unit_size, player.coordinate[0] * unit_size - game_object.player_dif))
     screen.blit(maze_surface, (0, 0))
     return unit_size
@@ -131,7 +134,8 @@ def draw_maze(player, game_object):
 
 def draw_HUD(game, player):
     lab = game.level
-    points = player.points
+    actual_points = game.points
+    total_points = player.points
     time = game.time
     life = player.lives
     bombs = player.bombs
@@ -142,18 +146,18 @@ def draw_HUD(game, player):
     hud_x = (WIDTH - hud_width)/1.02
     pygame.draw.rect(hud, DARKGRAY, [hud_x, hud_y, hud_width, hud_height])
 
-    text = ["Labirinto: " + str(lab), "Pontos: " + str(points), "Tempo: " + str(time),"S2: " + str(life), "Bombas: " + str(bombs)]
+    text = [f"Labirinto: {lab}", f"Pontos: {actual_points}", f"Total: {total_points}", f"Tempo: {time}",f"S2: {life}", f"Bombas: {bombs}"]
     font = Font(None, WIDTH//30)
     mini_size = FIRST_UNIT*0.35
     for i in range(len(text)):
-        if i == 3:
+        if i == 4:
             heart_size = (mini_size, mini_size)
             heart_icon = pygame.image.load('img/heart.png')
             heart_icon = pygame.transform.scale(heart_icon, heart_size)
             for j in range(life):
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i+1.8)) + j*mini_size, hud_y + (hud_height/(height_div/1)), mini_size, mini_size)
+                heart_rect = pygame.Rect(hud_x + (hud_width / (i+1.8)) + j*mini_size, hud_y + (hud_height/height_div), mini_size, mini_size)
                 hud.blit(heart_icon, heart_rect)
-        elif i == 4:
+        elif i == 5:
             bomb_size = (mini_size, mini_size)
             bomb_icon = pygame.image.load('img/items/shortSword.gif')
             bomb_icon = pygame.transform.scale(bomb_icon, bomb_size)
@@ -161,7 +165,7 @@ def draw_HUD(game, player):
                 bomb_rect = pygame.Rect(hud_x + (hud_width / (i+0.8)) + j*mini_size, hud_y + (hud_height/(height_div/1.2)), mini_size , mini_size)
                 hud.blit(bomb_icon, bomb_rect)
         else:
-            height_div = (5/(i+1))
+            height_div = (6/(i+1))
             text_surface = font.render(text[i], True, WHITE)
             text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height/(height_div+0.3))))
             hud.blit(text_surface, text_rect)
