@@ -132,10 +132,6 @@ class GameGenerator:
         self.time = TIME
 
     def detonate(self, player, bomb_coords, bomb_start):
-        if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
-            player.lives -= 1
-            player.coordinate = (0, 0)
-            self.reset()
         for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
             for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
                 if i >= 0 and i < len(self.maze) and j >= 0 and j < len(self.maze[i]):
@@ -143,6 +139,10 @@ class GameGenerator:
                         if self.teachers[t].coordinate == [i, j]:
                             del self.teachers[t]
                     self.maze[i][j] = 0
+        if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
+            player.lives -= 1
+            player.coordinate = (0, 0)
+            self.reset()
         return player
 
 if __name__ == "__main__":
