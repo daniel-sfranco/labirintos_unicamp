@@ -4,6 +4,7 @@ from player import Player
 from os import path
 from constants import *
 
+
 def count_saves(file: str = SAVE) -> int:
     if path.exists(file):
         with open(file, 'r') as save_file:
@@ -48,7 +49,8 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
             for line in range(len(game.maze)):
                 s = ''
                 for j in range(len(game.maze[line])):
-                    if game.maze[line][j] == 'n': game.maze[line][j] = 0
+                    if game.maze[line][j] == 'n':
+                        game.maze[line][j] = 0
                     s += str(game.maze[line][j]) + ' '
                 save_file.write(s + '\n')
             for i in range(len(game.first_maze)):
@@ -63,7 +65,7 @@ def save(game: GameGenerator, player: Player, game_number: int = 0, file=SAVE):
             history_file.write(f'name: {player.name}\n')
             history_file.write(f'level: {game.level}\n')
             history_file.write(f'points: {player.points}\n')
-            history_file.write(f'coordinates: ({player.coordinate[0]}, {player.coordinate[1]})\n')
+            history_file.write(f'coordinates: {player.coordinate}\n')
 
 
 def delete_save(game_number, file=SAVE):
@@ -103,7 +105,7 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
             lines: list[str] = save_file.readlines()
         game_number = level = bombs = lives = points = row = -1
         skin = ''
-        player_position: tuple[int, int] = (0,0)
+        player_position: tuple[int, int] = (0, 0)
         num_games = count_saves(file)
         first_maze = False
         for line in lines:
@@ -147,7 +149,9 @@ def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
                     first_maze.append(actual_line)
                     if row == (level + 6) * 2 - 2:
                         if level > -1 and len(games) < num_games:
-                            game = (game_number, GameGenerator(level=level, maze=actual_maze, first_maze=first_maze, act_time=time), Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position, level=level))
+                            act_game = GameGenerator(level=level, maze=actual_maze, first_maze=first_maze, act_time=time)
+                            act_player = Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position, level=level)
+                            game = (game_number, act_game, act_player)
                             games.append(game)
                             actual_maze = []
                             first_maze = False
@@ -167,10 +171,11 @@ def store_save(game: GameGenerator, player: Player) -> None:
     if 'game_number' in locals():
         delete_save(game_number)
 
+
 if __name__ == "__main__":
     game = GameGenerator(1)
     player = Player('test_player')
     game.maze[2][0] = 'b'
     save(game, player)
     order_saves(return_saves())
-    #delete_save(1)
+    # delete_save(1)

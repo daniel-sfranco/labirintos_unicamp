@@ -1,15 +1,19 @@
 import random
-import pygame, sys, os, time
+import pygame
+import sys
+import os
+import time
+import drawer
+import save
 from constants import *
-from drawer import *
 from player import Player
 from game_generator import GameGenerator
-from save import count_saves, order_saves, save, delete_save, store_save
 from math import trunc
-from teacher import set_teachers
 from questions import ask_question
 game_part = 'init'
 mouse_x, mouse_y = 0, 0
+game = GameGenerator(0)
+player = Player('')
 key_pressed = mouse_pressed = False
 drawed_maze = input_active = False
 level = 1
@@ -55,7 +59,7 @@ while True:
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
-        button_positions = draw_init()
+        button_positions = drawer.draw_init()
         buttons = ['new', 'select_save', 'winners', 'info', 'quit']
         if mouse_pressed:
             for i in range(len(button_positions)):
@@ -72,40 +76,40 @@ while True:
             game = GameGenerator(level)
             game_part = 'play'
             player.coordinate = (0, 0)
-            unit_size = draw_maze(player, game)
+            unit_size = drawer.draw_maze(player, game)
             pygame.display.flip()
             drawed_maze = True
             game.time_dif = TIME - game.time
             i = 0
     elif game_part == "character_sel":
-        buttons_char, arrows, input_box, skin_choice = draw_character_sel(user_input, input_active, skin_sel)
+        buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(user_input, input_active, skin_sel)
         player: Player = Player('')
         if mouse_pressed:
             if buttons_char[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'init'
             elif buttons_char[1].collidepoint(mouse_x, mouse_y):
-                player = Player(name = user_input)
+                player = Player(name=user_input)
                 level = 1
                 game_part = 'new'
                 drawed_maze = True
             elif arrows[0].collidepoint(mouse_x, mouse_y):
                 if skin_sel != 0:
-                        skin_sel -= 1
+                    skin_sel -= 1
             elif arrows[1].collidepoint(mouse_x, mouse_y):
                 if skin_sel != 3:
-                        skin_sel += 1
-            elif input_box.collidepoint(mouse_x,mouse_y):
+                    skin_sel += 1
+            elif input_box.collidepoint(mouse_x, mouse_y):
                 input_active = True
             else:
                 input_active = False
             mouse_pressed = False
             if user_input != "":
-                player = Player(name = user_input, skin = skin_choice)
+                player = Player(name=user_input, skin=skin_choice)
             else:
-                player = Player(name = 'jogador', skin = skin_choice)
+                player = Player(name='jogador', skin=skin_choice)
             level = 1
     elif 'load' in game_part:
-        games = return_saves()
+        games = save.save.return_saves()
         index = int(game_part[4:]) - 1
         game = games[index][1]
         player = games[index][2]
@@ -117,16 +121,17 @@ while True:
                 game.maze[random_y][random_x] = 'n'
                 i += 1
         game_part = 'play'
-        unit_size = draw_maze(player, game)
+        unit_size = drawer.draw_maze(player, game)
         pygame.display.flip()
         drawed_maze = True
         start_time = time.perf_counter()
         level = game.level
         game.time_dif = TIME - game.time
     elif game_part == 'play':
-        game.time = TIME - trunc(time.perf_counter() - game.start) - game.time_dif
+        act_time = time.perf_counter()
+        game.time = TIME - trunc(act_time - game.start) - game.time_dif
         if game.act_points > 0:
-            game.points = game.level * trunc((game.act_points - ((TIME - game.time)/60) * game.act_points)*100)
+            game.points = game.level * trunc((game.act_points - ((TIME - game.time) / 60) * game.act_points) * 100)
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
@@ -135,6 +140,7 @@ while True:
                 del bomb_start, bomb_coords
         if game.time == 0:
             player.lives -= 1
+            game.act_points = 0
             if player.lives > 0:
                 game.reset()
                 player.coordinate = (0, 0)
@@ -145,12 +151,14 @@ while True:
         for teacher in game.teachers:
             game.maze = teacher.move(player, game)
             questioned = False
-            if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1 and not questioned:
+            test_x = abs(teacher.coordinate[0] - player.coordinate[0]) <= 1
+            test_y = abs(teacher.coordinate[1] - player.coordinate[1]) <= 1
+            if test_x and test_y and not questioned:
                 questioned = True
                 print(ask_question())
-        unit_size = draw_maze(player, game)
-        pause_rect = draw_pause_button()
-        draw_HUD(game, player)
+        unit_size = drawer.draw_maze(player, game)
+        pause_rect = drawer.draw_pause_button()
+        drawer.draw_HUD(game, player)
         pygame.display.flip()
         if (mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y)):
             game_part = 'pause'
@@ -169,7 +177,7 @@ while True:
             player.points += game.points
             game_part = 'new'
     elif game_part == 'pause':
-        pause_menu = draw_pause_menu(player, game)
+        pause_menu = drawer.draw_pause_menu(player, game)
         pygame.display.flip()
         if mouse_pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
@@ -181,8 +189,8 @@ while True:
                 game.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
-                if count_saves(SAVE) < 3:
-                    save(game, player)
+                if save.count_saves(SAVE) < 3:
+                    save.save(game, player)
                 else:
                     game_part = 'over_save'
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
@@ -195,9 +203,9 @@ while True:
                 game_part = 'init'
             mouse_pressed = False
     elif game_part == 'select_save':
-        save_menu = draw_select_save()
-        saves = return_saves()
-        order_saves(saves)
+        save_menu = drawer.draw_select_save()
+        saves = save.return_saves()
+        save.order_saves(saves)
         buttons: list[str] = []
         for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
@@ -218,7 +226,7 @@ while True:
                         mouse_pressed = False
                         break
     elif game_part == 'over_save':
-        save_menu = draw_select_save('delete', player, game)
+        save_menu = drawer.draw_select_save('delete', player, game)
         buttons: list[str] = []
         for i in range(1, len(save_menu) - 1):
             buttons.append(f'game {i}')
@@ -232,20 +240,21 @@ while True:
                         mouse_pressed = False
                         break
                     elif buttons[i] == 'clear':
-                        if os.path.exists('save.che'): os.remove('save.che')
+                        if os.path.exists('save.che'):
+                            os.remove('save.che')
                     else:
                         game_number = int(buttons[i].replace('game ', ''))
-                        delete_save(game_number)
-                        save(game=game, player=player, game_number=game_number)
-                        now_saves = count_saves(SAVE)
-                        order_saves(return_saves())
+                        save.delete_save(game_number)
+                        save.save(game, player, game_number)
+                        now_saves = save.count_saves(SAVE)
+                        save.order_saves(save.return_saves())
                         game_part = 'pause'
                         mouse_pressed = False
                         break
     elif game_part == 'game_over':
-        over_menu = draw_game_over(game, player)
-        if saved == False:
-            store_save(game, player)
+        over_menu = drawer.draw_game_over(game, player)
+        if saved is False:
+            save.store_save(game, player)
             saved = True
         pygame.display.flip()
         if mouse_pressed:
@@ -256,7 +265,6 @@ while True:
             elif over_menu[1].collidepoint(mouse_x, mouse_y):
                 print(":)")
             elif over_menu[2].collidepoint(mouse_x, mouse_y):
-                screen.fill('black')
                 drawed_maze = False
                 saved = False
                 game_part = 'init'

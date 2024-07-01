@@ -3,11 +3,13 @@ from random import choice
 from constants import HISTORY
 from os import path
 
+
 class Student(Player):
     def __init__(self, name, level, points, coordinate, num):
         super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
-        self.num=num
+        self.num = num
         self.item = choice(['b', 'l', 't'])
+
 
 def set_students(game):
     students: list[Student] = []
@@ -25,7 +27,7 @@ def set_students(game):
                 coordinates = tuple(map(int, line[14:-2].split(', ')))
             else:
                 num = line[6:]
-                if 'name' in locals() and level == game.level and coordinates != (0,0):
+                if 'name' in locals() and level == game.level and coordinates != (0, 0):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinates, num=num))
     if len(students) < game.level:
         i = len(students)
@@ -34,8 +36,11 @@ def set_students(game):
             name = 'Student' + str(i + 1)
             level = game.level
             points = 0
-            coordinate = (choice(range(len(game.maze))), choice(range(len(game.maze[0]))))
-            if coordinate == (len(game.maze), len(game.maze[-1])): continue
+            coord_x = choice(range(len(game.maze)))
+            coord_y = choice(range(len(game.maze[0])))
+            coordinate = (coord_x, coord_y)
+            if coordinate == (len(game.maze), len(game.maze[-1])):
+                continue
             students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
             i += 1
     elif len(students) > game.level:

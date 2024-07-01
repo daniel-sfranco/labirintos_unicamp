@@ -7,7 +7,7 @@ from teacher import Teacher, set_teachers, get_teachers
 
 
 class GameGenerator:
-    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze = [], act_time=TIME):
+    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze=[], act_time=TIME):
         self.level = level
         self.width = level + 6
         self.height = level + 6
@@ -39,7 +39,9 @@ class GameGenerator:
 
     def generate_maze(self):
         # Start at a random cell
-        current_cell = (random.randint(0, self.width - 1), random.randint(0, self.height - 1))
+        current_x = random.randint(0, self.width - 1)
+        current_y = random.randint(0, self.height - 1)
+        current_cell = (current_x, current_y)
         closed = []
         for i in range(len(self.maze)):
             for j in range(len(self.maze[i])):
@@ -56,11 +58,11 @@ class GameGenerator:
             self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
         i = 0
         while i < self.level + 6:
-                random_x = random.randint(0, len(self.maze[0]) - 1)
-                random_y = random.randint(0, len(self.maze) - 1)
-                if self.maze[random_y][random_x] == 0:
-                    self.maze[random_y][random_x] = 'n'
-                    i += 1
+            random_x = random.randint(0, len(self.maze[0]) - 1)
+            random_y = random.randint(0, len(self.maze) - 1)
+            if self.maze[random_y][random_x] == 0:
+                self.maze[random_y][random_x] = 'n'
+                i += 1
         return self.maze
 
     def generate_maze_recursive(self, cell, closed):
@@ -132,12 +134,15 @@ class GameGenerator:
         self.time = TIME
 
     def detonate(self, player, bomb_coords, bomb_start):
-        for i in range(bomb_coords[0]-1, bomb_coords[0]+2):
-            for j in range(bomb_coords[1]-1, bomb_coords[1]+2):
+        for i in range(bomb_coords[0] - 1, bomb_coords[0] + 2):
+            for j in range(bomb_coords[1] - 1, bomb_coords[1] + 2):
                 if i >= 0 and i < len(self.maze) and j >= 0 and j < len(self.maze[i]):
-                    for t in range(len(self.teachers)):
-                        if self.teachers[t].coordinate == [i, j]:
-                            del self.teachers[t]
+                    del_teachers = []
+                    for t in self.teachers:
+                        if t.coordinate == [i, j]:
+                            del_teachers.append(t)
+                    for t in range(len(del_teachers)):
+                        self.teachers.remove(del_teachers[t])
                     self.maze[i][j] = 0
         if abs(bomb_coords[0] - player.coordinate[0]) < 2 and abs(bomb_coords[1] - player.coordinate[1]) < 2:
             player.lives -= 1
@@ -145,9 +150,9 @@ class GameGenerator:
             self.reset()
         return player
 
+
 if __name__ == "__main__":
     level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
     maze_generator = GameGenerator(level)
-

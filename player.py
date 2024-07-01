@@ -1,12 +1,21 @@
 import pygame
+import os
 from questions import ask_question
 from constants import SPEED, BOMBS, LIVES, TIME
-move_keys = [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_a, pygame.K_s, pygame.K_w, pygame.K_d]
-import os
-import sys
+move_keys = [
+    pygame.K_UP,
+    pygame.K_DOWN,
+    pygame.K_RIGHT,
+    pygame.K_LEFT,
+    pygame.K_a,
+    pygame.K_s,
+    pygame.K_w,
+    pygame.K_d
+]
+
 
 class Player:
-    def __init__(self, name: str, skin: str = 'human', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0,0), level: int = 0) -> None:
+    def __init__(self, name: str, skin: str = 'human', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0, 0), level: int = 0) -> None:
         self.name = name
         self.points = points
         self.lives = lives
@@ -57,9 +66,9 @@ class Player:
                 first = 0
             else:
                 letters = []
-                for l in first:
-                    letters.append(l)
-                first = ''.join([letter for letter in letters if letter!= 'p'])
+                for letter in first:
+                    letters.append(letter)
+                first = ''.join([letter for letter in letters if letter != 'p'])
             if next == 0:
                 next = 'p'
             elif next == 'n':
