@@ -13,13 +13,14 @@ class Question:
                     while n > 0:
                         n //= 10
                         i += 1
-                    self.question = line.strip()[i+1:]
+                    self.question = line.strip()[i + 1:]
                     index = lines.index(line)
-            self.a = lines[index+2].strip()
-            self.b = lines[index+3].strip()
-            self.c = lines[index+4].strip()
-            self.d = lines[index+5].strip()
-            self.answer = lines[index+7][11]
+            self.a = lines[index + 2].strip()
+            self.b = lines[index + 3].strip()
+            self.c = lines[index + 4].strip()
+            self.d = lines[index + 5].strip()
+            self.answer = lines[index + 7][11]
+
     def __str__(self):
         return f"""Questão {self.number}: {self.question}
 {self.a}
@@ -27,10 +28,12 @@ class Question:
 {self.c}
 {self.d}"""
 
+
 def ask_question():
     num_question = randint(1, 100)
     question = Question(num_question)
     return question
+
 
 if __name__ == "__main__":
     num = int(input())
