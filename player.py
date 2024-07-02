@@ -1,5 +1,6 @@
 import pygame
 import os
+import audio
 from questions import ask_question
 from constants import SPEED, BOMBS, LIVES, TIME
 move_keys = [
@@ -74,6 +75,7 @@ class Player:
             elif next == 'n':
                 next = 'p'
                 game.act_points += 1
+                audio.points.play()
             elif next == 'b':
                 self.bombs += 1
                 next = 'p'

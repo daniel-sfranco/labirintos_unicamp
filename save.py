@@ -96,7 +96,7 @@ def order_saves(saves: list[tuple[int, GameGenerator, Player]], file=SAVE) -> No
 
 def return_saves(file=SAVE) -> list[tuple[int, GameGenerator, Player]]:
     games: list[tuple[int, GameGenerator, Player]] = []
-    game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name = '', skin = ''))
+    game: tuple[int, GameGenerator, Player] = (0, GameGenerator(level=0, maze=[[None]]), Player(name = ''))
     lines: list[str] = []
     actual_maze = []
     name = ''

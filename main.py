@@ -5,6 +5,7 @@ import os
 import time
 import drawer
 import save
+import audio
 from constants import *
 from player import Player
 from game_generator import GameGenerator
@@ -71,6 +72,8 @@ while True:
             for i in range(len(button_positions)):
                 if button_positions[i].collidepoint(mouse_x, mouse_y):
                     game_part = buttons[i]
+                    if buttons[i] != 'quit':
+                        audio.select.play()
                     break
             mouse_pressed = False
         if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
@@ -93,11 +96,13 @@ while True:
         if mouse_pressed:
             if buttons_char[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'init'
+                audio.select.play()
             elif buttons_char[1].collidepoint(mouse_x, mouse_y):
                 player = Player(name = user_input, skin = skin_choice)
                 level = 1
                 game_part = 'new'
                 drawed_maze = True
+                audio.select.play()
             elif arrows[0].collidepoint(mouse_x, mouse_y):
                 if skin_sel != 0:
                     skin_sel -= 1
@@ -110,12 +115,12 @@ while True:
                 input_active = False
             mouse_pressed = False
             if user_input != "":
-                player = Player(name=user_input, skin=skin_choice)
+                player = Player(name = user_input, skin = skin_choice)
             else:
-                player = Player(name='jogador', skin=skin_choice)
+                player = Player(name = 'Jogador', skin = skin_choice)
             level = 1
     elif 'load' in game_part:
-        games = save.save.return_saves()
+        games = save.return_saves()
         index = int(game_part[4:]) - 1
         game = games[index][1]
         player = games[index][2]
@@ -138,7 +143,7 @@ while True:
         if not questioned:
             question = ask_question()
             questioned = True
-        answer_buttons, isAnswered = draw_question(question, chosen_answer, player)
+        answer_buttons, isAnswered = drawer.draw_question(question, chosen_answer, player)
         if mouse_pressed:
             if answer_buttons[0].collidepoint(mouse_x, mouse_y):
                 chosen_answer = 'a'
@@ -177,14 +182,16 @@ while True:
         end = player.move_player(game)
         for teacher in game.teachers:
             game.maze = teacher.move(player, game)
-            if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1 and not questioned:
+            test_x = abs(teacher.coordinate[0] - player.coordinate[0]) <= 1
+            test_y = abs(teacher.coordinate[1] - player.coordinate[1]) <= 1
+            if test_x and test_y and not questioned:
                 game_part = 'question'
                 start_question = time.perf_counter()
-            elif abs(teacher.coordinate[0] - player.coordinate[0]) > 1 and abs(teacher.coordinate[1] - player.coordinate[1]) > 1 and questioned:
+            elif not (test_x and test_y) and questioned:
                 questioned = False
-        unit_size = draw_maze(player, game)
-        pause_rect = draw_pause_button()
-        draw_HUD(game, player)
+        unit_size = drawer.draw_maze(player, game)
+        pause_rect = drawer.draw_pause_button()
+        drawer.draw_HUD(game, player)
         pygame.display.flip()
         if (mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y)):
             game_part = 'pause'
@@ -202,6 +209,7 @@ while True:
             level += 1
             player.points += game.points
             game_part = 'new'
+            audio.level_complete.play()
     elif game_part == 'pause':
         pause_menu = drawer.draw_pause_menu(player, game)
         pygame.display.flip()
@@ -209,24 +217,29 @@ while True:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
                 game.time_dif -= trunc(time.perf_counter() - start_pause)
+                audio.select.play()
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
                 player.lives = 3
                 game.reset()
                 game_part = 'play'
+                audio.select.play()
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
                 if save.count_saves(SAVE) < 3:
                     save.save(game, player)
                 else:
                     game_part = 'over_save'
+                audio.select.play()
             elif pause_menu[3].collidepoint(mouse_x, mouse_y):
                 drawed_maze = False
                 level = 1
                 game_part = 'new'
+                audio.select.play()
             elif pause_menu[4].collidepoint(mouse_x, mouse_y):
                 drawed_maze = False
                 level = 1
                 game_part = 'init'
+                audio.select.play()
             mouse_pressed = False
     elif game_part == 'select_save':
         save_menu = drawer.draw_select_save()

@@ -2,6 +2,7 @@ import pygame
 from constants import *
 from pygame.font import Font
 from save import return_saves
+import audio
 from player import Player
 from game_generator import GameGenerator
 
@@ -308,10 +309,12 @@ def draw_question(question, chosen_answer, player):
         if chosen_answer == question.answer.lower()[0]:
             pygame.draw.rect(surface, GREEN, question_rect, 0, 20)
             isAnswered = True
+            audio.correct.play(loops=1)
         else:
             pygame.draw.rect(surface, DARKRED, question_rect, 0, 20)
             isAnswered = True
             player.lives -= 1
+            audio.wrong.play()
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
     if len(question.question) < 40:

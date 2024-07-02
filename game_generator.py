@@ -1,5 +1,6 @@
 from constants import *
 import random
+import audio
 from typing import Any
 import time
 from student import set_students
@@ -148,6 +149,8 @@ class GameGenerator:
             player.lives -= 1
             player.coordinate = (0, 0)
             self.reset()
+
+        audio.explosion.play()
         return player
 
 
