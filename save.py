@@ -25,6 +25,12 @@ def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
     else:
         type = 'a'
     if file == SAVE:
+        saves = return_saves()
+        for save in saves:
+            if save[2].name == player.name:
+                delete_save(save)
+                num_game -= 1
+                break
         with open(file, type) as save_file:
             if game_number == 0:
                 save_file.write(f'game: {num_game + 1}\n')
@@ -97,7 +103,7 @@ def order_saves(saves: list[tuple[int, Game, Player]], file=SAVE) -> None:
 
 def return_saves(file=SAVE) -> list[tuple[int, Game, Player]]:
     games: list[tuple[int, Game, Player]] = []
-    game: tuple[int, Game, Player] = (0, Game(level=0, maze=[[None]]), Player(name=''))
+    game: tuple[int, Game, Player] = (0, Game(level=0), Player(name=''))
     lines: list[str] = []
     actual_maze = []
     name = ''
