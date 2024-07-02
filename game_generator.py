@@ -3,8 +3,8 @@ import random
 from typing import Any
 import time
 from player import Player
-from student import set_students
-from teacher import Teacher, set_teachers, get_teachers
+from student import set_students, get_students
+from teacher import Teacher, set_teachers
 
 
 class Game:
@@ -18,25 +18,33 @@ class Game:
         self.time_dif = TIME - act_time
         self.points = 0
         self.act_points = 0
+        self.num_students = level
+        self.num_teachers = level
         self.end = False
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
         else:
             self.maze = maze
-            self.teachers = get_teachers(self)
+            self.teachers = set_teachers(self)
+            self.students = get_students(self)
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+            for student in self.students:
+                self.maze[student.coordinate[0]][student.coordinate[1]] ='s'
             i = 0
-        self.start = time.perf_counter()
         if first_maze == []:
             self.first_maze = []
             for i in range(len(self.maze)):
                 self.first_maze.append([])
                 for j in range(len(self.maze[i])):
-                    self.first_maze[i].append(self.maze[i][j])
+                    if self.maze[i][j] not in ['s', 't']:
+                        self.first_maze[i].append(self.maze[i][j])
+                    else:
+                        self.first_maze[i].append(0)
         else:
             self.first_maze = first_maze
+        self.start = time.perf_counter()
 
     def generate_maze(self) -> list[list[Any]]:
         # Start at a random cell
@@ -51,8 +59,8 @@ class Game:
         # Recursively generate the maze starting from the current cell
         self.generate_maze_recursive(current_cell, closed)
         self.maze[0][0] = 'p'
-        students = set_students(self)
-        for student in students:
+        self.students = set_students(self)
+        for student in self.students:
             self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
         self.teachers: list[Teacher] = set_teachers(self)
         for teacher in self.teachers:
@@ -128,9 +136,15 @@ class Game:
             self.maze.append([])
             for j in range(len(self.first_maze[i])):
                 self.maze[i].append(self.first_maze[i][j])
-        self.start = time.perf_counter()
         for teacher in self.teachers:
-            teacher.coordinate = teacher.first_coordinate
+            self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 0
+        self.teachers = set_teachers(self)
+        for teacher in self.teachers:
+            self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+        self.students = set_students(self)
+        for student in self.students:
+            self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
+        self.start = time.perf_counter()
         self.time_dif = 0
         self.time = TIME
 
@@ -149,6 +163,9 @@ class Game:
             player.lives -= 1
             player.coordinate = (0, 0)
             self.reset()
+            player.points = player.first_points
+            player.lives = player.first_lives
+            player.bombs = player.first_bomb
         return player
 
 
