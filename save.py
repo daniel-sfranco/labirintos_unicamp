@@ -2,7 +2,7 @@ from typing import Any
 from game_generator import Game
 from player import Player
 from os import path
-from constants import SAVE, HISTORY
+from constants import SAVE, HISTORY, CHARACTERS
 
 
 def count_saves(file: str = SAVE) -> int:
@@ -36,7 +36,10 @@ def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
             save_file.write(f'lives: {player.lives}\n')
             save_file.write(f'time: {game.time}\n')
             save_file.write(f'bombs: {player.bombs}\n')
-            save_file.write(f'skin: {player.skin}\n')
+            if isinstance(player.skin, int):
+                save_file.write(f'skin: {CHARACTERS[player.skin]}\n')
+            else:
+                save_file.write(f'skin: {player.skin}\n')
             c = '('
             for line in player.coordinate:
                 if line // 10 == 0:

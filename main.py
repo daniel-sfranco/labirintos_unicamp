@@ -184,7 +184,7 @@ while True:
     elif game_part == 'play':
         act_time = time.perf_counter()
         question_giver: tuple[int, int] = (-1, -1)
-        passed = trunc(act_time - game.start) - game.time_dif + player.time_dif
+        passed = trunc(act_time - game.start) - game.time_dif - player.time_dif
         game.time = TIME - passed
         if game.act_points > 0:
             game.points = round(game.level * game.act_points * (1 - (passed / TIME)) * 100)
@@ -254,7 +254,7 @@ while True:
         if mouse_pressed:
             if pause_menu[0].collidepoint(mouse_x, mouse_y):
                 game_part = 'play'
-                game.time_dif -= trunc(time.perf_counter() - start_pause)
+                game.time_dif += trunc(time.perf_counter() - start_pause)
                 audio.select.play()
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)

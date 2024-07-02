@@ -94,7 +94,6 @@ def draw_maze(player, game_object) -> int:
     maze_width = maze_height = len(maze)
     unit_size = (3 * WIDTH // 4) // maze_width + 1 if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height + 1
     player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
-    wall = pygame.transform.scale(WALL, (unit_size, unit_size))
     player_y = player.coordinate[0] * unit_size
     dif = 0
     max = len(maze) * unit_size
@@ -103,33 +102,35 @@ def draw_maze(player, game_object) -> int:
         player_y -= unit_size
         max -= unit_size
     game_object.player_dif = dif
+    wall = pygame.transform.scale(WALL, (unit_size, unit_size))
+    tile = pygame.transform.scale(TILE, (unit_size, unit_size))
+    ghost = pygame.transform.scale(GHOST, (unit_size, unit_size))
+    prof = pygame.transform.scale(PROF, (unit_size, unit_size))
+    bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
+    point = pygame.transform.scale(POINT, (unit_size // 2, unit_size // 2))
+    life = pygame.transform.scale(HEART, (unit_size, unit_size))
+    clock = pygame.transform.scale(CLOCK_ICON, (unit_size, unit_size))
     for y in range(0, maze_height * unit_size, unit_size):
         for x in range(0, maze_width * unit_size, unit_size):
             maze_y = y // unit_size
             maze_x = x // unit_size
             if maze[maze_y][maze_x] == 1:
                 maze_surface.blit(wall, (x, y - game_object.player_dif))
-            elif maze[maze_y][maze_x] == 0:
-                pass
             else:
-                if 's' in maze[maze_y][maze_x]:
-                    ghost = pygame.transform.scale(GHOST, (unit_size, unit_size))
-                    maze_surface.blit(ghost, (x, y - game_object.player_dif))
-                if 't' in maze[maze_y][maze_x]:
-                    prof = pygame.transform.scale(PROF, (unit_size, unit_size))
-                    maze_surface.blit(prof, (x, y - game_object.player_dif))
-                if 'b' in maze[maze_y][maze_x]:
-                    bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
-                    maze_surface.blit(bomb, (x, y - game_object.player_dif))
-                if 'n' in maze[maze_y][maze_x]:
-                    point = pygame.transform.scale(POINT, (unit_size // 2, unit_size // 2))
-                    maze_surface.blit(point, (x + unit_size // 4, y - game_object.player_dif + unit_size // 4))
-                if 'l' in maze[maze_y][maze_x]:
-                    life = pygame.transform.scale(HEART, (unit_size, unit_size))
-                    maze_surface.blit(life, (x, y - game_object.player_dif))
-                if 'c' in maze[maze_y][maze_x]:
-                    clock = pygame.transform.scale(CLOCK_ICON, (unit_size, unit_size))
-                    maze_surface.blit(clock, (x, y - game_object.player_dif))
+                maze_surface.blit(tile, (x, y - game_object.player_dif))
+                if isinstance(maze[maze_y][maze_x], str):
+                    if 's' in maze[maze_y][maze_x]:
+                        maze_surface.blit(ghost, (x, y - game_object.player_dif))
+                    if 't' in maze[maze_y][maze_x]:
+                        maze_surface.blit(prof, (x, y - game_object.player_dif))
+                    if 'b' in maze[maze_y][maze_x]:
+                        maze_surface.blit(bomb, (x, y - game_object.player_dif))
+                    if 'n' in maze[maze_y][maze_x]:
+                        maze_surface.blit(point, (x + unit_size // 4, y - game_object.player_dif + unit_size // 4))
+                    if 'l' in maze[maze_y][maze_x]:
+                        maze_surface.blit(life, (x, y - game_object.player_dif))
+                    if 'c' in maze[maze_y][maze_x]:
+                        maze_surface.blit(clock, (x, y - game_object.player_dif))
     maze_surface.blit(player.img, (player.coordinate[1] * unit_size, player.coordinate[0] * unit_size - game_object.player_dif))
     screen.blit(maze_surface, (0, 0))
     return unit_size
@@ -236,20 +237,19 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
     character_w = FIRST_UNIT // 0.5
     character_h = FIRST_UNIT // 0.4
     character_distance = 600
-    characters = ["human", "paladin", "cyborg", "barbarian"]
-    for i in range(len(characters)):
+    for i in range(len(CHARACTERS)):
         slide_x = (WIDTH // 2.5 - (character_distance * skin_sel)) + i * character_distance
         if i == skin_sel:
-            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + characters[i] + '.gif'), (11, 11))
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif'), (11, 11))
         else:
-            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + characters[i] + '.gif').convert_alpha(), (8, 8))
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif').convert_alpha(), (8, 8))
             darken_surface = pygame.Surface(character_img.get_size()).convert_alpha()
             darken_surface.fill((255, 255, 255, 150))
             character_img.blit(darken_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         character_rect = pygame.Rect(slide_x, slide_y, character_w, character_h)
         screen.blit(character_img, character_rect)
 
-    skin_choice: str = characters[skin_sel]
+    skin_choice: str = CHARACTERS[skin_sel]
 
     arrow_w = FIRST_UNIT // 4
     arrow_h = FIRST_UNIT // 2

@@ -31,7 +31,7 @@ def set_students(game):
                 num = int(line[6:])
                 if 'name' in locals() and level == game.level and coordinates != (0, 0):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
-    if len(students) < game.level:
+    if len(students) < game.level // 2:
         i = len(students)
         while i < game.level:
             num = len(students) + 1
@@ -45,7 +45,7 @@ def set_students(game):
                 continue
             students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
             i += 1
-    elif len(students) > game.level:
+    elif len(students) > game.level // 2:
         students = sorted(students, key=lambda student: student.num, reverse=True)
         students = students[:game.level]
     return students
