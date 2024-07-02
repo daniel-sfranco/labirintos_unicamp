@@ -49,14 +49,12 @@ def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
             for line in range(len(game.maze)):
                 s = ''
                 for j in range(len(game.maze[line])):
-                    if game.maze[line][j] == 'n':
-                        game.maze[line][j] = 0
                     s += str(game.maze[line][j]) + ' '
                 save_file.write(s + '\n')
-            for i in range(len(game.first_maze)):
+            for line in range(len(game.first_maze)):
                 s = ''
-                for j in range(len(game.first_maze[i])):
-                    s += str(game.first_maze[i][j]) + ' '
+                for j in range(len(game.first_maze[line])):
+                    s += str(game.first_maze[line][j]) + ' '
                 save_file.write(s + '\n')
     elif file == HISTORY:
         game_number = count_saves(HISTORY) + 1
@@ -138,7 +136,7 @@ def return_saves(file=SAVE) -> list[tuple[int, Game, Player]]:
                     actual_maze.append(actual_line)
                     if row == (level + 6) * 2 - 2:
                         first_maze = []
-                        row = 0
+                        row = -1
                 else:
                     row += 1
                     actual_line: list[Any] = line.split(' ')
