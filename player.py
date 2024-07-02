@@ -1,7 +1,7 @@
 import pygame
 import os
 from questions import ask_question
-from constants import SPEED, BOMBS, LIVES, TIME, move_keys
+from constants import SPEED, BOMBS, LIVES, move_keys
 
 
 class Player:
@@ -10,7 +10,11 @@ class Player:
         self.points = points
         self.lives = lives
         self.bombs = bombs
+        self.first_lives = lives
+        self.first_bomb = bombs
+        self.first_points = points
         self.coordinate = coordinate
+        self.time_dif = 0
         if '\n' in skin:
             self.skin = skin[:-1]
         else:
@@ -20,7 +24,7 @@ class Player:
         path: str = os.path.join('img', 'player', f'{self.skin}.gif')
         self.img = pygame.image.load(path).convert()
 
-    def move_player(self, game) -> bool:
+    def move_player(self, game) -> tuple[int, int]:
         maze = game.maze
         keys = pygame.key.get_pressed()
         y, x = self.coordinate
@@ -31,8 +35,6 @@ class Player:
                 break
         if actual_key in [pygame.K_DOWN, pygame.K_s] and y < len(maze) - 1:
             next_coordinate = (y + 1, x)
-            if self.coordinate == (len(game.maze) - 1, len(game.maze) - 1):
-                return True
         elif actual_key in [pygame.K_UP, pygame.K_w] and y > 0:
             next_coordinate = (y - 1, x)
         elif actual_key in [pygame.K_LEFT, pygame.K_a] and x > 0:
@@ -46,7 +48,9 @@ class Player:
                 self.img = pygame.transform.flip(self.img, True, False)
                 self.facing_right = True
         elif self.coordinate == (len(game.maze) - 1, len(game.maze) - 1) and actual_key in [pygame.K_RIGHT, pygame.K_d, pygame.K_DOWN, pygame.K_s]:
-            return True
+            self.first_bomb = self.bombs
+            self.first_lives = self.lives
+            return (-1, -1)
         else:
             next_coordinate = (y, x)
         first = maze[self.coordinate[0]][self.coordinate[1]]
@@ -68,14 +72,18 @@ class Player:
                 self.bombs += 1
                 next = 'p'
             elif next == 's' or next == 't':
-                question = ask_question()
-                print(question)
                 pygame.time.delay(SPEED)
-                return False
+                return next_coordinate
+            elif next == 'l':
+                next = 'p'
+                self.lives += 1
+            elif next == 'c':
+                self.time_dif += 15
+                next = 'p'
             else:
-                return False
+                return next_coordinate
             maze[self.coordinate[0]][self.coordinate[1]] = first
             pygame.time.delay(SPEED)
             maze[next_coordinate[0]][next_coordinate[1]] = next
             self.coordinate = next_coordinate
-        return False
+        return next_coordinate
