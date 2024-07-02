@@ -3,12 +3,13 @@ import random
 import audio
 from typing import Any
 import time
-from student import set_students
-from teacher import Teacher, set_teachers, get_teachers
+from player import Player
+from student import set_students, get_students
+from teacher import Teacher, set_teachers
 
 
-class GameGenerator:
-    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze=[], act_time=TIME):
+class Game:
+    def __init__(self, level: int, maze: list[list[Any]] = [], first_maze=[], act_time=TIME) -> None:
         self.level = level
         self.width = level + 6
         self.height = level + 6
@@ -18,27 +19,35 @@ class GameGenerator:
         self.time_dif = TIME - act_time
         self.points = 0
         self.act_points = 0
+        self.num_students = level
+        self.num_teachers = level
         self.end = False
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
         else:
             self.maze = maze
-            self.teachers = get_teachers(self)
+            self.teachers = set_teachers(self)
+            self.students = get_students(self)
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+            for student in self.students:
+                self.maze[student.coordinate[0]][student.coordinate[1]] ='s'
             i = 0
-        self.start = time.perf_counter()
         if first_maze == []:
             self.first_maze = []
             for i in range(len(self.maze)):
                 self.first_maze.append([])
                 for j in range(len(self.maze[i])):
-                    self.first_maze[i].append(self.maze[i][j])
+                    if self.maze[i][j] not in ['s', 't']:
+                        self.first_maze[i].append(self.maze[i][j])
+                    else:
+                        self.first_maze[i].append(0)
         else:
             self.first_maze = first_maze
+        self.start = time.perf_counter()
 
-    def generate_maze(self):
+    def generate_maze(self) -> list[list[Any]]:
         # Start at a random cell
         current_x = random.randint(0, self.width - 1)
         current_y = random.randint(0, self.height - 1)
@@ -51,8 +60,8 @@ class GameGenerator:
         # Recursively generate the maze starting from the current cell
         self.generate_maze_recursive(current_cell, closed)
         self.maze[0][0] = 'p'
-        students = set_students(self)
-        for student in students:
+        self.students = set_students(self)
+        for student in self.students:
             self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
         self.teachers: list[Teacher] = set_teachers(self)
         for teacher in self.teachers:
@@ -66,7 +75,7 @@ class GameGenerator:
                 i += 1
         return self.maze
 
-    def generate_maze_recursive(self, cell, closed):
+    def generate_maze_recursive(self, cell: tuple[int, int], closed: list[tuple[int, int]]) -> None:
         # Mark the current cell as visited
         self.grid[cell[0]][cell[1]] = 1
 
@@ -90,7 +99,7 @@ class GameGenerator:
             # Recursively generate the maze from the neighbor cell
             self.generate_maze_recursive(next_cell, closed)
 
-    def get_unvisited_neighbors(self, cell):
+    def get_unvisited_neighbors(self, cell: tuple[int, int]) -> list[tuple[int, int]]:
         neighbors = []
         x, y = cell
 
@@ -106,7 +115,7 @@ class GameGenerator:
 
         return neighbors
 
-    def remove_wall(self, cell1, cell2):
+    def remove_wall(self, cell1: tuple[int, int], cell2: tuple[int, int]) -> tuple[int, int]:
         x1, y1 = cell1
         x2, y2 = cell2
 
@@ -122,19 +131,25 @@ class GameGenerator:
             self.grid[wall_x][y1] = 1  # Mark the wall as removed
             return (min(x1, x2) * 2 + 1, y1 * 2)
 
-    def reset(self):
+    def reset(self) -> None:
         self.maze = []
         for i in range(len(self.first_maze)):
             self.maze.append([])
             for j in range(len(self.first_maze[i])):
                 self.maze[i].append(self.first_maze[i][j])
-        self.start = time.perf_counter()
         for teacher in self.teachers:
-            teacher.coordinate = teacher.first_coordinate
+            self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 0
+        self.teachers = set_teachers(self)
+        for teacher in self.teachers:
+            self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
+        self.students = set_students(self)
+        for student in self.students:
+            self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
+        self.start = time.perf_counter()
         self.time_dif = 0
         self.time = TIME
 
-    def detonate(self, player, bomb_coords, bomb_start):
+    def detonate(self, player: Player, bomb_coords: tuple[int, int]) -> Player:
         for i in range(bomb_coords[0] - 1, bomb_coords[0] + 2):
             for j in range(bomb_coords[1] - 1, bomb_coords[1] + 2):
                 if i >= 0 and i < len(self.maze) and j >= 0 and j < len(self.maze[i]):
@@ -149,6 +164,9 @@ class GameGenerator:
             player.lives -= 1
             player.coordinate = (0, 0)
             self.reset()
+            player.points = player.first_points
+            player.lives = player.first_lives
+            player.bombs = player.first_bomb
 
         audio.explosion.play()
         return player
@@ -158,4 +176,4 @@ if __name__ == "__main__":
     level = int(input('Level: '))
 
     # Create a maze generator instance and specify the maze dimensions
-    maze_generator = GameGenerator(level)
+    maze_generator = Game(level)
