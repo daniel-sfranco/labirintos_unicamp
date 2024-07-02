@@ -27,6 +27,8 @@ WALL = pygame.image.load("img/tiles/roomWall12.gif").convert()
 PROF = pygame.image.load('img/player/scientist.gif').convert()
 BOMB = pygame.image.load('img/items/shortSword.gif').convert()
 POINT = pygame.image.load('img/electricity.gif').convert()
+HEART = pygame.image.load('img/heart.png')
+CLOCK_ICON = pygame.image.load('img/items/clock.png')
 GRAY = (128, 128, 128, 120)
 DARKGRAY = '#282828'
 LIGHTGRAY = '#575757'
@@ -62,6 +64,7 @@ move_keys: list[int] = [
     pygame.K_w,
     pygame.K_d
 ]
+questioned = False
 screen = SCREEN
 saved = False
 skin_sel = 0
