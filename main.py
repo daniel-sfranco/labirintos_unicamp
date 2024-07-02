@@ -11,8 +11,8 @@ from game_generator import Game
 from math import trunc
 from questions import ask_question
 
-game = Game(0)
-player = Player('')
+game: Game = Game(0)
+player: Player = Player('')
 
 while True:
     CLOCK.tick(50)
@@ -107,7 +107,7 @@ while True:
                 player = Player(name='jogador', skin=skin_choice)
             level = 1
     elif 'load' in game_part:
-        games = save.save.return_saves()
+        games = save.return_saves()
         index = int(game_part[4:]) - 1
         game = games[index][1]
         player = games[index][2]
@@ -125,12 +125,13 @@ while True:
         start_time = time.perf_counter()
         level = game.level
         game.time_dif = TIME - game.time
-        
     elif game_part == 'question':
         if not questioned:
             question = ask_question()
             questioned = True
-        answer_buttons, isAnswered = draw_question(question, chosen_answer, player)
+            chosen_answer = ''
+        question_type = game.maze[question_giver[0]][question_giver[1]]
+        answer_buttons, answered = drawer.draw_question(question, chosen_answer, question_giver, question_type, game)
         if mouse_pressed:
             if answer_buttons[0].collidepoint(mouse_x, mouse_y):
                 chosen_answer = 'a'
@@ -140,17 +141,48 @@ while True:
                 chosen_answer = 'c'
             elif answer_buttons[3].collidepoint(mouse_x, mouse_y):
                 chosen_answer = 'd'
-        if isAnswered:
-            time.sleep(1.5)
+        if answered is not False:
+            if answered == 'right':
+                if question_type == 's':
+                    for student in game.students:
+                        if student.coordinate == question_giver:
+                            game.maze[question_giver[0]][question_giver[1]] = student.item
+                            game.num_students -= 1
+                            del game.students[game.students.index(student)]
+                            break
+                elif question_type == 't':
+                    for teacher in game.teachers:
+                        if teacher.coordinate == question_giver:
+                            game.maze[question_giver[0]][question_giver[1]] = 'n'
+                            game.num_teachers -= 1
+                            del game.teachers[game.teachers.index(teacher)]
+                            break
+            else:
+                if question_type == 's':
+                    for student in game.students:
+                        if student.coordinate == question_giver:
+                            game.num_students -= 1
+                            del game.students[game.students.index(student)]
+                            break
+                elif question_type == 't':
+                    for teacher in game.teachers:
+                        if teacher.coordinate == question_giver:
+                            game.num_teachers -= 1
+                            del game.teachers[game.teachers.index(teacher)]
+                            break
+                game.maze[question_giver[0]][question_giver[1]] = 0
+            pygame.time.delay(1500)
             game_part = 'play'
-            game.time_dif -= trunc(time.perf_counter() - start_question)
+            questioned = False
+            game.time_dif += trunc(time.perf_counter() - start_question)
             chosen_answer = ''
-
     elif game_part == 'play':
         act_time = time.perf_counter()
-        game.time = TIME - trunc(act_time - game.start) - game.time_dif
+        question_giver: tuple[int, int] = (-1, -1)
+        passed = trunc(act_time - game.start) - game.time_dif + player.time_dif
+        game.time = TIME - passed
         if game.act_points > 0:
-            game.points = game.level * trunc((game.act_points - ((TIME - game.time) / 60) * game.act_points) * 100)
+            game.points = round(game.level * game.act_points * (1 - (passed / TIME)) * 100)
         if 'bomb_start' in locals() and 'bomb_coords' in locals():
             bomb_time = BOMB_TIME - trunc(time.perf_counter() - bomb_start)
             if bomb_time <= 0:
@@ -162,21 +194,35 @@ while True:
             game.act_points = 0
             if player.lives > 0:
                 game.reset()
+                player.time_dif = 0
+                player.points = player.first_points
                 player.coordinate = (0, 0)
                 continue
         if player.lives == 0:
             game_part = 'game_over'
-        end = player.move_player(game)
+        next_coordinate = player.move_player(game)
+        question_giver: tuple[int, int] = (-1,-1)
+        for student in game.students:
+            if student.coordinate[0] == next_coordinate[0] and student.coordinate[1] == next_coordinate[1]:
+                game_part = 'question'
+                question_giver = student.coordinate
+                start_question = time.perf_counter()
+                continue
         for teacher in game.teachers:
             game.maze = teacher.move(player, game)
-            if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1 and not questioned:
+            if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1:
                 game_part = 'question'
+                question_giver = teacher.coordinate
                 start_question = time.perf_counter()
-            elif abs(teacher.coordinate[0] - player.coordinate[0]) > 1 and abs(teacher.coordinate[1] - player.coordinate[1]) > 1 and questioned:
+            elif teacher.coordinate[0] == next_coordinate[0] and teacher.coordinate[1] == next_coordinate[1]:
+                game_part = 'question'
+                question_giver = teacher.coordinate
+                start_question = time.perf_counter()
+            elif abs(teacher.coordinate[0] - player.coordinate[0]) > 1 and abs(teacher.coordinate[1] - player.coordinate[1]) > 1:
                 questioned = False
-        unit_size = draw_maze(player, game)
-        pause_rect = draw_pause_button()
-        draw_HUD(game, player)
+        unit_size = drawer.draw_maze(player, game)
+        pause_rect = drawer.draw_pause_button()
+        drawer.draw_HUD(game, player)
         pygame.display.flip()
         if (mouse_pressed and pause_rect.collidepoint(mouse_x, mouse_y)):
             game_part = 'pause'
@@ -190,9 +236,11 @@ while True:
                 player.bombs -= 1
                 game.maze[player.coordinate[0]][player.coordinate[1]] += 'ab'
                 bomb_coords = player.coordinate
-        if end:
+        if next_coordinate == (-1, -1):
             level += 1
             player.points += game.points
+            player.time_dif = 0
+            player.first_points = player.points
             game_part = 'new'
     elif game_part == 'pause':
         pause_menu = drawer.draw_pause_menu(player, game)
@@ -204,6 +252,10 @@ while True:
             elif pause_menu[1].collidepoint(mouse_x, mouse_y):
                 player.coordinate = (0, 0)
                 player.lives = 3
+                player.time_dif = 0
+                player.lives = player.first_lives
+                player.bombs = player.first_bomb
+                player.points = player.first_points
                 game.reset()
                 game_part = 'play'
             elif pause_menu[2].collidepoint(mouse_x, mouse_y):
