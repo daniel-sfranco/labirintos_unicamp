@@ -134,9 +134,9 @@ def question(manager, game) -> tuple[Manager, Game]:
         manager.chosen_answer = ''
         manager.num_question = random.randint(1, 100)
         return manager, game
-    question: Question = Question(manager.num_question)
-    question_type = game.maze[manager.question_giver[0]][manager.question_giver[1]]
-    answer_buttons, answered = drawer.draw_question(question, manager.chosen_answer, manager.question_giver, question_type, game)
+    manager.question = Question(manager.num_question)
+    manager.question_type = game.maze[manager.question_giver[0]][manager.question_giver[1]]
+    answer_buttons, answered = drawer.draw_question(manager, game)
     if manager.mouse_pressed:
         alt = ['a', 'b', 'c', 'd']
         for i in range(4):
@@ -144,14 +144,14 @@ def question(manager, game) -> tuple[Manager, Game]:
                 manager.chosen_answer = alt[i]
     if answered is not False:
         if answered == 'right':
-            if question_type == 's':
+            if manager.question_type == 's':
                 for student in game.students:
                     if student.coordinate == manager.question_giver:
                         game.maze[manager.question_giver[0]][manager.question_giver[1]] = student.item
                         game.num_students -= 1
                         del game.students[game.students.index(student)]
                         break
-            elif question_type == 't':
+            elif manager.question_type == 't':
                 for teacher in game.teachers:
                     if teacher.coordinate == manager.question_giver:
                         game.maze[manager.question_giver[0]][manager.question_giver[1]] = 'n'
@@ -159,13 +159,13 @@ def question(manager, game) -> tuple[Manager, Game]:
                         del game.teachers[game.teachers.index(teacher)]
                         break
         else:
-            if question_type == 's':
+            if manager.question_type == 's':
                 for student in game.students:
                     if student.coordinate == manager.question_giver:
                         game.num_students -= 1
                         del game.students[game.students.index(student)]
                         break
-            elif question_type == 't':
+            elif manager.question_type == 't':
                 for teacher in game.teachers:
                     if teacher.coordinate == manager.question_giver:
                         game.num_teachers -= 1
@@ -373,7 +373,6 @@ def main():
                 manager.mouse_pressed = True
             else:
                 manager.mouse_pressed = False
-        keys = pygame.key.get_pressed()
         if manager.part == 'init':
             manager = init(manager)
         elif manager.part == 'new':

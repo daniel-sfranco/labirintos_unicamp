@@ -1,4 +1,5 @@
 from random import randint
+from questions import Question
 class Manager:
     def __init__(self):
         self.part = 'init'
@@ -16,3 +17,5 @@ class Manager:
         self.start_pause_time: float = 0
         self.start_question: float = 0
         self.question_giver: tuple[int, int] = (-1, -1)
+        self.question_type = ''
+        self.question = Question(self.num_question)

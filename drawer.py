@@ -78,50 +78,44 @@ def draw_pause_button() -> pygame.Rect:
     return pause_rect
 
 
-def draw_maze(player: Player, game_object: Game) -> None:
+def draw_maze(player: Player, game: Game) -> None:
     screen.fill(BACKGROUND)
-    maze = game_object.maze
-    unit_size = game_object.unit_size
+    maze = game.maze
     maze_height = maze_width = len(maze)
-    maze_surface = pygame.Surface((unit_size * len(maze), unit_size * len(maze[0])))
+    maze_surface = pygame.Surface((game.unit_size * len(maze), game.unit_size * len(maze[0])))
     maze_surface.fill(TILE_COLOR)
-    player.img = pygame.transform.scale(player.img, (unit_size, unit_size))
-    player_y = player.coordinate[0] * unit_size
+    player.img = pygame.transform.scale(player.img, (game.unit_size, game.unit_size))
+    player_y = player.coordinate[0] * game.unit_size
     dif = 0
-    max = len(maze) * unit_size
+    max = len(maze) * game.unit_size
     while player_y > HEIGHT // 2 and max > HEIGHT:
-        dif += unit_size
-        player_y -= unit_size
-        max -= unit_size
-    game_object.player_dif = dif
-    wall = pygame.transform.scale(WALL, (unit_size, unit_size))
-    ghost = pygame.transform.scale(GHOST, (unit_size, unit_size))
-    prof = pygame.transform.scale(PROF, (unit_size, unit_size))
-    bomb = pygame.transform.scale(BOMB, (unit_size, unit_size))
-    point = pygame.transform.scale(POINT, (unit_size // 2, unit_size // 2))
-    life = pygame.transform.scale(HEART, (unit_size, unit_size))
-    clock = pygame.transform.scale(CLOCK_ICON, (unit_size, unit_size))
-    for y in range(0, maze_height * unit_size, unit_size):
-        for x in range(0, maze_width * unit_size, unit_size):
-            maze_y = y // unit_size
-            maze_x = x // unit_size
+        dif += game.unit_size
+        player_y -= game.unit_size
+        max -= game.unit_size
+    game.player_dif = dif
+    wall = pygame.transform.scale(WALL, (game.unit_size, game.unit_size))
+    ghost = pygame.transform.scale(GHOST, (game.unit_size, game.unit_size))
+    teacher = pygame.transform.scale(PROF, (game.unit_size, game.unit_size))
+    bomb = pygame.transform.scale(BOMB, (game.unit_size, game.unit_size))
+    point = pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2))
+    life = pygame.transform.scale(HEART, (game.unit_size, game.unit_size))
+    clock = pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size))
+    for y in range(0, maze_height * game.unit_size, game.unit_size):
+        for x in range(0, maze_width * game.unit_size, game.unit_size):
+            maze_y = y // game.unit_size
+            maze_x = x // game.unit_size
             if maze[maze_y][maze_x] == 1:
-                maze_surface.blit(wall, (x, y - game_object.player_dif))
+                maze_surface.blit(wall, (x, y - game.player_dif))
             else:
+                tile_type = {'s': ghost, 't': teacher, 'b': bomb, 'n': point, 'l': life, 'c': clock, 'p': player.img}
                 if isinstance(maze[maze_y][maze_x], str):
-                    if 's' in maze[maze_y][maze_x]:
-                        maze_surface.blit(ghost, (x, y - game_object.player_dif))
-                    if 't' in maze[maze_y][maze_x]:
-                        maze_surface.blit(prof, (x, y - game_object.player_dif))
-                    if 'b' in maze[maze_y][maze_x]:
-                        maze_surface.blit(bomb, (x, y - game_object.player_dif))
-                    if 'n' in maze[maze_y][maze_x]:
-                        maze_surface.blit(point, (x + unit_size // 4, y - game_object.player_dif + unit_size // 4))
-                    if 'l' in maze[maze_y][maze_x]:
-                        maze_surface.blit(life, (x, y - game_object.player_dif))
-                    if 'c' in maze[maze_y][maze_x]:
-                        maze_surface.blit(clock, (x, y - game_object.player_dif))
-    maze_surface.blit(player.img, (player.coordinate[1] * unit_size, player.coordinate[0] * unit_size - game_object.player_dif))
+                    for i in maze[maze_y][maze_x]:
+                        if i == 'n':
+                            maze_surface.blit(tile_type[i], (x + (game.unit_size // 4), y - game.player_dif + (game.unit_size // 4)))
+                        elif i == 'a':
+                            continue
+                        else:
+                            maze_surface.blit(tile_type[i], (x, y - game.player_dif))
     screen.blit(maze_surface, (0, 0))
 
 
@@ -155,7 +149,7 @@ def draw_HUD(player: Player, game: Game) -> None:
     screen.blit(hud, (0, 0))
 
 
-def draw_pause_menu(player, game) -> list[pygame.Rect]:
+def draw_pause_menu(player: Player, game: Game) -> list[pygame.Rect]:
     draw_maze(player, game)
     draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
@@ -168,7 +162,7 @@ def draw_pause_menu(player, game) -> list[pygame.Rect]:
     return menu
 
 
-def draw_game_over(game, player) -> list[pygame.Rect]:
+def draw_game_over(game: Game, player: Player) -> list[pygame.Rect]:
     draw_maze(player, game)
     draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
@@ -249,15 +243,15 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
     return button_positions, arrow_positions, input_box, skin_choice
 
 
-def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple[int, int], question_type: str, game: Game):
+def draw_question(manager: Manager, game: Game):
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     question_rect = pygame.Rect(0, 0, WIDTH // 1.2, HEIGHT // 1.4)
     question_rect.center = (WIDTH // 2, HEIGHT // 2)
-    if chosen_answer == '':
+    if manager.chosen_answer == '':
         color = LIGHTGRAY
         answered = False
     else:
-        if chosen_answer == question.answer.lower()[0]:
+        if manager.chosen_answer == manager.question.answer.lower()[0]:
             color = GREEN
             answered = 'right'
             audio.correct.play(loops=1)
@@ -270,20 +264,20 @@ def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple
 
     subfont = pygame.font.Font('./fonts/dogicapixelbold.ttf', WIDTH // 45)
     pos = []
-    for i in range(len(question.question), 0, -1):
-        if question.question[i - 1] == " ":
+    for i in range(len(manager.question.question), 0, -1):
+        if manager.question.question[i - 1] == " ":
             pos.append(i)
     if len(pos) < 7:
-        title = subfont.render(question.question, True, WHITE)
+        title = subfont.render(manager.question.question, True, WHITE)
         title_rect = title.get_rect()
         title_rect.top, title_rect.centerx = (HEIGHT // 4, WIDTH // 2)
         surface.blit(title, title_rect)
     else:
-        part1 = question.question[0:pos[len(pos) // 2]]
-        part2 = question.question[pos[len(pos) // 2]:len(question.question)]
+        part1 = manager.question.question[0:pos[len(pos) // 2]]
+        part2 = manager.question.question[pos[len(pos) // 2]:len(manager.question.question)]
         draw_title(part1, subfont, WHITE, surface, question=1, back=color)
         draw_title(part2, subfont, WHITE, surface, question=2, back=color)
-    button_text = [question.a, question.b, question.c, question.d]
+    button_text = [manager.question.a, manager.question.b, manager.question.c, manager.question.d]
     answer_buttons: list[pygame.Rect] = []
     buttonx = [WIDTH // 7, WIDTH // 1.9]
     buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
