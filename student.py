@@ -5,10 +5,15 @@ from os import path
 
 
 class Student(Player):
-    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1,-1), num: int = 0):
+    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1,-1), num: int = 0, lives: int = 3, bombs: int = 0):
         super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
         self.num = num
-        self.item = choice(['b', 'l', 'c'])
+        self.possibilities = ['c']
+        if lives < 5:
+            self.possibilities.append('l')
+        if bombs < 5:
+            self.possibilities.append('b')
+        self.item = choice(self.possibilities)
 
 
 def set_students(game):
@@ -31,9 +36,9 @@ def set_students(game):
                 num = int(line[6:])
                 if 'name' in locals() and level == game.level and coordinates != (0, 0):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
-    if len(students) < game.level // 2:
+    if len(students) < game.level // 2 or len(students) == 0:
         i = len(students)
-        while i < game.level:
+        while True:
             num = len(students) + 1
             name = 'Student' + str(i + 1)
             level = game.level
@@ -45,9 +50,11 @@ def set_students(game):
                 continue
             students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
             i += 1
+            if i >= game.level // 2:
+                break
     elif len(students) > game.level // 2:
         students = sorted(students, key=lambda student: student.num, reverse=True)
-        students = students[:game.level]
+        students = students[:game.level // 2]
     return students
 
 def get_students(game):

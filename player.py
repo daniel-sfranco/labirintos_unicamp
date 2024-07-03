@@ -6,7 +6,7 @@ from constants import SPEED, BOMBS, LIVES, move_keys
 
 
 class Player:
-    def __init__(self, name: str, skin: str = 'human', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0, 0), level: int = 0) -> None:
+    def __init__(self, name: str, skin: str = 'superhero', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0, 0), level: int = 0) -> None:
         self.name = name
         self.points = points
         self.lives = lives

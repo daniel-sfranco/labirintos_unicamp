@@ -13,7 +13,7 @@ class Question:
                     while n > 0:
                         n //= 10
                         i += 1
-                    self.question = line.strip()[i + 1:]
+                    self.question = line.strip()[i + 2:]
                     index = lines.index(line)
             self.a = lines[index + 2].strip()
             self.b = lines[index + 3].strip()

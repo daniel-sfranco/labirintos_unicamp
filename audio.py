@@ -1,5 +1,4 @@
 import pygame
-import os
 
 explosion = pygame.mixer.Sound('./audio/explosion.wav')
 points = pygame.mixer.Sound('./audio/points.wav')

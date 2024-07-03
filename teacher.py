@@ -21,7 +21,11 @@ class Teacher:
             self.coordinate: tuple[int, int] = coordinate
             self.first_coordinate: tuple[int, int] = first_coordinate
 
-    def move(self, player: Player, game):
+    def move(self, player: Player, game, move=False):
+        if not move:
+            speed = 0
+        else:
+            speed = 250 // len(game.teachers)
         free = False
         next_coord: tuple[int, int] = (-1, -1)
         if self.coordinate[0] == player.coordinate[0]:
@@ -46,7 +50,7 @@ class Teacher:
             game.maze[self.coordinate[0]][self.coordinate[1]] = 0
             game.maze[next_coord[0]][next_coord[1]] = 't'
             self.coordinate = next_coord
-            time.delay(250)
+        time.delay(speed)
         return game.maze
 
 
@@ -61,6 +65,10 @@ def set_teachers(game):
         for pos in teacher_pos:
             teachers.append(Teacher(game, first_coordinate=pos, coordinate=pos))
     else:
-        for _ in range(game.level):
+        i = 0
+        while True:
             teachers.append(Teacher(game))
+            i += 1
+            if i >= game.level // 2:
+                break
     return teachers

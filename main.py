@@ -29,8 +29,10 @@ while True:
                 elif game_part == 'pause':
                     game.time_dif += trunc(time.perf_counter() - start_pause)
                     game_part = 'play'
-                if game_part == 'character_sel':
+                elif game_part == 'character_sel':
                     game_part = "init"
+                elif game_part == 'init':
+                    game_part = 'quit'
             if game_part == 'character_sel':
                 if input_active:
                     if event.key == pygame.K_BACKSPACE:
@@ -41,13 +43,22 @@ while True:
                     if skin_sel != 0:
                         skin_sel -= 1
                 elif event.key == pygame.K_RIGHT:
-                    if skin_sel != 3:
+                    if skin_sel != len(CHARACTERS) - 1:
                         skin_sel += 1
                 elif event.key == pygame.K_RETURN:
                     player = Player(name = user_input, skin = skin_choice)
                     level = 1
                     game_part = 'new'
                     drawed_maze = True
+            elif game_part == 'question':
+                if event.key == pygame.K_a:
+                    chosen_answer = 'a'
+                elif event.key == pygame.K_b:
+                    chosen_answer = 'b'
+                elif event.key == pygame.K_c:
+                    chosen_answer = 'c'
+                elif event.key == pygame.K_d:
+                    chosen_answer = 'd'
             elif game_part == 'new':
                 game_part = 'init'
         if pygame.mouse.get_pressed()[0]:
@@ -99,7 +110,7 @@ while True:
                 if skin_sel != 0:
                     skin_sel -= 1
             elif arrows[1].collidepoint(mouse_x, mouse_y):
-                if skin_sel != 3:
+                if skin_sel != len(CHARACTERS) - 1:
                     skin_sel += 1
             elif input_box.collidepoint(mouse_x, mouse_y):
                 input_active = True
@@ -205,7 +216,9 @@ while True:
                 continue
         if player.lives == 0:
             game_part = 'game_over'
+        coord = player.coordinate
         next_coordinate = player.move_player(game)
+        move = coord == next_coordinate
         question_giver: tuple[int, int] = (-1,-1)
         for student in game.students:
             if student.coordinate[0] == next_coordinate[0] and student.coordinate[1] == next_coordinate[1]:
@@ -214,7 +227,7 @@ while True:
                 start_question = time.perf_counter()
                 continue
         for teacher in game.teachers:
-            game.maze = teacher.move(player, game)
+            game.maze = teacher.move(player, game, move)
             if abs(teacher.coordinate[0] - player.coordinate[0]) <= 1 and abs(teacher.coordinate[1] - player.coordinate[1]) <= 1:
                 game_part = 'question'
                 question_giver = teacher.coordinate
