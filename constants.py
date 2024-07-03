@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 pygame.init()
 """Índices matriz:
 1 - muro
@@ -12,10 +13,11 @@ A letra p pode se sobrepor a outras letras, tendo um tratamento diferente em cad
 INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN = pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
+FPS = 50
 TIME = 60
 SPEED = 150
 BOMB_TIME = 2
-BOMBS = 0
+BOMBS = 5
 LIVES = 3
 SAVE = 'save.che'
 HISTORY = 'history.che'
@@ -42,23 +44,21 @@ WHITE = '#FFFFFF'
 BLACK = '#000000'
 TILE_COLOR = '#0E0E0E'
 BACKGROUND = BLACK
+bomb_start = 0
+bomb_coords = (-1, -1)
 button_backgroundcolor = WHITE
 button_textcolor = BLACK
 button_width = WIDTH // 3
 button_height = HEIGHT // 15
 button_distance = HEIGHT // 10
 button_centerx = (WIDTH - button_width) / 2
-drawed_maze = False
 game_part = 'init'
-input_active = False
-key_pressed = False
 level = 1
 menu_height = HEIGHT // 1.75
 menu_y = ((HEIGHT * 1.05) - menu_height) / 2
 menu_width = WIDTH // 2.5
 menu_x = (WIDTH - menu_width) / 2
 mouse_x, mouse_y = 0, 0
-mouse_pressed = False
 move_keys: list[int] = [
     pygame.K_UP,
     pygame.K_DOWN,
@@ -69,12 +69,8 @@ move_keys: list[int] = [
     pygame.K_w,
     pygame.K_d
 ]
-questioned = False
 screen = SCREEN
-saved = False
-skin_sel = 0
-subfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 24)
-textfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 60)
+subfont = pygame.font.Font('./fonts/PixelTimes.ttf', 28)
+textfont = pygame.font.Font('./fonts/PixelTimes.ttf', 24)
 titlefont = pygame.font.Font('./fonts/dogicabold.ttf', WIDTH // 25)
-user_input = ''
 pygame.display.set_caption('Labirintos da Unicamp')

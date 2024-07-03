@@ -85,8 +85,9 @@ def delete_save(game_number, file=SAVE):
             game_level = int(lines[line_index + 1][7:])
             break
     total_lines = ((game_level + 6) * 2 - 1) * 2 + 8
-    for _ in range(total_lines):
-        del lines[line_index]
+    if 'line_index' in locals():
+        for _ in range(total_lines):
+            del lines[line_index]
     with open(file, 'w') as save_file:
         for line in lines:
             save_file.write(line)
@@ -112,7 +113,7 @@ def return_saves(file=SAVE) -> list[tuple[int, Game, Player]]:
             lines: list[str] = save_file.readlines()
         game_number = level = bombs = lives = points = row = -1
         skin = ''
-        player_position: tuple[int, int] = (0,0)
+        player_position: tuple[int, int] = (0, 0)
         num_games = count_saves(file)
         first_maze = False
         for line in lines:

@@ -22,6 +22,9 @@ class Game:
         self.num_students = level
         self.num_teachers = level
         self.end = False
+        self.bomb_start: float = bomb_start
+        self.bomb_coords: tuple[int, int] = bomb_coords
+        self.bomb_time: float = -1
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]
             self.generate_maze()
@@ -32,7 +35,7 @@ class Game:
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
             for student in self.students:
-                self.maze[student.coordinate[0]][student.coordinate[1]] ='s'
+                self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
             i = 0
         if first_maze == []:
             self.first_maze = []
@@ -45,6 +48,8 @@ class Game:
                         self.first_maze[i].append(0)
         else:
             self.first_maze = first_maze
+        maze_width = maze_height = len(self.maze)
+        self.unit_size = (3 * WIDTH // 4) // maze_width + 1 if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height + 1
         self.start = time.perf_counter()
 
     def generate_maze(self) -> list[list[Any]]:
@@ -148,6 +153,7 @@ class Game:
         self.start = time.perf_counter()
         self.time_dif = 0
         self.time = TIME
+        self.act_points = 0
 
     def detonate(self, player: Player, bomb_coords: tuple[int, int]) -> Player:
         for i in range(bomb_coords[0] - 1, bomb_coords[0] + 2):
