@@ -13,7 +13,7 @@ from math import trunc
 from questions import ask_question
 
 def handle_keydown_event(event: pygame.event.Event):
-    global game_part, start_pause, user_input, skin_sel, player, level, drawed_maze, chosen_answer, skin_choice
+    global game_part, start_pause, user_input, skin_sel, player, level, drawed_maze, chosen_answer, skin_choice, input_active
     if event.key == pygame.K_ESCAPE:
         if game_part == 'play':
             start_pause = time.perf_counter()
@@ -237,7 +237,6 @@ while running:
         coord = player.coordinate
         next_coordinate = player.move_player(game)
         move = coord == next_coordinate
-        question_giver: tuple[int, int] = (-1, -1)
         for student in game.students:
             if student.coordinate[0] == next_coordinate[0] and student.coordinate[1] == next_coordinate[1]:
                 game_part = 'question'
