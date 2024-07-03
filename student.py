@@ -5,10 +5,14 @@ from os import path
 
 
 class Student(Player):
-    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1, -1), num: int = 0, lives: int = 3, bombs: int = 0):
+    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1, -1), num: int = 0, lives: int = 3, bombs: int = 0, skin: str = 'superhero'):
         super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
         self.num = num
         self.possibilities = ['c']
+        if '\n' in skin:
+            self.last_skin = skin[:-1]
+        else:
+            self.last_skin = skin
         if lives < 5:
             self.possibilities.append('l')
         if bombs < 5:
@@ -32,10 +36,12 @@ def get_students(game) -> list[Student]:
             elif line.startswith('coordinates'):
                 coordinates = tuple(map(int, line[14:-2].split(', ')))
                 coordinate = (coordinates[0], coordinates[1])
+            elif line.startswith('skin'):
+                skin = line[6:]
             else:
                 num = int(line[6:])
                 if 'name' in locals() and level == game.level and coordinates != (0, 0):
-                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
+                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num, skin=skin))
     if len(students) < game.level:
         for i in range(len(game.maze)):
             for j in range(len(game.maze[i])):
@@ -90,8 +96,11 @@ def get_history(game):
             elif line.startswith('points'):
                 points = int(line[8:])
                 count += 1
-            if count == 3:
-                students.append(Student(name=name, level=level, points=points))
+            elif line.startswith('skin'):
+                skin = line[6:]
+                count += 1
+            if count == 4:
+                students.append(Student(name=name, level=level, points=points, skin=skin))
                 count = 0
 
     students = sorted(students, key=lambda x: x.points, reverse=True)
