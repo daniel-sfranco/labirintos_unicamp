@@ -71,14 +71,14 @@ def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, b
     surface.blit(title, title_rect)
 
 
-def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game = Game(1)) -> list[pygame.Rect]:
+def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game = Game(1), manager = Manager()) -> list[pygame.Rect]:
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
     if type == 'load':
         pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
         draw_title('Escolha um jogo salvo', subfont, WHITE, surface)
     elif type == 'delete':
-        draw_maze(player, game)
+        draw_maze(player, game, manager)
         pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
         draw_title('Escolha um jogo para sobreescrever', subfont, WHITE, surface)
         pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)

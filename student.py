@@ -38,7 +38,7 @@ def get_students(game) -> list[Student]:
                 coordinate = (coordinates[0], coordinates[1])
             elif line.startswith('skin'):
                 skin = line[6:]
-            else:
+            elif line.startswith('game'):
                 num = int(line[6:])
                 if 'name' in locals() and level == game.level and coordinates != (0, 0):
                     students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
@@ -80,7 +80,7 @@ def set_students(game):
     return students
 
 
-def get_history(game):
+def get_history():
     students: list[Student] = []
     if path.exists(HISTORY) and path.getsize(HISTORY) > 0:
         with open(HISTORY, 'r') as file:
