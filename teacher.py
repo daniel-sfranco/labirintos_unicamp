@@ -25,7 +25,7 @@ class Teacher:
         if not move:
             speed = 0
         else:
-            speed = 250 // len(game.teachers)
+            speed = 150 // len(game.teachers)
         free = False
         next_coord: tuple[int, int] = (-1, -1)
         if self.coordinate[0] == player.coordinate[0]:

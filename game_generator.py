@@ -32,7 +32,7 @@ class Game:
             for teacher in self.teachers:
                 self.maze[teacher.coordinate[0]][teacher.coordinate[1]] = 't'
             for student in self.students:
-                self.maze[student.coordinate[0]][student.coordinate[1]] ='s'
+                self.maze[student.coordinate[0]][student.coordinate[1]] = 's'
             i = 0
         if first_maze == []:
             self.first_maze = []
@@ -45,6 +45,8 @@ class Game:
                         self.first_maze[i].append(0)
         else:
             self.first_maze = first_maze
+        maze_width = maze_height = len(self.maze)
+        self.unit_size = (3 * WIDTH // 4) // maze_width + 1 if WIDTH > HEIGHT else (3 * HEIGHT // 4) // maze_height + 1
         self.start = time.perf_counter()
 
     def generate_maze(self) -> list[list[Any]]:

@@ -5,7 +5,7 @@ from os import path
 
 
 class Student(Player):
-    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1,-1), num: int = 0, lives: int = 3, bombs: int = 0):
+    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1, -1), num: int = 0, lives: int = 3, bombs: int = 0):
         super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
         self.num = num
         self.possibilities = ['c']
@@ -56,6 +56,7 @@ def set_students(game):
         students = sorted(students, key=lambda student: student.num, reverse=True)
         students = students[:game.level // 2]
     return students
+
 
 def get_students(game):
     students: list[Student] = []

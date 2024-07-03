@@ -12,55 +12,138 @@ from game_generator import Game
 from math import trunc
 from questions import ask_question
 
+def handle_keydown_event(event: pygame.event.Event):
+    global game_part, start_pause, user_input, skin_sel, player, level, drawed_maze, chosen_answer, skin_choice
+    if event.key == pygame.K_ESCAPE:
+        if game_part == 'play':
+            start_pause = time.perf_counter()
+            game_part = 'pause'
+        elif game_part == 'pause':
+            game.time_dif += trunc(time.perf_counter() - start_pause)
+            game_part = 'play'
+        elif game_part == 'character_sel':
+            game_part = "init"
+        elif game_part == 'init':
+            game_part = 'quit'
+    if game_part == 'character_sel':
+        if input_active:
+            if event.key == pygame.K_BACKSPACE:
+                user_input = user_input[:-1]
+            else:
+                user_input += event.unicode
+        if event.key == pygame.K_LEFT:
+            if skin_sel != 0:
+                skin_sel -= 1
+        elif event.key == pygame.K_RIGHT:
+            if skin_sel != len(CHARACTERS) - 1:
+                skin_sel += 1
+        elif event.key == pygame.K_RETURN:
+            level = 1
+            game_part = 'new'
+            character_sel(True)
+            drawed_maze = True
+            new()
+    elif game_part == 'question':
+        if event.key == pygame.K_a:
+            chosen_answer = 'a'
+        elif event.key == pygame.K_b:
+            chosen_answer = 'b'
+        elif event.key == pygame.K_c:
+            chosen_answer = 'c'
+        elif event.key == pygame.K_d:
+            chosen_answer = 'd'
+    elif game_part == 'new':
+        game_part = 'init'
+
+def init():
+    global game_part, mouse_pressed
+    button_positions = drawer.draw_init()
+    buttons = ['new', 'select_save', 'winners', 'info', 'quit']
+    if mouse_pressed:
+        for i in range(len(button_positions)):
+            if button_positions[i].collidepoint(mouse_x, mouse_y):
+                game_part = buttons[i]
+                if buttons[i] != 'quit':
+                    audio.select.play()
+                break
+        mouse_pressed = False
+    if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
+        game_part = 'new'
+
+def new():
+    global drawed_maze, game_part, game, i
+    if not drawed_maze:
+        game_part = "character_sel"
+    else:
+        game = Game(level)
+        game_part = 'play'
+        player.coordinate = (0, 0)
+        drawer.draw_maze(player, game)
+        pygame.display.flip()
+        drawed_maze = True
+        game.time_dif = TIME - game.time
+        i = 0
+
+def character_sel(mouse_pressed: bool):
+    global game_part, skin_sel, input_active, player, level, drawed_maze
+    buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(user_input, input_active, skin_sel)
+    if mouse_pressed:
+        if buttons_char[0].collidepoint(mouse_x, mouse_y):
+            game_part = 'init'
+            audio.select.play()
+        elif buttons_char[1].collidepoint(mouse_x, mouse_y):
+            player = Player(name=user_input, skin=skin_choice)
+            level = 1
+            game_part = 'new'
+            drawed_maze = True
+            audio.select.play()
+        elif arrows[0].collidepoint(mouse_x, mouse_y):
+            if skin_sel != 0:
+                skin_sel -= 1
+        elif arrows[1].collidepoint(mouse_x, mouse_y):
+            if skin_sel != len(CHARACTERS) - 1:
+                skin_sel += 1
+        elif input_box.collidepoint(mouse_x, mouse_y):
+            input_active = True
+        else:
+            input_active = False
+        mouse_pressed = False
+        if user_input != "":
+            player = Player(name=user_input, skin=skin_choice)
+        else:
+            player = Player(name='Jogador', skin=skin_choice)
+        level = 1
+
+def load():
+    global game_part, drawed_maze, level, game
+    games = save.return_saves()
+    index = int(game_part[4:]) - 1
+    game = games[index][1]
+    player = games[index][2]
+    i = 0
+    while i < game.level + 6:
+        random_x = random.randint(0, len(game.maze[0]) - 1)
+        random_y = random.randint(0, len(game.maze) - 1)
+        if game.maze[random_y][random_x] == 0:
+            game.maze[random_y][random_x] = 'n'
+            i += 1
+    game_part = 'play'
+    drawer.draw_maze(player, game)
+    pygame.display.flip()
+    drawed_maze = True
+    level = game.level
+    game.time_dif = TIME - game.time
+
 game: Game = Game(0)
 player: Player = Player('')
-
-while True:
-    CLOCK.tick(50)
+running = True
+while running:
+    CLOCK.tick(FPS)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                if game_part == 'play':
-                    start_pause = time.perf_counter()
-                    game_part = 'pause'
-                elif game_part == 'pause':
-                    game.time_dif += trunc(time.perf_counter() - start_pause)
-                    game_part = 'play'
-                elif game_part == 'character_sel':
-                    game_part = "init"
-                elif game_part == 'init':
-                    game_part = 'quit'
-            if game_part == 'character_sel':
-                if input_active:
-                    if event.key == pygame.K_BACKSPACE:
-                        user_input = user_input[:-1]
-                    else:
-                        user_input += event.unicode
-                if event.key == pygame.K_LEFT:
-                    if skin_sel != 0:
-                        skin_sel -= 1
-                elif event.key == pygame.K_RIGHT:
-                    if skin_sel != len(CHARACTERS) - 1:
-                        skin_sel += 1
-                elif event.key == pygame.K_RETURN:
-                    player = Player(name = user_input, skin = skin_choice)
-                    level = 1
-                    game_part = 'new'
-                    drawed_maze = True
-            elif game_part == 'question':
-                if event.key == pygame.K_a:
-                    chosen_answer = 'a'
-                elif event.key == pygame.K_b:
-                    chosen_answer = 'b'
-                elif event.key == pygame.K_c:
-                    chosen_answer = 'c'
-                elif event.key == pygame.K_d:
-                    chosen_answer = 'd'
-            elif game_part == 'new':
-                game_part = 'init'
+            handle_keydown_event(event)
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             mouse_pressed = True
@@ -69,78 +152,13 @@ while True:
     keys = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pressed()
     if game_part == 'init':
-        button_positions = drawer.draw_init()
-        buttons = ['new', 'select_save', 'winners', 'info', 'quit']
-        if mouse_pressed:
-            for i in range(len(button_positions)):
-                if button_positions[i].collidepoint(mouse_x, mouse_y):
-                    game_part = buttons[i]
-                    if buttons[i] != 'quit':
-                        audio.select.play()
-                    break
-            mouse_pressed = False
-        if keys[pygame.K_KP_ENTER] or keys[pygame.K_RETURN]:
-            game_part = 'new'
+        init()
     elif game_part == 'new':
-        if not drawed_maze:
-            game_part = "character_sel"
-        else:
-            game = Game(level)
-            game_part = 'play'
-            player.coordinate = (0, 0)
-            unit_size = drawer.draw_maze(player, game)
-            pygame.display.flip()
-            drawed_maze = True
-            game.time_dif = TIME - game.time
-            i = 0
+        new()
     elif game_part == "character_sel":
-        buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(user_input, input_active, skin_sel)
-        player: Player = Player('')
-        if mouse_pressed:
-            if buttons_char[0].collidepoint(mouse_x, mouse_y):
-                game_part = 'init'
-                audio.select.play()
-            elif buttons_char[1].collidepoint(mouse_x, mouse_y):
-                player = Player(name = user_input, skin = skin_choice)
-                level = 1
-                game_part = 'new'
-                drawed_maze = True
-                audio.select.play()
-            elif arrows[0].collidepoint(mouse_x, mouse_y):
-                if skin_sel != 0:
-                    skin_sel -= 1
-            elif arrows[1].collidepoint(mouse_x, mouse_y):
-                if skin_sel != len(CHARACTERS) - 1:
-                    skin_sel += 1
-            elif input_box.collidepoint(mouse_x, mouse_y):
-                input_active = True
-            else:
-                input_active = False
-            mouse_pressed = False
-            if user_input != "":
-                player = Player(name = user_input, skin = skin_choice)
-            else:
-                player = Player(name = 'Jogador', skin = skin_choice)
-            level = 1
+        character_sel(mouse_pressed)
     elif 'load' in game_part:
-        games = save.return_saves()
-        index = int(game_part[4:]) - 1
-        game = games[index][1]
-        player = games[index][2]
-        i = 0
-        while i < game.level + 6:
-            random_x = random.randint(0, len(game.maze[0]) - 1)
-            random_y = random.randint(0, len(game.maze) - 1)
-            if game.maze[random_y][random_x] == 0:
-                game.maze[random_y][random_x] = 'n'
-                i += 1
-        game_part = 'play'
-        unit_size = drawer.draw_maze(player, game)
-        pygame.display.flip()
-        drawed_maze = True
-        start_time = time.perf_counter()
-        level = game.level
-        game.time_dif = TIME - game.time
+        load()
     elif game_part == 'question':
         if not questioned:
             question = ask_question()
@@ -219,7 +237,7 @@ while True:
         coord = player.coordinate
         next_coordinate = player.move_player(game)
         move = coord == next_coordinate
-        question_giver: tuple[int, int] = (-1,-1)
+        question_giver: tuple[int, int] = (-1, -1)
         for student in game.students:
             if student.coordinate[0] == next_coordinate[0] and student.coordinate[1] == next_coordinate[1]:
                 game_part = 'question'
@@ -238,7 +256,7 @@ while True:
                 start_question = time.perf_counter()
             elif abs(teacher.coordinate[0] - player.coordinate[0]) > 1 and abs(teacher.coordinate[1] - player.coordinate[1]) > 1:
                 questioned = False
-        unit_size = drawer.draw_maze(player, game)
+        drawer.draw_maze(player, game)
         pause_rect = drawer.draw_pause_button()
         drawer.draw_HUD(game, player)
         pygame.display.flip()
@@ -368,3 +386,5 @@ while True:
         sys.exit()
     else:
         game_part = 'init'
+pygame.quit()
+sys.exit()

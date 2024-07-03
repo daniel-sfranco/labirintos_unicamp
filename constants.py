@@ -12,6 +12,7 @@ A letra p pode se sobrepor a outras letras, tendo um tratamento diferente em cad
 INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN = pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
+FPS = 50
 TIME = 60
 SPEED = 150
 BOMB_TIME = 2
