@@ -104,7 +104,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
         if manager.user_input != "":
             player = Player(name=manager.user_input, skin=skin_choice)
         else:
-            history = get_history()
+            history = get_history(game)
             player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     elif manager.key_pressed:
         keys = pygame.key.get_pressed()

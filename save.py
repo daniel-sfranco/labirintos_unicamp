@@ -37,7 +37,7 @@ def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
                 save_file.write(f'game: {num_game + 1}\n')
             else:
                 save_file.write(f'game: {game_number}\n')
-            save_file.write(f'skin: {player.skin}')
+            save_file.write(f'skin: {player.skin}\n')
             save_file.write(f'level: {game.level}\n')
             save_file.write(f'name: {player.name}\n')
             save_file.write(f'points: {player.points}\n')

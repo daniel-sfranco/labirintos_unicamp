@@ -41,7 +41,7 @@ def get_students(game) -> list[Student]:
             else:
                 num = int(line[6:])
                 if 'name' in locals() and level == game.level and coordinates != (0, 0):
-                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num, skin=skin))
+                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
     if len(students) < game.level:
         for i in range(len(game.maze)):
             for j in range(len(game.maze[i])):
@@ -100,7 +100,7 @@ def get_history(game):
                 skin = line[6:]
                 count += 1
             if count == 4:
-                students.append(Student(name=name, level=level, points=points, skin=skin))
+                students.append(Student(name=name, level=level, points=points))
                 count = 0
 
     students = sorted(students, key=lambda x: x.points, reverse=True)
