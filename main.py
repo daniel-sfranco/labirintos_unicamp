@@ -36,9 +36,11 @@ def handle_keydown_event(event: pygame.event.Event, manager: Manager):
         if event.key == pygame.K_LEFT:
             if manager.skin_sel != 0:
                 manager.skin_sel -= 1
+                audio.choice.play()
         elif event.key == pygame.K_RIGHT:
             if manager.skin_sel != len(CHARACTERS) - 1:
                 manager.skin_sel += 1
+                audio.choice.play()
     elif manager.part == 'question':
         alt1 = [pygame.K_a, pygame.K_b, pygame.K_c, pygame.K_d]
         alt2 = ['a', 'b', 'c', 'd']
@@ -100,7 +102,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
         if manager.user_input != "":
             player = Player(name=manager.user_input, skin=skin_choice)
         else:
-            history = get_history()
+            history = get_history(game)
             player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     elif manager.key_pressed:
         keys = pygame.key.get_pressed()
@@ -385,6 +387,10 @@ def main():
             manager.part = 'play'
         elif manager.part == 'question':
             manager, game = question(manager, game)
+        elif manager.part == 'winners':
+            manager = winners(manager, game)
+        elif manager.part == 'info':
+            manager = info(manager)
         elif manager.part == 'play':
             play(manager, player, game)
         elif manager.part == 'pause':
@@ -399,6 +405,22 @@ def main():
             manager.running = False
         else:
             manager.part = 'init'
+
+def winners(manager: Manager, game: Game) -> Manager:
+    back_button = drawer.draw_winners(game)
+    if manager.mouse_pressed:
+        if back_button.collidepoint(manager.mouse_x, manager.mouse_y):
+            manager.part = 'init'
+            audio.select.play()
+    return manager
+
+def info(manager: Manager):
+    back_button = drawer.draw_info()
+    if manager.mouse_pressed:
+        if back_button.collidepoint(manager.mouse_x, manager.mouse_y):
+            manager.part = 'init'
+            audio.select.play()
+    return manager
 
 game: Game = Game(0)
 player: Player = Player('')
