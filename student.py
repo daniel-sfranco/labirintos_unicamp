@@ -72,6 +72,8 @@ def set_students(game):
         students = sorted(students, key=lambda student: student.num, reverse=True)
         students = students[:game.level // 2]
     return students
+
+
 def get_history(game):
     students: list[Student] = []
     if path.exists(HISTORY) and path.getsize(HISTORY) > 0:
@@ -93,5 +95,4 @@ def get_history(game):
                 count = 0
 
     students = sorted(students, key=lambda x: x.points, reverse=True)
-
     return students

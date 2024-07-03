@@ -72,7 +72,7 @@ def init(manager) -> Manager:
 def new(game):
     game = Game(game.level + 1)
     player.coordinate = (0, 0)
-    drawer.draw_maze(player, game)
+    drawer.draw_maze(player, game, manager)
     pygame.display.flip()
     game.time_dif = TIME - game.time
     return game
@@ -91,9 +91,11 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
         elif arrows[0].collidepoint(manager.mouse_x, manager.mouse_y):
             if manager.skin_sel != 0:
                 manager.skin_sel -= 1
+                audio.choice.play()
         elif arrows[1].collidepoint(manager.mouse_x, manager.mouse_y):
             if manager.skin_sel != len(CHARACTERS) - 1:
                 manager.skin_sel += 1
+                audio.choice.play()
         elif input_box.collidepoint(manager.mouse_x, manager.mouse_y):
             manager.input_active = True
         else:
@@ -113,7 +115,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
             if manager.user_input != "":
                 player = Player(name=manager.user_input, skin=skin_choice)
             else:
-                history = get_history()
+                history = get_history(game)
                 player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     return manager, player
 
@@ -124,7 +126,7 @@ def load() -> tuple[Game, Player]:
     game = games[index][1]
     player = games[index][2]
     i = 0
-    drawer.draw_maze(player, game)
+    drawer.draw_maze(player, game, manager)
     pygame.display.flip()
     game.time_dif = game.time- TIME
     return game, player
@@ -225,7 +227,7 @@ def play(manager: Manager, player: Player, game: Game) -> tuple[Manager, Player,
             manager.part = 'question'
             manager.question_giver = teacher.coordinate
             manager.start_question = time.perf_counter()
-    drawer.draw_maze(player, game)
+    drawer.draw_maze(player, game, manager)
     pause_rect = drawer.draw_pause_button()
     drawer.draw_HUD(player, game)
     pygame.display.flip()
@@ -252,7 +254,7 @@ def play(manager: Manager, player: Player, game: Game) -> tuple[Manager, Player,
 
 
 def pause(manager: Manager, player: Player, game: Game) -> tuple[Manager, Player, Game]:
-    pause_menu = drawer.draw_pause_menu(player, game)
+    pause_menu = drawer.draw_pause_menu(player, game, manager)
     pygame.display.flip()
     if manager.mouse_pressed:
         if pause_menu[0].collidepoint(manager.mouse_x, manager.mouse_y):
@@ -340,7 +342,7 @@ def over_save(manager: Manager) -> Manager:
 
 
 def game_over(manager: Manager) -> Manager:
-    over_menu = drawer.draw_game_over(game, player)
+    over_menu = drawer.draw_game_over(game, player, manager)
     pygame.display.flip()
     saves = get_history()
     saved = False

@@ -1,5 +1,6 @@
 from random import randint
 from questions import Question
+from animation import Animation
 class Manager:
     def __init__(self):
         self.part = 'init'
@@ -19,3 +20,4 @@ class Manager:
         self.question_giver: tuple[int, int] = (-1, -1)
         self.question_type = ''
         self.question = Question(self.num_question)
+        self.bomb_sprite = Animation()

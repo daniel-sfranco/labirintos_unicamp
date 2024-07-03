@@ -4,6 +4,7 @@ from pygame.font import Font
 from questions import Question
 from save import return_saves
 from student import get_history
+from animation import Animation
 import audio
 from player import Player
 from game_generator import Game
@@ -31,28 +32,6 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
         surface.blit(text_surface, text_rect)
         button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
     return button_positions
-
-
-def draw_tittle_button(tittle_text: str) -> pygame.Rect:
-    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
-    font = Font('./fonts/PixelTimes.ttf', 24)
-    draw_title(tittle_text, subfont, WHITE, surface)
-
-    button_w = button_width * 0.3
-    button_h = button_height * 0.6
-    button_x = WIDTH // 12
-    button_y = HEIGHT // 1.15
-
-    text_surface = font.render('Voltar', True, button_textcolor)
-    text_rect = text_surface.get_rect(center=(button_x + (button_w / 2), button_y + (button_h / 2)))
-    pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y, button_w, button_h))
-    surface.blit(text_surface, text_rect)
-    back_button = pygame.Rect(button_x, button_y, button_w, button_h)
-
-    screen.blit(surface, (0, 0))
-
-    return back_button
 
 
 def draw_tittle_button(tittle_text: str) -> pygame.Rect:
@@ -123,7 +102,7 @@ def draw_pause_button() -> pygame.Rect:
     return pause_rect
 
 
-def draw_maze(player: Player, game: Game) -> None:
+def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     screen.fill(BACKGROUND)
     maze = game.maze
     maze_height = maze_width = len(maze)
@@ -141,7 +120,7 @@ def draw_maze(player: Player, game: Game) -> None:
     wall = pygame.transform.scale(WALL, (game.unit_size, game.unit_size))
     ghost = pygame.transform.scale(GHOST, (game.unit_size, game.unit_size))
     teacher = pygame.transform.scale(PROF, (game.unit_size, game.unit_size))
-    bomb = pygame.transform.scale(BOMB, (game.unit_size, game.unit_size))
+    bomb = pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size))
     point = pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2))
     life = pygame.transform.scale(HEART, (game.unit_size, game.unit_size))
     clock = pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size))
@@ -152,13 +131,16 @@ def draw_maze(player: Player, game: Game) -> None:
             if maze[maze_y][maze_x] == 1:
                 maze_surface.blit(wall, (x, y - game.player_dif))
             else:
-                tile_type = {'s': ghost, 't': teacher, 'b': bomb, 'n': point, 'l': life, 'c': clock, 'p': player.img}
+                tile_type = {'s': ghost, 't': teacher, 'n': point, 'l': life, 'c': clock, 'p': player.img}
                 if isinstance(maze[maze_y][maze_x], str):
                     for i in maze[maze_y][maze_x]:
                         if i == 'n':
                             maze_surface.blit(tile_type[i], (x + (game.unit_size // 4), y - game.player_dif + (game.unit_size // 4)))
                         elif i == 'a':
                             continue
+                        elif i == 'b':
+                            maze_surface.blit(bomb, (x, y - game.player_dif))
+                            manager.bomb_sprite.update()
                         else:
                             maze_surface.blit(tile_type[i], (x, y - game.player_dif))
     screen.blit(maze_surface, (0, 0))
@@ -194,8 +176,8 @@ def draw_HUD(player: Player, game: Game) -> None:
     screen.blit(hud, (0, 0))
 
 
-def draw_pause_menu(player: Player, game: Game) -> list[pygame.Rect]:
-    draw_maze(player, game)
+def draw_pause_menu(player: Player, game: Game, manager: Manager) -> list[pygame.Rect]:
+    draw_maze(player, game, manager)
     draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
@@ -207,8 +189,8 @@ def draw_pause_menu(player: Player, game: Game) -> list[pygame.Rect]:
     return menu
 
 
-def draw_game_over(game: Game, player: Player) -> list[pygame.Rect]:
-    draw_maze(player, game)
+def draw_game_over(game: Game, player: Player, manager: Manager) -> list[pygame.Rect]:
+    draw_maze(player, game, manager)
     draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, RED, [0, 0, WIDTH, HEIGHT])
