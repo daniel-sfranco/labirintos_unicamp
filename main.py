@@ -113,7 +113,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
             if manager.user_input != "":
                 player = Player(name=manager.user_input, skin=skin_choice)
             else:
-                history = get_history()
+                history = get_history(game)
                 player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     return manager, player
 
@@ -342,10 +342,10 @@ def over_save(manager: Manager) -> Manager:
 def game_over(manager: Manager) -> Manager:
     over_menu = drawer.draw_game_over(game, player)
     pygame.display.flip()
-    saves = get_history()
+    saves = get_history(game)
     saved = False
-    for save in saves:
-        if save[0].startswith(player.name):
+    for save_game in saves:
+        if save_game.name.startswith(player.name):
             saved = True
     if not saved:
         save.store_save(game, player)

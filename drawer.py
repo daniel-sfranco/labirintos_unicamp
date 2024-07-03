@@ -33,33 +33,11 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
     return button_positions
 
 
-def draw_tittle_button(tittle_text: str) -> pygame.Rect:
+def draw_title_button(title_text: str) -> pygame.Rect:
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
     font = Font('./fonts/PixelTimes.ttf', 24)
-    draw_title(tittle_text, subfont, WHITE, surface)
-
-    button_w = button_width * 0.3
-    button_h = button_height * 0.6
-    button_x = WIDTH // 12
-    button_y = HEIGHT // 1.15
-
-    text_surface = font.render('Voltar', True, button_textcolor)
-    text_rect = text_surface.get_rect(center=(button_x + (button_w / 2), button_y + (button_h / 2)))
-    pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y, button_w, button_h))
-    surface.blit(text_surface, text_rect)
-    back_button = pygame.Rect(button_x, button_y, button_w, button_h)
-
-    screen.blit(surface, (0, 0))
-
-    return back_button
-
-
-def draw_tittle_button(tittle_text: str) -> pygame.Rect:
-    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
-    font = Font('./fonts/PixelTimes.ttf', 24)
-    draw_title(tittle_text, subfont, WHITE, surface)
+    draw_title(title_text, subfont, WHITE, surface)
 
     button_w = button_width * 0.3
     button_h = button_height * 0.6
@@ -339,8 +317,8 @@ def draw_question(manager: Manager, game: Game):
     return answer_buttons, answered
 
 
-def draw_winners(game) -> list[pygame.Rect]:
-    back_button = draw_tittle_button('Histórico')
+def draw_winners(game) -> pygame.Rect:
+    back_button = draw_title_button('Histórico')
     studentes_ordered = get_history(game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
@@ -377,7 +355,7 @@ def draw_winners(game) -> list[pygame.Rect]:
 
 
 def draw_info() -> pygame.Rect:
-    back_button = draw_tittle_button('Informações')
+    back_button = draw_title_button('Informações')
 
     pygame.display.flip()
     return back_button
