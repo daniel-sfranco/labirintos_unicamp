@@ -6,6 +6,7 @@ from save import return_saves
 import audio
 from player import Player
 from game_generator import Game
+from manage import Manager
 
 
 def draw_init() -> list[pygame.Rect]:
@@ -31,7 +32,7 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
     return button_positions
 
 
-def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK, question=0):
+def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK, question=0) -> None:
     title = font.render(text, True, color)
     title_rect = title.get_rect()
     match question:
@@ -42,21 +43,11 @@ def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, b
         case 2:
             title_rect.top = round(HEIGHT / 3.5)
     title_rect.centerx = WIDTH // 2
+    pygame.draw.rect(surface, back, (title_rect.left - 30, title_rect.top - 20, title_rect.width + 60, title_rect.height + 40), border_radius=20)
     surface.blit(title, title_rect)
 
 
 def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game = Game(1)) -> list[pygame.Rect]:
-    """
-    This function draws a menu to select a saved game or to overwrite a game.
-
-    Parameters:
-    type (str): The type of menu to be drawn. It can be 'load' or 'delete'. Default is 'load'.
-    player (Player): The player object. Default is an empty Player object.
-    maze (GameGenerator): The maze object. Default is a GameGenerator object with level 1.
-
-    Returns:
-    list[pygame.Rect]: A list of pygame.Rect objects representing the positions of the menu buttons.
-    """
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
     if type == 'load':
@@ -73,7 +64,7 @@ def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game
         button_text.append(f'{save[2].name}: nível {save[1].level}, {save[2].lives} vidas')
     button_text.append('Limpar jogos salvos')
     button_text.append('Voltar')
-    menu: list[pygame.Rect] = draw_menu(button_text, 4, surface)
+    menu: list[pygame.Rect] = draw_menu(button_text, 3.5, surface)
     screen.blit(surface, (0, 0))
     pygame.display.flip()
     return menu
@@ -87,7 +78,7 @@ def draw_pause_button() -> pygame.Rect:
     return pause_rect
 
 
-def draw_maze(player, game_object) -> None:
+def draw_maze(player: Player, game_object: Game) -> None:
     screen.fill(BACKGROUND)
     maze = game_object.maze
     unit_size = game_object.unit_size
@@ -134,14 +125,13 @@ def draw_maze(player, game_object) -> None:
     screen.blit(maze_surface, (0, 0))
 
 
-def draw_HUD(game, player) -> None:
+def draw_HUD(player: Player, game: Game) -> None:
     hud = pygame.Surface((SIZE), pygame.SRCALPHA)
     hud_height = HEIGHT // 1.3
     hud_y = ((HEIGHT * 1.05) - hud_height) / 2
     hud_width = WIDTH // 4.5
     hud_x = (WIDTH - hud_width) / 1.02
     pygame.draw.rect(hud, DARKGRAY, [hud_x, hud_y, hud_width, hud_height])
-
     text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}", f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
     font = Font(None, WIDTH // 30)
     mini_size = FIRST_UNIT * 0.35
@@ -167,7 +157,7 @@ def draw_HUD(game, player) -> None:
 
 def draw_pause_menu(player, game) -> list[pygame.Rect]:
     draw_maze(player, game)
-    draw_HUD(game, player)
+    draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
     pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
@@ -180,18 +170,18 @@ def draw_pause_menu(player, game) -> list[pygame.Rect]:
 
 def draw_game_over(game, player) -> list[pygame.Rect]:
     draw_maze(player, game)
-    draw_HUD(game, player)
+    draw_HUD(player, game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, RED, [0, 0, WIDTH, HEIGHT])
     pygame.draw.rect(surface, BLACK, [menu_x, menu_y * 1.3, menu_width, menu_height * 0.7], 0, 20)
     button_text = ['Novo jogo', 'Exibir ganhadores', 'Sair']
-    draw_title('FIM DE JOGO', subfont, WHITE, surface)
-    menu = draw_menu(button_text, 6, surface)
+    draw_title('FIM DE JOGO', titlefont, WHITE, surface, BLACK)
+    menu = draw_menu(button_text, 2.65, surface)
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
     return menu
 
 
-def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.Rect], list[pygame.Rect], pygame.Rect, str]:
+def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame.Rect], pygame.Rect, str]:
     char_button_w = button_width * 0.3
     char_button_h = button_height * 0.6
     screen.fill(BACKGROUND)
@@ -205,16 +195,16 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
     background_active = pygame.Color(WHITE)
     color_active = background_inactive
     color_inactive = background_active
-    if input_active:
+    if manager.input_active:
         color = color_active
         background = background_active
     else:
         color = color_inactive
         background = background_inactive
-    if user_input == "":
+    if manager.input_active is False and manager.user_input == "":
         input_text = font.render("Escolha o nome do seu personagem", True, color)
     else:
-        input_text = font.render(user_input, True, color)
+        input_text = font.render(manager.user_input, True, color)
     input_rect = input_text.get_rect(center=(input_box.centerx, input_box.centery))
     pygame.draw.rect(screen, background, input_box)
     screen.blit(input_text, input_rect)
@@ -233,8 +223,8 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
     character_h = FIRST_UNIT // 0.4
     character_distance = 600
     for i in range(len(CHARACTERS)):
-        slide_x = (WIDTH // 2.5 - (character_distance * skin_sel)) + i * character_distance
-        if i == skin_sel:
+        slide_x = (WIDTH // 2.5 - (character_distance * manager.skin_sel)) + i * character_distance
+        if i == manager.skin_sel:
             character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif'), (11, 11))
         else:
             character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif').convert_alpha(), (8, 8))
@@ -244,7 +234,7 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
         character_rect = pygame.Rect(slide_x, slide_y, character_w, character_h)
         screen.blit(character_img, character_rect)
 
-    skin_choice: str = CHARACTERS[skin_sel]
+    skin_choice: str = CHARACTERS[manager.skin_sel]
 
     arrow_w = FIRST_UNIT // 4
     arrow_h = FIRST_UNIT // 2
@@ -279,29 +269,25 @@ def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
     subfont = pygame.font.Font('./fonts/dogicapixelbold.ttf', WIDTH // 45)
-
-    if len(question.question) < 30:
+    pos = []
+    for i in range(len(question.question), 0, -1):
+        if question.question[i - 1] == " ":
+            pos.append(i)
+    if len(pos) < 7:
         title = subfont.render(question.question, True, WHITE)
         title_rect = title.get_rect()
         title_rect.top, title_rect.centerx = (HEIGHT // 4, WIDTH // 2)
         surface.blit(title, title_rect)
     else:
-        count = 0
-        for i in range(len(question.question), 0, -1):
-            if question.question[i - 1] == " ":
-                count += 1
-            if count == 3:
-                part1 = question.question[0:i]
-                part2 = question.question[i:len(question.question)]
-                break
-        draw_title(part1, subfont, WHITE, surface, question=1)
-        draw_title(part2, subfont, WHITE, surface, question=2)
+        part1 = question.question[0:pos[len(pos) // 2]]
+        part2 = question.question[pos[len(pos) // 2]:len(question.question)]
+        draw_title(part1, subfont, WHITE, surface, question=1, back=color)
+        draw_title(part2, subfont, WHITE, surface, question=2, back=color)
     button_text = [question.a, question.b, question.c, question.d]
     answer_buttons: list[pygame.Rect] = []
     buttonx = [WIDTH // 7, WIDTH // 1.9]
     buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
     button_height = HEIGHT // 8
-    textfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 30)
 
     for i in range(4):
         text_surface = textfont.render(button_text[i], True, button_textcolor)

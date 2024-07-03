@@ -1,7 +1,6 @@
 import pygame
 import os
 import audio
-from questions import ask_question
 from constants import SPEED, BOMBS, LIVES, move_keys
 
 

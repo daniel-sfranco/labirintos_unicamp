@@ -1,25 +1,20 @@
-from random import randint
-
-
 class Question:
     def __init__(self, number):
         self.number = number
         with open('questions.che', 'r', encoding='utf-8') as file:
             lines = file.readlines()
             for line in lines:
-                if line.startswith(str(number)):
-                    n = number
-                    i = 0
-                    while n > 0:
-                        n //= 10
-                        i += 1
-                    self.question = line.strip()[i + 2:]
+                if line.startswith(str(self.number)) or line.startswith('0' + str(self.number)):
                     index = lines.index(line)
-            self.a = lines[index + 2].strip()
-            self.b = lines[index + 3].strip()
-            self.c = lines[index + 4].strip()
-            self.d = lines[index + 5].strip()
-            self.answer = lines[index + 7][11]
+                    break
+        self.question = lines[index]
+        while self.question.startswith('.') or self.question[0].isnumeric() or self.question.startswith(' '):
+            self.question = self.question[1:]
+        self.a = lines[index + 2].strip()
+        self.b = lines[index + 3].strip()
+        self.c = lines[index + 4].strip()
+        self.d = lines[index + 5].strip()
+        self.answer = lines[index + 7][11]
 
     def __str__(self):
         return f"""Questão {self.number}: {self.question}
@@ -27,12 +22,6 @@ class Question:
 {self.b}
 {self.c}
 {self.d}"""
-
-
-def ask_question():
-    num_question = randint(1, 100)
-    question = Question(num_question)
-    return question
 
 
 if __name__ == "__main__":
