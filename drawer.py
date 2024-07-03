@@ -209,7 +209,7 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
     button_x = [WIDTH // 8, WIDTH // 1.3]
     button_y = HEIGHT // 1.2
 
-    font = Font(None, 24)
+    font = Font('./fonts/PixelTimes.ttf', 24)
     input_box = pygame.Rect(WIDTH / 3, button_y, WIDTH // 3, button_height * 0.6)
     color_inactive = pygame.Color(LIGHTGRAY)
     color_active = pygame.Color(WHITE)
@@ -226,6 +226,7 @@ def draw_character_sel(user_input, input_active, skin_sel) -> tuple[list[pygame.
     screen.blit(input_text, input_rect)
     button_text = ['Voltar', 'Concluir']
     button_positions: list[pygame.Rect] = []
+    
     for i in range(2):
         text_surface = font.render(button_text[i], True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x[i] + (char_button_w / 2), button_y + (char_button_h / 2)))
@@ -286,6 +287,8 @@ def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple
             audio.wrong.play()
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
+    subfont = pygame.font.Font('./fonts/dogicapixelbold.ttf', WIDTH // 45)
+
     if len(question.question) < 30:
         title = subfont.render(question.question, True, WHITE)
         title_rect = title.get_rect()
@@ -310,7 +313,7 @@ def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple
     buttonx = [WIDTH // 7, WIDTH // 1.9]
     buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
     button_height = HEIGHT // 8
-    textfont = pygame.font.Font(None, WIDTH // 30)
+    textfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 30)
 
     for i in range(4):
         text_surface = textfont.render(button_text[i], True, button_textcolor)

@@ -12,7 +12,7 @@ A letra p pode se sobrepor a outras letras, tendo um tratamento diferente em cad
 INFO = pygame.display.Info()
 SIZE = WIDTH, HEIGHT = INFO.current_w, INFO.current_h
 SCREEN = pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
-TIME = 60
+TIME = 1
 SPEED = 150
 BOMB_TIME = 2
 BOMBS = 3
@@ -70,8 +70,8 @@ questioned = False
 screen = SCREEN
 saved = False
 skin_sel = 0
-subfont = pygame.font.Font(None, WIDTH // 20)
-textfont = pygame.font.Font(None, WIDTH // 60)
-titlefont = pygame.font.Font(None, WIDTH // 15)
+subfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 20)
+textfont = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 60)
+titlefont = pygame.font.Font('./fonts/dogicabold.ttf', WIDTH // 25)
 user_input = ''
 pygame.display.set_caption('Labirintos da Unicamp')

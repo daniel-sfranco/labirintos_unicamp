@@ -27,7 +27,7 @@ while True:
                     start_pause = time.perf_counter()
                     game_part = 'pause'
                 elif game_part == 'pause':
-                    game.time_dif -= trunc(time.perf_counter() - start_pause)
+                    game.time_dif += trunc(time.perf_counter() - start_pause)
                     game_part = 'play'
                 if game_part == 'character_sel':
                     game_part = "init"
