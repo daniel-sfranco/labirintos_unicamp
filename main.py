@@ -102,7 +102,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
         if manager.user_input != "":
             player = Player(name=manager.user_input, skin=skin_choice)
         else:
-            history = get_history(game)
+            history = get_history()
             player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     elif manager.key_pressed:
         keys = pygame.key.get_pressed()
@@ -113,7 +113,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
             if manager.user_input != "":
                 player = Player(name=manager.user_input, skin=skin_choice)
             else:
-                history = get_history(game)
+                history = get_history()
                 player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
     return manager, player
 
@@ -342,7 +342,7 @@ def over_save(manager: Manager) -> Manager:
 def game_over(manager: Manager) -> Manager:
     over_menu = drawer.draw_game_over(game, player)
     pygame.display.flip()
-    saves = get_history(game)
+    saves = get_history()
     saved = False
     for save_game in saves:
         if save_game.name.startswith(player.name):
@@ -353,7 +353,7 @@ def game_over(manager: Manager) -> Manager:
         if over_menu[0].collidepoint(manager.mouse_x, manager.mouse_y):
             manager.part = 'new'
         elif over_menu[1].collidepoint(manager.mouse_x, manager.mouse_y):
-            print(":)")
+            manager.part = 'winners'
         elif over_menu[2].collidepoint(manager.mouse_x, manager.mouse_y):
             manager.part = 'init'
         manager.mouse_pressed = False

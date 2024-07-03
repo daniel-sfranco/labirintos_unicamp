@@ -319,10 +319,10 @@ def draw_question(manager: Manager, game: Game):
 
 def draw_winners(game) -> pygame.Rect:
     back_button = draw_title_button('Histórico')
-    studentes_ordered = get_history(game)
+    ordered_students = get_history()
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
-    players = len(studentes_ordered)
+    players = len(ordered_students)
     if players > 5:
         players = 5
     elif players == 0:
@@ -330,22 +330,29 @@ def draw_winners(game) -> pygame.Rect:
 
     card_width = menu_width
     card_height = menu_height * 0.2
-    card_x = (WIDTH - card_width) / 2
     card_y = HEIGHT - card_width
 
     for i in range(players):
-        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 150)), card_width, card_height], 2)
+        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 75)), card_width, card_height], 2)
 
-        text_position = textfont.render(f'{(i + 1)}. {studentes_ordered[i].name[:-1]}', True, WHITE)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*150)))
+        skin = pygame.image.load(f'img/player/{ordered_students[i].last_skin}.gif')
+        skin = pygame.transform.scale(skin, (card_height, card_height))
+        if i % 2 == 0:
+            skin_rect = skin.get_rect(topright=(WIDTH / 3.2 - 30, ((menu_y * 0.8) + (i * 75))))
+        else:
+            skin_rect = skin.get_rect(topright=(WIDTH / 3.2 + card_width + card_height + 30, ((menu_y * 0.8) + (i * 75))))
+        surface.blit(skin, skin_rect)
+
+        text_position = textfont.render(f'{(i + 1)}. {ordered_students[i].name[:-1]}', True, WHITE)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.2, (card_y * 0.72) + (i * 75)))
         surface.blit(text_position, text_rect)
 
-        text_points = textfont.render(f'Pontuação: {studentes_ordered[i].points}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*150)))
+        text_points = textfont.render(f'Pontuação: {ordered_students[i].points}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.2, (card_y) + (i * 75)))
         surface.blit(text_points, text_rect)
 
-        text_level = textfont.render(f'Último labirinto: {studentes_ordered[i].level}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*150)))
+        text_level = textfont.render(f'Último labirinto: {ordered_students[i].level}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y) + (i * 75) - 7))
         surface.blit(text_level, text_rect)
 
     screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
