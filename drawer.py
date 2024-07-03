@@ -3,6 +3,7 @@ from constants import *
 from pygame.font import Font
 from questions import Question
 from save import return_saves
+from student import get_history
 import audio
 from player import Player
 from game_generator import Game
@@ -11,7 +12,7 @@ from game_generator import Game
 def draw_init() -> list[pygame.Rect]:
     screen.fill(BACKGROUND)
     draw_title('LABIRINTOS DA UNICAMP', titlefont, WHITE)
-    button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Ganhadores', 'Informações', 'Sair']
+    button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Histórico', 'Informações', 'Sair']
     button_positions: list[pygame.Rect] = draw_menu(button_text, 3)
     pygame.display.flip()
     return button_positions
@@ -29,6 +30,28 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface=SCREEN
         surface.blit(text_surface, text_rect)
         button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
     return button_positions
+
+
+def draw_tittle_button(tittle_text: str) -> pygame.Rect:
+    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
+    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
+    font = Font('./fonts/PixelTimes.ttf', 24)
+    draw_title(tittle_text, subfont, WHITE, surface)
+
+    button_w = button_width * 0.3
+    button_h = button_height * 0.6
+    button_x = WIDTH // 12
+    button_y = HEIGHT // 1.15
+
+    text_surface = font.render('Voltar', True, button_textcolor)
+    text_rect = text_surface.get_rect(center=(button_x + (button_w / 2), button_y + (button_h / 2)))
+    pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y, button_w, button_h))
+    surface.blit(text_surface, text_rect)
+    back_button = pygame.Rect(button_x, button_y, button_w, button_h)
+
+    screen.blit(surface, (0, 0))
+
+    return back_button
 
 
 def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK, question=0):
@@ -144,7 +167,7 @@ def draw_HUD(game, player) -> None:
     pygame.draw.rect(hud, DARKGRAY, [hud_x, hud_y, hud_width, hud_height])
 
     text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}", f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
-    font = Font(None, WIDTH // 30)
+    font = Font('./fonts/dogicapixel.ttf', WIDTH // 60)
     mini_size = FIRST_UNIT * 0.35
     size = (mini_size, mini_size)
     for i in range(len(text)):
@@ -332,3 +355,47 @@ def draw_question(question: Question, chosen_answer: str, next_coordinate: tuple
     pygame.display.flip()
 
     return answer_buttons, answered
+
+
+def draw_winners(game) -> list[pygame.Rect]:
+    back_button = draw_tittle_button('Histórico')
+    studentes_ordered = get_history(game)
+    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
+
+    players = len(studentes_ordered)
+    if players > 5:
+        players = 5
+    elif players == 0:
+        print("A")
+
+    card_width = menu_width
+    card_height = menu_height * 0.2
+    card_x = (WIDTH - card_width) / 2
+    card_y = HEIGHT - card_width
+
+    for i in range(players):
+        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 150)), card_width, card_height], 2)
+
+        text_position = textfont.render(f'{(i + 1)}. {studentes_ordered[i].name[:-1]}', True, WHITE)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*150)))
+        surface.blit(text_position, text_rect)
+
+        text_points = textfont.render(f'Pontuação: {studentes_ordered[i].points}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*150)))
+        surface.blit(text_points, text_rect)
+
+        text_level = textfont.render(f'Último labirinto: {studentes_ordered[i].level}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*150)))
+        surface.blit(text_level, text_rect)
+
+    screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
+    pygame.display.flip()
+
+    return back_button
+
+
+def draw_info() -> pygame.Rect:
+    back_button = draw_tittle_button('Informações')
+
+    pygame.display.flip()
+    return back_button

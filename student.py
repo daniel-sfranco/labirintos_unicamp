@@ -16,48 +16,7 @@ class Student(Player):
         self.item = choice(self.possibilities)
 
 
-def set_students(game):
-    students: list[Student] = []
-    coordinate: tuple[int, int] = (0, 0)
-    if path.exists(HISTORY) and path.getsize(HISTORY) > 0:
-        with open(HISTORY, 'r') as file:
-            lines = file.readlines()
-        for line in lines:
-            if line.startswith('name'):
-                name = line[6:]
-            elif line.startswith('level'):
-                level = int(line[7:])
-            elif line.startswith('points'):
-                points = int(line[8:])
-            elif line.startswith('coordinates'):
-                coordinates = tuple(map(int, line[14:-2].split(', ')))
-                coordinate = (coordinates[0], coordinates[1])
-            else:
-                num = int(line[6:])
-                if 'name' in locals() and level == game.level and coordinates != (0, 0):
-                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
-    if len(students) < game.level // 2 or len(students) == 0:
-        i = len(students)
-        while True:
-            num = len(students) + 1
-            name = 'Student' + str(i + 1)
-            level = game.level
-            points = 0
-            coord_x = choice(range(len(game.maze)))
-            coord_y = choice(range(len(game.maze[0])))
-            coordinate = (coord_x, coord_y)
-            if coordinate == (len(game.maze), len(game.maze[-1])):
-                continue
-            students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
-            i += 1
-            if i >= game.level // 2:
-                break
-    elif len(students) > game.level // 2:
-        students = sorted(students, key=lambda student: student.num, reverse=True)
-        students = students[:game.level // 2]
-    return students
-
-def get_students(game):
+def get_students(game) -> list[Student]:
     students: list[Student] = []
     coordinate: tuple[int, int] = (0, 0)
     if path.exists(HISTORY) and path.getsize(HISTORY) > 0:
@@ -90,24 +49,49 @@ def get_students(game):
     return students
 
 
-def get_history():
-    students = []
-    with open(HISTORY) as history:
-        lines = history.readlines()
-    for line in lines:
-        if line.startswith('game'):
-            students.append([])
-        elif line.startswith('name'):
-            name = line[6:]
-            students[-1].append(name)
-        elif line.startswith('level'):
-            level = int(line[7:])
-            students[-1].append(level)
-        elif line.startswith('points'):
-            points = int(line[8:])
-            students[-1].append(points)
-        elif line.startswith('coordinates'):
-            coordinates = tuple(map(int, line[14:-2].split(', ')))
-            coordinate = (coordinates[0], coordinates[1])
-            students[-1].append(coordinate)
+def set_students(game):
+    students = get_students(game)
+
+    if len(students) < game.level // 2 or len(students) == 0:
+        i = len(students)
+        while True:
+            num = len(students) + 1
+            name = 'Student' + str(i + 1)
+            level = game.level
+            points = 0
+            coord_x = choice(range(len(game.maze)))
+            coord_y = choice(range(len(game.maze[0])))
+            coordinate = (coord_x, coord_y)
+            if coordinate == (len(game.maze), len(game.maze[-1])):
+                continue
+            students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num))
+            i += 1
+            if i >= game.level // 2:
+                break
+    elif len(students) > game.level // 2:
+        students = sorted(students, key=lambda student: student.num, reverse=True)
+        students = students[:game.level // 2]
+    return students
+def get_history(game):
+    students: list[Student] = []
+    if path.exists(HISTORY) and path.getsize(HISTORY) > 0:
+        with open(HISTORY, 'r') as file:
+            lines = file.readlines()
+        count = 0
+        for line in lines:
+            if line.startswith('name'):
+                name = line[6:]
+                count += 1
+            elif line.startswith('level'):
+                level = int(line[7:])
+                count += 1
+            elif line.startswith('points'):
+                points = int(line[8:])
+                count += 1
+            if count == 3:
+                students.append(Student(name=name, level=level, points=points))
+                count = 0
+
+    students = sorted(students, key=lambda x: x.points, reverse=True)
+
     return students

@@ -42,9 +42,11 @@ while True:
                 if event.key == pygame.K_LEFT:
                     if skin_sel != 0:
                         skin_sel -= 1
+                        audio.choice.play()
                 elif event.key == pygame.K_RIGHT:
                     if skin_sel != len(CHARACTERS) - 1:
                         skin_sel += 1
+                        audio.choice.play()
                 elif event.key == pygame.K_RETURN:
                     player = Player(name = user_input, skin = skin_choice)
                     level = 1
@@ -93,7 +95,17 @@ while True:
             drawed_maze = True
             game.time_dif = TIME - game.time
             i = 0
-    elif game_part == "character_sel":
+    elif game_part =='winners':
+        back_button = drawer.draw_winners(game)
+        if mouse_pressed and back_button.collidepoint(mouse_x, mouse_y):
+            game_part = 'init'
+            audio.select.play()
+    elif game_part == 'info':
+        back_button = drawer.draw_info()
+        if mouse_pressed and back_button.collidepoint(mouse_x, mouse_y):
+            game_part = 'init'
+            audio.select.play()
+    elif game_part == 'character_sel':
         buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(user_input, input_active, skin_sel)
         player: Player = Player('')
         if mouse_pressed:
@@ -109,9 +121,11 @@ while True:
             elif arrows[0].collidepoint(mouse_x, mouse_y):
                 if skin_sel != 0:
                     skin_sel -= 1
+                    audio.choice.play()
             elif arrows[1].collidepoint(mouse_x, mouse_y):
                 if skin_sel != len(CHARACTERS) - 1:
                     skin_sel += 1
+                    audio.choice.play()
             elif input_box.collidepoint(mouse_x, mouse_y):
                 input_active = True
             else:
@@ -311,12 +325,15 @@ while True:
                     if buttons[i] == 'back':
                         game_part = 'init'
                         mouse_pressed = False
+                        audio.select.play()
                         break
                     elif buttons[i] == 'clear':
                         if os.path.exists(SAVE):
                             os.remove(SAVE)
+                        audio.select.play()
                     else:
                         game_part = f'load{buttons[i].replace("game ", "")}'
+                        audio.select.play()
                         mouse_pressed = False
                         break
     elif game_part == 'over_save':
@@ -332,10 +349,12 @@ while True:
                     if buttons[i] == 'back':
                         game_part = 'pause'
                         mouse_pressed = False
+                        audio.select.play()
                         break
                     elif buttons[i] == 'clear':
                         if os.path.exists('save.che'):
                             os.remove('save.che')
+                        audio.select.play()
                     else:
                         game_number = int(buttons[i].replace('game ', ''))
                         save.delete_save(game_number)
@@ -344,6 +363,7 @@ while True:
                         save.order_saves(save.return_saves())
                         game_part = 'pause'
                         mouse_pressed = False
+                        audio.select.play()
                         break
     elif game_part == 'game_over':
         over_menu = drawer.draw_game_over(game, player)
