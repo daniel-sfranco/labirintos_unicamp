@@ -94,7 +94,7 @@ def init() -> Manager:
     return manager
 
 
-def new(game: Game) -> Game:
+def new() -> Game:
     """
     Initializes a new game level, resets the player's position, redraws the maze, updates the display, and adjusts the game's time difference.
 
@@ -112,7 +112,7 @@ def new(game: Game) -> Game:
     return new_game
 
 
-def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
+def character_sel():
     """
     Handles the character selection process in the game.
 
@@ -124,6 +124,7 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
     - Updated manager object with the new game state.
     - Updated player object with the selected character and name.
     """
+    global player
     buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(manager)
 
     if manager.mouse_pressed:
@@ -169,26 +170,23 @@ def character_sel(manager: Manager, player: Player) -> tuple[Manager, Player]:
                 history = get_history()
                 player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
 
-    return manager, player
-
 
 def load() -> tuple[Game, Player]:
     """
     Retrieves a saved game and player state from a list of saved games,
-    draws the maze on the screen, updates the game's time difference, and returns the game and player objects.
+    draws the maze on the SCREEN, updates the game's time difference, and returns the game and player objects.
     """
+    global game, player
     games = save.return_saves()
-    index = int(manager.part[4:]) - 1
+    index = manager.game_number - 1
     game, player = games[index][1], games[index][2]
     drawer.draw_maze(player, game, manager)
     pygame.display.flip()
-
     game.time_dif = game.time - TIME
 
     return game, player
 
-
-def question(game: Game, manager: Manager) -> tuple[Game, Manager]:
+def question() -> tuple[Game, Manager]:
     """
     Handles presenting a question to the player, capturing their answer, and updating the game state based on correctness.
 
@@ -255,8 +253,9 @@ def question(game: Game, manager: Manager) -> tuple[Game, Manager]:
     return game, manager
 
 
-def play(manager: Manager, player: Player) -> tuple[Game, Manager, Player]:
+def play() -> tuple[Game, Manager, Player]:
     # Calculate time passed and update game time and points
+    global player
     passed = trunc(time.perf_counter() - game.start) - game.time_dif - player.time_dif
     game.time = TIME - passed
     if game.act_points > 0:
@@ -342,7 +341,7 @@ def play(manager: Manager, player: Player) -> tuple[Game, Manager, Player]:
     return game, manager, player
 
 
-def pause(game: Game, manager: Manager, player: Player) -> tuple[Game, Manager, Player]:
+def pause() -> tuple[Game, Manager, Player]:
     """
     Handles the game's pause menu interactions.
 
@@ -398,7 +397,7 @@ def pause(game: Game, manager: Manager, player: Player) -> tuple[Game, Manager, 
     return game, manager, player
 
 
-def select_save(manager: Manager) -> Manager:
+def select_save() -> Manager:
     """
     Handles the logic for selecting a saved game or clearing saved games in the game menu.
 
@@ -426,14 +425,15 @@ def select_save(manager: Manager) -> Manager:
                     if os.path.exists(SAVE):
                         os.remove(SAVE)
                 else:
-                    manager.part = f'load{buttons[i].replace("game ", "")}'
+                    manager.part = 'load'
+                    manager.game_number = int(buttons[i].replace('game ', ''))
                     manager.mouse_pressed = False
                     break
 
     return manager
 
 
-def over_save(manager: Manager) -> Manager:
+def over_save() -> Manager:
     """
     Handles the process of overwriting a saved game in the game application.
 
@@ -468,9 +468,9 @@ def over_save(manager: Manager) -> Manager:
     return manager
 
 
-def game_over(manager: Manager) -> Manager:
+def game_over() -> Manager:
     """
-    Handles the end-of-game scenario by displaying the game over screen, saving the player's score if not saved,
+    Handles the end-of-game scenario by displaying the game over SCREEN, saving the player's score if not saved,
     and updating the game state based on user input.
 
     Args:
@@ -498,11 +498,11 @@ def game_over(manager: Manager) -> Manager:
     return manager
 
 
-def winners(manager: Manager, game: Game) -> Manager:
+def winners() -> Manager:
     """
-    Handles the display of the winners' screen in the game.
+    Handles the display of the winners' SCREEN in the game.
 
-    Draws the winners' screen using the `drawer.draw_winners` function and checks if the user has clicked the back button to return to the initial game state.
+    Draws the winners' SCREEN using the `drawer.draw_winners` function and checks if the user has clicked the back button to return to the initial game state.
 
     Args:
         manager (Manager): An instance of the `Manager` class, which holds the current state of the game and user interactions.
@@ -511,7 +511,7 @@ def winners(manager: Manager, game: Game) -> Manager:
     Returns:
         Manager: The updated `manager` instance with potentially modified game state.
     """
-    back_button = drawer.draw_winners(Game)
+    back_button = drawer.draw_winners()
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
         manager.part = 'init'
@@ -520,9 +520,9 @@ def winners(manager: Manager, game: Game) -> Manager:
     return manager
 
 
-def info(manager: Manager) -> Manager:
+def info() -> Manager:
     """
-    Handles the display and interaction for the information screen in the game.
+    Handles the display and interaction for the information SCREEN in the game.
 
     Args:
     manager (Manager): An instance of the Manager class that holds the game state and user interactions.
@@ -531,6 +531,8 @@ def info(manager: Manager) -> Manager:
     Manager: The updated manager instance with potentially modified state.
     """
     back_button = drawer.draw_info()
+
+    keys = pygame.key.get_pressed()
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
         manager.part = 'init'
@@ -544,7 +546,7 @@ def main():
     The central loop of the game, handling game state transitions, user inputs, and rendering updates.
     Processes events such as key presses and mouse clicks, updates game state, and calls specific functions based on the current part of the game.
     """
-    global game, player, manager
+    global manager, game, player
     while manager.running:
         CLOCK.tick(FPS)
         for event in pygame.event.get():
@@ -562,17 +564,17 @@ def main():
 
         parts_functions = {
             'init': init,
-            'new': lambda: (new(game), setattr(manager, 'part', 'play')),
-            'character_sel': lambda: character_sel(manager, player),
+            'new': lambda: (new(), setattr(manager, 'part', 'play')),
+            'character_sel': lambda: character_sel(),
             'load': lambda: (load(), setattr(manager, 'part', 'play')),
-            'question': lambda: (question(game, manager), None),
-            'play': lambda: play(manager, player),
-            'pause': lambda: pause(game, manager, player),
-            'select_save': lambda: select_save(manager),
-            'over_save': lambda: over_save(manager),
-            'game_over': lambda: game_over(manager),
-            'winners': lambda: (winners(manager, game), None),
-            'info': lambda: info(manager),
+            'question': lambda: (question(), None),
+            'play': lambda: play(),
+            'pause': lambda: pause(),
+            'select_save': lambda: select_save(),
+            'over_save': lambda: over_save(),
+            'game_over': lambda: game_over(),
+            'winners': lambda: (winners(), None),
+            'info': lambda: info(),
             'quit': lambda: setattr(manager, 'running', False)
         }
 
@@ -580,10 +582,13 @@ def main():
             result = parts_functions[manager.part]()
             if result is not None:
                 if isinstance(result, Manager):
+                    del manager
                     manager = result
                 elif isinstance(result, Game):
+                    del game
                     game = result
                 elif isinstance(result, Player):
+                    del player
                     player = result
                 elif isinstance(result, (list, tuple)):
                     for i in result:
@@ -596,10 +601,10 @@ def main():
         else:
             manager.part = 'init'
 
-
-game: Game = Game(0)
+game: Game = Game(FIRST_LEVEL - 1)
 player: Player = Player('')
 manager: Manager = Manager()
+
 main()
 pygame.quit()
 sys.exit()

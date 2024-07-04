@@ -22,8 +22,8 @@ class Game:
         self.num_students = level
         self.num_teachers = level
         self.end = False
-        self.bomb_start: float = bomb_start
-        self.bomb_coords: tuple[int, int] = bomb_coords
+        self.bomb_start: float = 0
+        self.bomb_coords: tuple[int, int] = (-1, -1)
         self.bomb_time: float = -1
         if maze == []:
             self.maze: list[list[Any]] = [[0 for _ in range(2 * self.width - 1)] for _ in range(2 * self.height - 1)]

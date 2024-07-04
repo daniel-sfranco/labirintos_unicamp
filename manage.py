@@ -21,3 +21,4 @@ class Manager:
         self.question_type = ''
         self.question = Question(self.num_question)
         self.bomb_sprite = Animation()
+        self.game_number = 0
