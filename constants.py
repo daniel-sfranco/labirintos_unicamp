@@ -37,7 +37,7 @@ pygame.display.set_caption('Labirintos da Unicamp')
 # Setting contants for game mechanics
 BOMB_TIME = 2
 BOMBS = 0
-CHARACTERS = ['archer', 'barbarian', 'cleric', 'cyborg', 'ninja', 'paladin', 'superhero', 'thief']
+CHARACTERS = ['acolyte', 'archer', 'battlemage', 'deathCaster', 'ninja', 'human', 'paladin', 'superhero', 'thief']
 FIRST_LEVEL = 1
 FIRST_UNIT = (3 * WIDTH // 4) // (6 + FIRST_LEVEL) if WIDTH > HEIGHT else (3 * HEIGHT // 4) // (6 + FIRST_LEVEL)
 FPS = 50

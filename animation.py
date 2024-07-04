@@ -9,7 +9,7 @@ class Animation(pygame.sprite.Sprite):
         """
         super().__init__()
         self.sprites: list[pygame.Surface] = [pygame.image.load(f'img/items/bomb/bomb_ignited_{i + 1}.png') for i in range(3)]
-        self.current_sprite: float = 0
+        self.current_sprite: int = 0
         self.image = self.sprites[int(self.current_sprite)]
         self.rect = self.image.get_rect()
 
@@ -17,12 +17,12 @@ class Animation(pygame.sprite.Sprite):
         """
         Updates the animation by advancing to the next frame.
         """
-        
+
         if game.bomb_animation_time > 1.6:
             self.current_sprite = 0
-        if game.bomb_animation_time <= 1.6 and game.bomb_animation_time > 0.7:
+        elif game.bomb_animation_time <= 1.6 and game.bomb_animation_time > 0.7:
             self.current_sprite = 1
         elif game.bomb_animation_time <= 0.7:
             self.current_sprite = 2
-    
+
         self.image = self.sprites[self.current_sprite]
