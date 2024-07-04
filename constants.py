@@ -27,6 +27,7 @@ FIRST_UNIT = (3 * WIDTH // 4) // (6 + FIRST_LEVEL) if WIDTH > HEIGHT else (3 * H
 CLOCK = pygame.time.Clock()
 GHOST = pygame.image.load('img/player/ghost.gif').convert()
 WALL = pygame.image.load("img/tiles/roomWall12.gif").convert()
+FLOOR = pygame.image.load("img/tiles/floor.png").convert()
 PROF = pygame.image.load('img/player/scientist.gif').convert()
 BOMB = pygame.image.load('img/items/bomb/bomb.png')
 POINT = pygame.image.load('img/electricity.gif').convert()

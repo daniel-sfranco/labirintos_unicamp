@@ -34,11 +34,11 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
     return button_positions
 
 
-def draw_title_button(title_text: str) -> pygame.Rect:
+def draw_tittle_button(tittle_text: str) -> pygame.Rect:
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
     font = Font('./fonts/PixelTimes.ttf', 24)
-    draw_title(title_text, subfont, WHITE, surface)
+    draw_title(tittle_text, subfont, WHITE, surface)
 
     button_w = button_width * 0.3
     button_h = button_height * 0.6
@@ -118,6 +118,7 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
         max -= game.unit_size
     game.player_dif = dif
     wall = pygame.transform.scale(WALL, (game.unit_size, game.unit_size))
+    floor = pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size))
     ghost = pygame.transform.scale(GHOST, (game.unit_size, game.unit_size))
     teacher = pygame.transform.scale(PROF, (game.unit_size, game.unit_size))
     bomb = pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size))
@@ -132,6 +133,7 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
                 maze_surface.blit(wall, (x, y - game.player_dif))
             else:
                 tile_type = {'s': ghost, 't': teacher, 'n': point, 'l': life, 'c': clock, 'p': player.img}
+                maze_surface.blit(floor, (x, y - game.player_dif))
                 if isinstance(maze[maze_y][maze_x], str):
                     for i in maze[maze_y][maze_x]:
                         if i == 'n':
@@ -321,12 +323,12 @@ def draw_question(manager: Manager, game: Game):
     return answer_buttons, answered
 
 
-def draw_winners(game) -> pygame.Rect:
-    back_button = draw_title_button('Histórico')
-    ordered_students = get_history()
+def draw_winners(game) -> list[pygame.Rect]:
+    back_button = draw_tittle_button('Histórico')
+    studentes_ordered = get_history(game)
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
-    players = len(ordered_students)
+    players = len(studentes_ordered)
     if players > 5:
         players = 5
     elif players == 0:
@@ -334,29 +336,22 @@ def draw_winners(game) -> pygame.Rect:
 
     card_width = menu_width
     card_height = menu_height * 0.2
+    card_x = (WIDTH - card_width) / 2
     card_y = HEIGHT - card_width
 
     for i in range(players):
-        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 75)), card_width, card_height], 2)
+        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 150)), card_width, card_height], 2)
 
-        skin = pygame.image.load(f'img/player/{ordered_students[i].last_skin}.gif')
-        skin = pygame.transform.scale(skin, (card_height, card_height))
-        if i % 2 == 0:
-            skin_rect = skin.get_rect(topright=(WIDTH / 3.2 - 30, ((menu_y * 0.8) + (i * 75))))
-        else:
-            skin_rect = skin.get_rect(topright=(WIDTH / 3.2 + card_width + card_height + 30, ((menu_y * 0.8) + (i * 75))))
-        surface.blit(skin, skin_rect)
-
-        text_position = textfont.render(f'{(i + 1)}. {ordered_students[i].name[:-1]}', True, WHITE)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 3.2, (card_y * 0.72) + (i * 75)))
+        text_position = textfont.render(f'{(i + 1)}. {studentes_ordered[i].name[:-1]}', True, WHITE)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*150)))
         surface.blit(text_position, text_rect)
 
-        text_points = textfont.render(f'Pontuação: {ordered_students[i].points}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.2, (card_y) + (i * 75)))
+        text_points = textfont.render(f'Pontuação: {studentes_ordered[i].points}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*150)))
         surface.blit(text_points, text_rect)
 
-        text_level = textfont.render(f'Último labirinto: {ordered_students[i].level}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y) + (i * 75) - 7))
+        text_level = textfont.render(f'Último labirinto: {studentes_ordered[i].level}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*150)))
         surface.blit(text_level, text_rect)
 
     screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
@@ -366,7 +361,7 @@ def draw_winners(game) -> pygame.Rect:
 
 
 def draw_info() -> pygame.Rect:
-    back_button = draw_title_button('Informações')
+    back_button = draw_tittle_button('Informações')
 
     pygame.display.flip()
     return back_button
