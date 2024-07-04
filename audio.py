@@ -12,8 +12,6 @@ wrong = pygame.mixer.Sound('./audio/wrong.wav')
 correct = pygame.mixer.Sound('./audio/correct.wav')
 level_complete = pygame.mixer.Sound('./audio/level_complete.wav')
 choice = pygame.mixer.Sound('./audio/choice.wav')
-game_over = pygame.mixer.Sound('./audio/castle-of-athanasius.mp3')
-menu = pygame.mixer.Sound('./audio/8-bit-legends-ancient-shrine-200457.mp3')
 
 #setting volumes
 points.set_volume(0.7)

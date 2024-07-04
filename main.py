@@ -265,7 +265,7 @@ def question() -> None:
 
         manager.part = 'play'
         manager.questioned = False
-        game.time_dif += trunc(time.perf_counter() - manager.start_question)
+        # game.time_dif += trunc(time.perf_counter() - manager.start_question)
         manager.chosen_answer = ''
         pygame.time.delay(1500)
 
@@ -320,6 +320,12 @@ def play() -> tuple[Game, Manager, Player]:
             manager.part = 'question'
             manager.question_giver = student.coordinate
             manager.start_question = time.perf_counter()
+            poss_items = ['b', 'c', 'l']
+            if student.item == 'l' and player.lives >= 5:
+                poss_items.remove('l')
+            elif student.item == 'b' and player.bombs >= 5:
+                poss_items.remove('b')
+            student.item = random.choice(poss_items)
             return game, manager, player
 
     for teacher in game.teachers:
@@ -533,8 +539,7 @@ def game_over() -> Manager:
                 break
         manager.mouse_pressed = False
         pygame.mixer.music.stop()
-        pygame.mixer.music.load('./audio/8bit Dungeon Level.mp3')
-        manager.is_music_playing = False
+        audio.music_setter('dungeon_level')
 
     return manager
 

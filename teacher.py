@@ -81,7 +81,7 @@ def set_teachers(game) -> list[Teacher]:
     if teacher_pos:
         teachers = [Teacher(game, first_coordinate=pos, coordinate=pos) for pos in teacher_pos]
     else:
-        for _ in range(game.level // 2):
+        for _ in range(game.level):
             teachers.append(Teacher(game))
 
     return teachers
