@@ -1,4 +1,5 @@
 import pygame
+from game_generator import Game
 
 class Animation(pygame.sprite.Sprite):
     def __init__(self):
@@ -9,10 +10,12 @@ class Animation(pygame.sprite.Sprite):
             self.image = self.sprites[self.current_sprite]
             self.rect = self.image.get_rect()
 
-    def update(self):
-        self.current_sprite += 0.15
-
-        if self.current_sprite >= len(self.sprites):
+    def update(self, game: Game):
+        if game.bomb_animation_time > 1.6:
             self.current_sprite = 0
-            
-        self.image = self.sprites[int(self.current_sprite)]
+        if game.bomb_animation_time <= 1.6 and game.bomb_animation_time > 0.7:
+            self.current_sprite = 1
+        elif game.bomb_animation_time <= 0.7:
+            self.current_sprite = 2
+    
+        self.image = self.sprites[self.current_sprite]

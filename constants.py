@@ -9,7 +9,7 @@ p - player
 b - bomb
 t - teacher
 s - student
-ab - active bomb
+x - active bomb
 n - points
 l - life
 c - clock

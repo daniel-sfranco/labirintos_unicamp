@@ -22,3 +22,5 @@ class Manager:
         self.question = Question(self.num_question)
         self.bomb_sprite = Animation()
         self.game_number = 0
+        self.is_music_playing = False
+        self.info_type = 'story'

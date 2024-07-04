@@ -1,5 +1,8 @@
 import pygame
 
+pygame.mixer.music.load('./audio/castle-of-athanasius.mp3')
+pygame.mixer.music.set_volume(0.3)
+
 explosion = pygame.mixer.Sound('./audio/explosion.wav')
 points = pygame.mixer.Sound('./audio/points.wav')
 points.set_volume(0.7)

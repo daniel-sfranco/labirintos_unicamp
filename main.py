@@ -256,6 +256,11 @@ def question() -> tuple[Game, Manager]:
 def play() -> tuple[Game, Manager, Player]:
     # Calculate time passed and update game time and points
     global player
+    if not manager.is_music_playing:
+        pygame.mixer.music.play(loops=-1)
+        manager.is_music_playing = True
+    pygame.mixer.music.unpause()
+
     passed = trunc(time.perf_counter() - game.start) - game.time_dif - player.time_dif
     game.time = TIME - passed
     if game.act_points > 0:
@@ -264,6 +269,7 @@ def play() -> tuple[Game, Manager, Player]:
     # Handle bomb detonation
     if game.bomb_start != 0 and game.bomb_coords != (-1, -1):
         game.bomb_time = BOMB_TIME - trunc(time.perf_counter() - game.bomb_start)
+        game.bomb_animation_time = BOMB_TIME - (time.perf_counter() - game.bomb_start)
         if game.bomb_time <= 0:
             player = game.detonate(player, game.bomb_coords)
             manager.key_pressed = False
@@ -327,7 +333,7 @@ def play() -> tuple[Game, Manager, Player]:
             game.bomb_time = time.perf_counter()
             game.bomb_start = game.bomb_time
             player.bombs -= 1
-            game.maze[player.coordinate[0]][player.coordinate[1]] = 'x'
+            game.maze[player.coordinate[0]][player.coordinate[1]] += 'x'
             game.bomb_coords = player.coordinate
 
     # Check for level completion
@@ -357,6 +363,8 @@ def pause() -> tuple[Game, Manager, Player]:
     """
     pause_menu = drawer.draw_pause_menu(player, game, manager)
     pygame.display.flip()
+    if manager.is_music_playing:
+        pygame.mixer.music.pause()
 
     if manager.mouse_pressed:
         mouse_x, mouse_y = manager.mouse_x, manager.mouse_y
@@ -390,6 +398,8 @@ def pause() -> tuple[Game, Manager, Player]:
 
         elif pause_menu[4].collidepoint(mouse_x, mouse_y):
             manager.part = 'init'
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
             audio.select.play()
 
         manager.mouse_pressed = False
@@ -530,14 +540,21 @@ def info() -> Manager:
     Returns:
     Manager: The updated manager instance with potentially modified state.
     """
-    back_button = drawer.draw_info()
+    buttons = drawer.draw_info(manager.info_type)
 
     keys = pygame.key.get_pressed()
 
-    if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
-        manager.part = 'init'
-        audio.select.play()
-
+    if manager.mouse_pressed:
+        if buttons[0].collidepoint(manager.mouse_x, manager.mouse_y):
+            manager.part = 'init'
+            manager.info_type = 'story'
+            audio.select.play()
+        elif buttons[1].collidepoint(manager.mouse_x, manager.mouse_y):
+            if manager.info_type == 'story':
+                manager.info_type = 'info'
+            else: 
+                manager.info_type = 'story'
+            audio.select.play()
     return manager
 
 

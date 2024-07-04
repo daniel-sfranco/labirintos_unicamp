@@ -245,14 +245,13 @@ def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame
     maze_y, maze_x = y * game.unit_size, x * game.unit_size
     if isinstance(game.maze[y][x], str):
         for i in game.maze[y][x]:
-            print(i)
             if i == 'n':
                 maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
             elif i == 'a':
                 continue
             elif i == 'x':
                 maze_surface.blit(sprites['active_bomb'], (maze_x, maze_y - game.player_dif))
-                manager.bomb_sprite.update()
+                manager.bomb_sprite.update(game)
             else:
                 maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))
 
@@ -273,7 +272,7 @@ def draw_HUD(player: Player, game: Game) -> None:
     hud_y = ((HEIGHT * 1.05) - hud_height) / 2
     hud_width = WIDTH // 4.5
     hud_x = (WIDTH - hud_width) / 1.02
-    pygame.draw.rect(hud, HUD_COLOR, [hud_x, hud_y, hud_width, hud_height])
+    pygame.draw.rect(hud, HUD_COLOR, [hud_x, hud_y, hud_width, hud_height], 0, 10)
 
     text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}",
             f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
@@ -566,8 +565,60 @@ def draw_winners() -> pygame.Rect:
     return back_button
 
 
-def draw_info() -> pygame.Rect:
-    back_button = draw_back_button('Informações')
+def draw_info(info_type:str) -> list[pygame.Rect]:
+    buttons = []
+    if info_type == 'story':
+        back_button = draw_back_button('História')
+        buttons.append(back_button)
+        continue_button = draw_info_history()
+        buttons.append(continue_button)
+    else:
+        back_button = draw_back_button('Ícones')
+        buttons.append(back_button)
+        return_button = draw_info_icons()
+        buttons.append(return_button)
 
     pygame.display.flip()
-    return back_button
+    return buttons
+
+def draw_info_history():
+    button_size = FIRST_UNIT // 4
+    continue_img = pygame.transform.scale(pygame.image.load('img/arrowRight.png').convert(), (button_size, button_size))
+    continue_rect = continue_img.get_rect(topleft=(WIDTH - 2 * button_size, HEIGHT * 0.88))
+    SCREEN.blit(continue_img, continue_rect)
+    
+    return continue_rect
+
+
+def draw_info_icons():
+    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
+    button_size = FIRST_UNIT // 4
+    return_img = pygame.transform.scale(pygame.image.load('img/arrowLeft.png').convert(), (button_size, button_size))
+    return_rect = return_img.get_rect(topleft=(WIDTH * 0.3, HEIGHT * 0.88))
+    card_width = MENU_WIDTH
+    card_height = MENU_HEIGHT * 0.2
+    card_y = HEIGHT - card_width
+
+    SCREEN.blit(return_img, return_rect)
+    
+    icon_names = ['Coração', 'Bomba', 'Relógio' 'Fantasma', 'Professor', 'Pontos']
+    icons = [HEART, BOMB, CLOCK_ICON, GHOST, PROF, POINT]
+    icon_description = ['Representam a quantidade de vida que o jogador tem.', 'Este item, ao ser colocado no chão, explode em um área de 3x3. Caso o jogador esteja dentro da área da explosão, ele perderá 1 vida.', 'Ao coletar o relógio, 15 segundos são somados ao tempo restante para completar o labirinto.', 'Os fantasmas representam alunos que ser perderam no labirinto. Ao se aproximar de um deles, uma pergunta será feita e, caso o jogador acerte, o aluno é libertado e como recompensa ele deixa um item ao jogador, que pode ser uma vida extra, uma bomba ou um relógio.', 'Os professores perseguem jogadores que estão no seu campo de visão. Caso ele chegue perto do jogador, uma pergunta será feita e, se a resposta for correta, o professor deixará um item de pontos como recompensa', 'Ao coletar este item, o jogador ganha']
+    #Falta a descrição dos pontos
+
+    for i in range(len(icon_names)):
+        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X, ((MENU_Y * 0.8) + (i * 130)), card_width, card_height], 2)
+
+        icon = icons[i]
+        icon = pygame.transform.scale(icon, (card_height, card_height))
+        icon_rect = icon.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 130) - 8))
+        surface.blit(icon, icon_rect)
+
+        text_position = TEXTFONT.render(icon_names[i], True, TITLE_COLOR)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y * 0.7) + (i * 130)))
+        surface.blit(text_position, text_rect)
+
+        text_points = TEXTFONT.render(icon_description[i], True, TITLE_COLOR)
+        text_rect = text_points.get_rect(bottomleft=(WIDTH / 3.25, (card_y) + (i * 130)))
+        surface.blit(text_points, text_rect)
+    return return_rect

@@ -23,6 +23,7 @@ class Game:
         self.num_teachers = level
         self.end = False
         self.bomb_start: float = 0
+        self.bomb_animation_time: float = 0
         self.bomb_coords: tuple[int, int] = (-1, -1)
         self.bomb_time: float = -1
         if maze == []:
