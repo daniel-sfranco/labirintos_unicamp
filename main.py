@@ -94,7 +94,7 @@ def init() -> Manager:
     return manager
 
 
-def new() -> Game:
+def new(name: str, skin: str, player: Player = Player('')) -> tuple[Game, Player]:
     """
     Initializes a new game level, resets the player's position, redraws the maze, updates the display, and adjusts the game's time difference.
 
@@ -105,11 +105,17 @@ def new() -> Game:
         Game: The newly created Game instance with the updated level and time difference.
     """
     new_game = Game(game.level + 1)
-    player.coordinate = (0, 0)
+    if player.name == '':
+        player = Player(name=name, skin=skin)
+    else:
+        player.points += game.points
+        player.time_dif = 0
+        player.first_points = player.points
+        player.coordinate = (0,0)
     drawer.draw_maze(player, new_game, manager)
     pygame.display.flip()
     new_game.time_dif = TIME - new_game.time
-    return new_game
+    return new_game, player
 
 
 def character_sel():
@@ -124,7 +130,7 @@ def character_sel():
     - Updated manager object with the new game state.
     - Updated player object with the selected character and name.
     """
-    global player
+    global game, player
     buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(manager)
 
     if manager.mouse_pressed:
@@ -134,8 +140,13 @@ def character_sel():
             manager.part = 'init'
             audio.select.play()
         elif buttons_char[1].collidepoint(mouse_x, mouse_y):
-            player = Player(name=manager.user_input, skin=skin_choice)
-            manager.part = 'new'
+            if manager.user_input != "":
+                name = manager.user_input
+            else:
+                history = get_history()
+                name = f'Jogador {len(history)}'
+            game, player = new(name, skin_choice)
+            manager.part = 'play'
             audio.select.play()
         elif arrows[0].collidepoint(mouse_x, mouse_y) and manager.skin_sel != 0:
             manager.skin_sel -= 1
@@ -150,25 +161,20 @@ def character_sel():
 
         manager.mouse_pressed = False
 
-        if manager.user_input != "":
-            player = Player(name=manager.user_input, skin=skin_choice)
-        else:
-            history = get_history()
-            player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
-
     elif manager.key_pressed:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RETURN]:
-            manager.part = 'new'
             audio.select.play()
             manager.key_pressed = False
 
             if manager.user_input != "":
-                player = Player(name=manager.user_input, skin=skin_choice)
+                name = manager.user_input
             else:
                 history = get_history()
-                player = Player(name=f'Jogador {len(history)}', skin=skin_choice)
+                name = f'Jogador {len(history)}'
+            game, player = new(name, skin_choice)
+            manager.part = 'play'
 
 
 def load() -> tuple[Game, Player]:
@@ -186,7 +192,8 @@ def load() -> tuple[Game, Player]:
 
     return game, player
 
-def question() -> tuple[Game, Manager]:
+
+def question() -> None:
     """
     Handles presenting a question to the player, capturing their answer, and updating the game state based on correctness.
 
@@ -197,14 +204,14 @@ def question() -> tuple[Game, Manager]:
     Returns:
         tuple[Game, Manager]: Updated Game and Manager instances.
     """
+
     if not manager.questioned:
-        manager.questioned = True
         manager.chosen_answer = ''
         manager.num_question = random.randint(1, 100)
-        return game, manager
-
-    manager.question = Question(manager.num_question)
-    manager.question_type = game.maze[manager.question_giver[0]][manager.question_giver[1]]
+        manager.question = Question(manager.num_question, manager.questioned)
+        manager.question_type = game.maze[manager.question_giver[0]][manager.question_giver[1]]
+        manager.questioned = True
+        return None
     answer_buttons, answered = drawer.draw_question(manager, game)
 
     if manager.mouse_pressed:
@@ -250,8 +257,6 @@ def question() -> tuple[Game, Manager]:
         manager.chosen_answer = ''
         pygame.time.delay(1500)
 
-    return game, manager
-
 
 def play() -> tuple[Game, Manager, Player]:
     # Calculate time passed and update game time and points
@@ -273,6 +278,7 @@ def play() -> tuple[Game, Manager, Player]:
         if game.bomb_time <= 0:
             player = game.detonate(player, game.bomb_coords)
             manager.key_pressed = False
+            manager.bomb_sprite.current_sprite = 0
             game.bomb_start = 0
             game.bomb_coords = (-1, -1)
 
@@ -293,10 +299,10 @@ def play() -> tuple[Game, Manager, Player]:
     manager.question_giver = (-1, -1)
     coord = player.coordinate
     next_coordinate = player.move_player(game)
-    move = coord == next_coordinate
+    move = coord != next_coordinate
 
     for student in game.students:
-        if student.coordinate == next_coordinate:
+        if student.coordinate == next_coordinate and move:
             manager.part = 'question'
             manager.question_giver = student.coordinate
             manager.start_question = time.perf_counter()
@@ -308,7 +314,7 @@ def play() -> tuple[Game, Manager, Player]:
             manager.part = 'question'
             manager.question_giver = teacher.coordinate
             manager.start_question = time.perf_counter()
-        elif teacher.coordinate == next_coordinate:
+        elif teacher.coordinate == next_coordinate and move:
             manager.part = 'question'
             manager.question_giver = teacher.coordinate
             manager.start_question = time.perf_counter()
@@ -338,10 +344,7 @@ def play() -> tuple[Game, Manager, Player]:
 
     # Check for level completion
     if next_coordinate == (-1, -1):
-        player.points += game.points
-        player.time_dif = 0
-        player.first_points = player.points
-        manager.part = 'new'
+        game, _ = new(player.name, player.skin, player)
         audio.level_complete.play()
 
     return game, manager, player
@@ -417,7 +420,7 @@ def select_save() -> Manager:
     Returns:
         Manager: The updated manager instance with the new game state based on the user's selection.
     """
-
+    global game, player
     save_menu = drawer.draw_select_save(manager=manager)
     saves = save.return_saves()
     save.order_saves(saves)
@@ -435,9 +438,10 @@ def select_save() -> Manager:
                     if os.path.exists(SAVE):
                         os.remove(SAVE)
                 else:
-                    manager.part = 'load'
                     manager.game_number = int(buttons[i].replace('game ', ''))
                     manager.mouse_pressed = False
+                    game, player = load()
+                    manager.part = 'play'
                     break
 
     return manager
@@ -581,17 +585,15 @@ def main():
 
         parts_functions = {
             'init': init,
-            'new': lambda: (new(), setattr(manager, 'part', 'play')),
-            'character_sel': lambda: character_sel(),
-            'load': lambda: (load(), setattr(manager, 'part', 'play')),
-            'question': lambda: (question(), None),
-            'play': lambda: play(),
-            'pause': lambda: pause(),
-            'select_save': lambda: select_save(),
-            'over_save': lambda: over_save(),
-            'game_over': lambda: game_over(),
-            'winners': lambda: (winners(), None),
-            'info': lambda: info(),
+            'character_sel': character_sel,
+            'question': question,
+            'play': play,
+            'pause': pause,
+            'select_save': select_save,
+            'over_save': over_save,
+            'game_over': game_over,
+            'winners': winners,
+            'info': info,
             'quit': lambda: setattr(manager, 'running', False)
         }
 

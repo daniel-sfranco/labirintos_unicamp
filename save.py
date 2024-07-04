@@ -1,9 +1,8 @@
-from typing import Any
 from game_generator import Game
 from player import Player
 from os import path
 from constants import SAVE, HISTORY, CHARACTERS
-from student import get_history, Student
+from student import get_history
 
 
 def count_saves(file: str = SAVE) -> int:
@@ -19,56 +18,49 @@ def count_saves(file: str = SAVE) -> int:
     return game
 
 
-def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
+def save(game: Game, player: Player, game_number: int = 0, file: str = SAVE) -> None:
+    """
+    Save the current state of the game and player to a file.
+
+    Args:
+        game (Game): An instance of the Game class representing the current game state.
+        player (Player): An instance of the Player class representing the current player state.
+        game_number (int, optional): An optional integer representing the game number to save. Defaults to 0.
+        file (str, optional): An optional string representing the file to save to. Defaults to SAVE.
+    """
     num_game = count_saves(file)
-    if num_game == 0:
-        type = 'w'
-    else:
-        type = 'a'
+    mode = 'w' if num_game == 0 else 'a'
+
     if file == SAVE:
         saves = return_saves()
-        for save in saves:
-            if save[2].name == player.name:
-                delete_save(save)
+        for save_data in saves:
+            if save_data[2].name == player.name:
+                delete_save(save_data[0])
                 num_game -= 1
                 break
-        with open(file, type) as save_file:
-            if game_number == 0:
-                save_file.write(f'game: {num_game + 1}\n')
-            else:
-                save_file.write(f'game: {game_number}\n')
+
+        with open(file, mode) as save_file:
+            game_num = num_game + 1 if game_number == 0 else game_number
+            save_file.write(f'game: {game_num}\n')
             save_file.write(f'level: {game.level}\n')
             save_file.write(f'name: {player.name}\n')
             save_file.write(f'points: {player.points}\n')
             save_file.write(f'lives: {player.lives}\n')
             save_file.write(f'time: {game.time}\n')
             save_file.write(f'bombs: {player.bombs}\n')
-            if isinstance(player.skin, int):
-                save_file.write(f'skin: {CHARACTERS[player.skin]}\n')
-            else:
-                save_file.write(f'skin: {player.skin}\n')
-            c = '('
-            for line in player.coordinate:
-                if line // 10 == 0:
-                    c += '0' + str(line)
-                else:
-                    c += str(line)
-                c += ', '
-            c = c[:-2] + ')'
-            save_file.write(f'player position: {c}\n')
-            for line in range(len(game.maze)):
-                s = ''
-                for j in range(len(game.maze[line])):
-                    s += str(game.maze[line][j]) + ' '
-                save_file.write(s + '\n')
-            for line in range(len(game.first_maze)):
-                s = ''
-                for j in range(len(game.first_maze[line])):
-                    s += str(game.first_maze[line][j]) + ' '
-                save_file.write(s + '\n')
+            save_file.write(f'skin: {CHARACTERS[player.skin] if isinstance(player.skin, int) else player.skin}\n')
+            coordinates = '(' + ', '.join([f'{line:02}' for line in player.coordinate]) + ')'
+            save_file.write(f'player position: {coordinates}\n')
+
+            for maze_row in game.maze:
+                save_file.write(' '.join(map(str, maze_row)) + '\n')
+
+            for init_maze_row in game.init_maze:
+                save_file.write(' '.join(map(str, init_maze_row)) + '\n')
+
     elif file == HISTORY:
         game_number = count_saves(HISTORY) + 1
-        with open(file, type) as history_file:
+        with open(file, mode) as history_file:
             history_file.write(f'game: {game_number}\n')
             history_file.write(f'name: {player.name}\n')
             history_file.write(f'skin: {player.skin}\n')
@@ -77,54 +69,80 @@ def save(game: Game, player: Player, game_number: int = 0, file=SAVE):
             history_file.write(f'coordinates: {player.coordinate}\n')
 
 
-def delete_save(game_number, file=SAVE):
+def delete_save(game_number: int, file: str = SAVE) -> None:
+    """
+    Remove the save data for a specific game number from a save file.
+
+    Args:
+        game_number (int): The number of the game whose save data needs to be deleted.
+        file (str): The path to the save file (default is 'SAVE').
+    """
     with open(file, 'r') as save_file:
         lines: list[str] = save_file.readlines()
+
     game_level = 0
-    for line in lines:
-        if line[:-1] == f'game: {game_number}':
-            line_index = lines.index(line)
-            game_level = int(lines[line_index + 1][7:])
+    for index, line in enumerate(lines):
+        if line.rstrip() == f'game: {game_number}':
+            game_level = int(lines[index + 1][7:])
+            del lines[index:index + game_level * 4 + 31]
             break
-    total_lines = ((game_level + 6) * 2 - 1) * 2 + 8
-    if 'line_index' in locals():
-        for _ in range(total_lines):
-            del lines[line_index]
+
     with open(file, 'w') as save_file:
         for line in lines:
             save_file.write(line)
 
 
-def order_saves(saves: list[tuple[int, Game, Player]], file=SAVE) -> None:
+def order_saves(saves: list[tuple[int, Game, Player]], file: str = 'SAVE') -> None:
+    """
+    Sorts a list of game saves by their game number and writes them back to a file in the sorted order.
+
+    Args:
+        saves (List[Tuple[int, Game, Player]]): A list of tuples containing a game number, a Game instance, and a Player instance.
+        file (str): An optional string specifying the file to save to, defaulting to 'SAVE'.
+
+    Returns:
+        None
+    """
     saves = sorted(saves, key=lambda x: x[0])
     with open(file, 'w'):
-        i = 1
-        for game in saves:
-            save(game[1], game[2], i)
-            i += 1
+        game_number = 1
+        for game_save in saves:
+            save(game_save[1], game_save[2], game_number)
+            game_number += 1
 
 
-def return_saves(file=SAVE) -> list[tuple[int, Game, Player]]:
+def return_saves(file: str = SAVE) -> list[tuple[int, Game, Player]]:
+    """
+    Reads a save file and reconstructs a list of saved game states.
+
+    Args:
+        file (str): The path to the save file (default is 'SAVE').
+
+    Returns:
+        List[Tuple[int, Game, Player]]: A list of tuples, each containing a game number, a Game object, and a Player object.
+    """
     games: list[tuple[int, Game, Player]] = []
-    game: tuple[int, Game, Player] = (0, Game(level=0), Player(name=''))
-    lines: list[str] = []
     actual_maze = []
     name = ''
+
     if path.exists(file):
         with open(file, 'r') as save_file:
             lines: list[str] = save_file.readlines()
         game_number = level = bombs = lives = points = row = -1
         skin = ''
-        player_position: tuple[int, int] = (0, 0)
+        player_position: tuple[int, int] = (-1, -1)
         num_games = count_saves(file)
-        first_maze = False
-        for line in lines:
+        init_maze = False
+
+        for i in lines:
+            line = i.rstrip()
+
             if 'game' in line:
                 game_number = int(line[6:])
             elif 'level' in line:
                 level = int(line[7:])
             elif 'name' in line:
-                name = line[6:-1]
+                name = line[6:]
             elif 'points' in line:
                 points = int(line[8:])
             elif 'lives' in line:
@@ -134,64 +152,70 @@ def return_saves(file=SAVE) -> list[tuple[int, Game, Player]]:
             elif 'bombs' in line:
                 bombs = int(line[7:])
             elif 'skin' in line:
-                skin = line[6:-1]
+                skin = line[6:]
             elif 'player position' in line:
                 player_position = (int(line[18:20]), int(line[22:24]))
             else:
-                if not isinstance(first_maze, list):
+                if not isinstance(init_maze, list):
                     row += 1
-                    actual_line: list[Any] = line.split(' ')
-                    for j in actual_line:
-                        if j.isnumeric():
-                            actual_line[actual_line.index(j)] = int(j)
-                    actual_line.pop()
+                    actual_line = [int(j) if j.isnumeric() else j for j in line.split(' ')]
                     actual_maze.append(actual_line)
-                    if row == (level + 6) * 2 - 2:
-                        first_maze = []
+
+                    if row == level * 2 + 10:
+                        init_maze = []
                         row = -1
                 else:
                     row += 1
-                    actual_line: list[Any] = line.split(' ')
-                    for j in actual_line:
-                        if j.isnumeric():
-                            actual_line[actual_line.index(j)] = int(j)
-                    actual_line.pop()
-                    first_maze.append(actual_line)
-                    if row == (level + 6) * 2 - 2:
+                    actual_line = [int(j) if j.isnumeric() else j for j in line.split(' ')]
+                    init_maze.append(actual_line)
+
+                    if row == level * 2 + 10:
                         if level > -1 and len(games) < num_games:
-                            act_game = Game(level=level, maze=actual_maze, first_maze=first_maze, act_time=time)
+                            act_game = Game(level=level, maze=actual_maze, init_maze=init_maze, act_time=time)
                             act_player = Player(name=name, skin=skin, points=points, lives=lives, bombs=bombs, coordinate=player_position, level=level)
                             game = (game_number, act_game, act_player)
                             games.append(game)
                             actual_maze = []
-                            first_maze = False
+                            init_maze = False
                             game_number = level = bombs = lives = points = row = -1
                             skin = ''
                             actual_line = []
+
     return games
 
 
 def store_save(game: Game, player: Player) -> None:
+    """
+    Check if the current game and player state already exist in the saved games.
+    If they do, retrieve the game number. Verify if the player's history is unique,
+    and if so, save the game state to the history file. Finally, if the game number
+    was found, delete the existing save for that game number.
+
+    :param game: An instance of the Game class representing the current game state.
+    :param player: An instance of the Player class representing the current player state.
+    :return: None
+    """
     games = return_saves()
+    game_number = None
+
     for g in games:
         if g[1] == game and g[2] == player:
             game_number = g[0]
             break
+
     students = get_history()
-    valid = True
-    for student in students:
-        if student.name == player.name and student.skin == player.skin and student.points == player.points and student.coordinate == player.coordinate and student.level == player.level:
-            valid = False
+    valid = all(student != player for student in students)
+
     if valid:
         save(game, player, file=HISTORY)
-    if 'game_number' in locals():
+
+    if game_number is not None:
         delete_save(game_number)
 
 
 if __name__ == "__main__":
-    game = Game(1)
-    player = Player('test_player')
-    game.maze[2][0] = 'b'
+    num_games = count_saves()
+    game = Game(num_games + 1)
+    player = Player(f'test_player{num_games + 1}')
     save(game, player)
-    order_saves(return_saves())
-    # delete_save(1)
+    saves = return_saves()

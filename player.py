@@ -6,6 +6,18 @@ from constants import BOMBS, LIVES, MOVE_KEYS, SPEED
 
 class Player:
     def __init__(self, name: str, skin: str = 'superhero', points: int = 0, lives: int = LIVES, bombs: int = BOMBS, coordinate: tuple[int, int] = (0, 0), level: int = 0) -> None:
+        """
+        Initialize a Player object with given attributes.
+
+        Args:
+            name (str): The name of the player.
+            skin (str): The skin/appearance of the player.
+            points (int): The current points of the player.
+            lives (int): The current lives of the player.
+            bombs (int): The current bombs the player has.
+            coordinate (tuple[int, int]): The current position of the player in the maze.
+            level (int): The current level of the player.
+        """
         self.name = name
         self.points = points
         self.lives = lives
@@ -15,24 +27,26 @@ class Player:
         self.first_points = points
         self.coordinate = coordinate
         self.time_dif = 0
-        if '\n' in skin:
-            self.skin = skin[:-1]
-        else:
-            self.skin = skin
+        self.skin = skin.strip()
         self.facing_right = True
         self.level = level
-        path: str = os.path.join('img', 'player', f'{self.skin}.gif')
-        self.img = pygame.image.load(path).convert()
+        self.img = pygame.image.load(f'img/player/{self.skin}.gif').convert()
 
     def move_player(self, game) -> tuple[int, int]:
+        """
+        Handle player movement based on key inputs and update the game state.
+
+        Args:
+            game: The game object where the player is moving.
+
+        Returns:
+            tuple[int, int]: The next coordinates of the player after movement.
+        """
         maze = game.maze
         keys = pygame.key.get_pressed()
         y, x = self.coordinate
-        actual_key = 0
-        for key in MOVE_KEYS:
-            if keys[key]:
-                actual_key = key
-                break
+        actual_key = next((key for key in MOVE_KEYS if keys[key]), 0)
+
         if actual_key in [pygame.K_DOWN, pygame.K_s] and y < len(maze) - 1:
             next_coordinate = (y + 1, x)
         elif actual_key in [pygame.K_UP, pygame.K_w] and y > 0:
@@ -53,38 +67,40 @@ class Player:
             return (-1, -1)
         else:
             next_coordinate = (y, x)
-        first = maze[self.coordinate[0]][self.coordinate[1]]
-        next = maze[next_coordinate[0]][next_coordinate[1]]
-        if first != next and next != 1:
+
+        first = maze[y][x]
+        next_cell = maze[next_coordinate[0]][next_coordinate[1]]
+
+        if first != next_cell and next_cell != 1:
             if first == 'p':
                 first = 0
             else:
-                letters = []
-                for letter in first:
-                    letters.append(letter)
-                first = ''.join([letter for letter in letters if letter != 'p'])
-            if next == 0:
-                next = 'p'
-            elif next == 'n':
-                next = 'p'
+                first = ''.join([letter for letter in first if letter != 'p'])
+
+            if next_cell == 0:
+                next_cell = 'p'
+            elif next_cell == 'n':
+                next_cell = 'p'
                 game.act_points += 1
                 audio.points.play()
-            elif next == 'b':
+            elif next_cell == 'b':
                 self.bombs += 1
-                next = 'p'
-            elif next == 's' or next == 't':
+                next_cell = 'p'
+            elif next_cell in ['s', 't']:
                 pygame.time.delay(SPEED)
                 return next_coordinate
-            elif next == 'l':
-                next = 'p'
+            elif next_cell == 'l':
+                next_cell = 'p'
                 self.lives += 1
-            elif next == 'c':
+            elif next_cell == 'c':
                 self.time_dif += 15
-                next = 'p'
+                next_cell = 'p'
             else:
                 return next_coordinate
-            maze[self.coordinate[0]][self.coordinate[1]] = first
+
+            maze[y][x] = first
             pygame.time.delay(SPEED)
-            maze[next_coordinate[0]][next_coordinate[1]] = next
+            maze[next_coordinate[0]][next_coordinate[1]] = next_cell
             self.coordinate = next_coordinate
+
         return next_coordinate
