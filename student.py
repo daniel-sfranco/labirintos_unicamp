@@ -140,11 +140,12 @@ def get_history() -> list[Student]:
                 student_info[key] = tuple(map(int, student_info[key].strip('() ').split(', ')))
             elif isinstance(student_info[key], str) and student_info[key].isnumeric():
                 student_info[key] = int(student_info[key])
-            if len(student_info) == 4:
+            if len(student_info) == 6:
                 students.append(Student(**student_info))
                 student_info = {}
 
     # Sorting students based in points
     students.sort(key=lambda x: x.points, reverse=True)
+    print(len(students))
 
     return students

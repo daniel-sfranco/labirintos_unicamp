@@ -547,7 +547,7 @@ def draw_winners() -> pygame.Rect:
         skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 130) - 8))
         surface.blit(skin, skin_rect)
 
-        text_position = TEXTFONT.render(f'{i + 1}. {player.name[:-1]}', True, TITLE_COLOR)
+        text_position = TEXTFONT.render(f'{i + 1}. {player.name}', True, TITLE_COLOR)
         text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y * 0.7) + (i * 130)))
         surface.blit(text_position, text_rect)
 

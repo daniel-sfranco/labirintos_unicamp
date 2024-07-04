@@ -69,6 +69,10 @@ def handle_keydown_event(event: pygame.event.Event, manager: Manager) -> Manager
 
 
 def init() -> Manager:
+    if not manager.is_music_playing:
+        audio.music_setter('dungeon_level')
+        manager.is_music_playing = True
+    
     # Draw initial menu and get button positions
     button_positions = drawer.draw_init()
 
@@ -147,6 +151,8 @@ def character_sel():
                 name = f'Jogador {len(history)}'
             game, player = new(name, skin_choice)
             manager.part = 'play'
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
             audio.select.play()
         elif arrows[0].collidepoint(mouse_x, mouse_y) and manager.skin_sel != 0:
             manager.skin_sel -= 1
@@ -165,6 +171,8 @@ def character_sel():
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RETURN]:
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
             audio.select.play()
             manager.key_pressed = False
 
@@ -262,7 +270,7 @@ def play() -> tuple[Game, Manager, Player]:
     # Calculate time passed and update game time and points
     global player, game
     if not manager.is_music_playing:
-        pygame.mixer.music.play(loops=-1)
+        audio.music_setter('ancient_shrine')
         manager.is_music_playing = True
     pygame.mixer.music.unpause()
 
@@ -294,6 +302,8 @@ def play() -> tuple[Game, Manager, Player]:
             return game, manager, player
     if player.lives == 0:
         manager.part = 'game_over'
+        pygame.mixer.music.stop()
+        manager.is_music_playing = False
 
     # Handle player movement and interactions with students and teachers
     manager.question_giver = (-1, -1)
@@ -441,6 +451,8 @@ def select_save() -> Manager:
                     manager.game_number = int(buttons[i].replace('game ', ''))
                     manager.mouse_pressed = False
                     game, player = load()
+                    pygame.mixer.music.stop()
+                    manager.is_music_playing = False
                     manager.part = 'play'
                     break
 
@@ -493,6 +505,10 @@ def game_over() -> Manager:
     Returns:
         Manager: The updated manager instance with the new game state.
     """
+    if not manager.is_music_playing:
+        audio.music_setter('castle-of-athanasius')
+        manager.is_music_playing = True
+
     over_menu = drawer.draw_game_over(game, player, manager)
     pygame.display.flip()
 
@@ -506,6 +522,8 @@ def game_over() -> Manager:
         for idx, menu_option in enumerate(over_menu):
             if menu_option.collidepoint(manager.mouse_x, manager.mouse_y):
                 manager.part = ['new', 'winners', 'init'][idx]
+                pygame.mixer.music.stop()
+                manager.is_music_playing = False
                 break
         manager.mouse_pressed = False
 
@@ -525,6 +543,9 @@ def winners() -> Manager:
     Returns:
         Manager: The updated `manager` instance with potentially modified game state.
     """
+    if not manager.is_music_playing:
+        audio.music_setter('dungeon_level')
+        manager.is_music_playing = True
     back_button = drawer.draw_winners()
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
