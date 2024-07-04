@@ -3,7 +3,7 @@ import pygame
 def music_setter(song):
     pygame.mixer.music.load(f'./audio/{song}.mp3')
     pygame.mixer.music.play(loops=-1)
-    
+
 # import sounds
 explosion = pygame.mixer.Sound('./audio/explosion.wav')
 points = pygame.mixer.Sound('./audio/points.wav')

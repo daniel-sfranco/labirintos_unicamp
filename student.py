@@ -96,7 +96,7 @@ def set_students(game) -> list[Student]:
     """
     students = get_students(game)
 
-    if len(students) < game.level // 2 or len(students) == 0:
+    if len(students) < game.level // 3 or len(students) == 0:
         i = len(students)
         while True:
             num = len(students) + 1
@@ -107,10 +107,10 @@ def set_students(game) -> list[Student]:
                 continue
             students.append(Student(name='Student' + str(i + 1), level=game.level, points=0, coordinates=coordinate, game=num))
             i += 1
-            if i >= game.level // 2:
+            if i >= game.level // 3:
                 break
-    elif len(students) > game.level // 2:
-        students = sorted(students, key=lambda student: student.num, reverse=True)[:game.level // 2]
+    elif len(students) > game.level // 3:
+        students = sorted(students, key=lambda student: student.num, reverse=True)[:game.level // 3]
 
     return students
 
