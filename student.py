@@ -146,6 +146,5 @@ def get_history() -> list[Student]:
 
     # Sorting students based in points
     students.sort(key=lambda x: x.points, reverse=True)
-    print(len(students))
 
     return students
