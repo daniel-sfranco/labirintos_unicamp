@@ -249,7 +249,7 @@ def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame
             if i == 'n':
                 maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
             elif i == 'x':
-                maze_surface.blit(sprites['active_bomb'], (maze_x, maze_y - game.player_dif))
+                maze_surface.blit(sprites['act_bomb'], (maze_x, maze_y - game.player_dif))
                 manager.bomb_sprite.update(game)
             else:
                 maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))

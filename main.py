@@ -260,7 +260,7 @@ def question() -> None:
 
 def play() -> tuple[Game, Manager, Player]:
     # Calculate time passed and update game time and points
-    global player
+    global player, game
     if not manager.is_music_playing:
         pygame.mixer.music.play(loops=-1)
         manager.is_music_playing = True
