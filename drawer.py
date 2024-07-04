@@ -157,12 +157,12 @@ def draw_pause_button() -> pygame.Rect:
 
 def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     """
-    Render the maze, player, and game elements on the screen.
+    Renders the maze and its elements on the screen.
 
     Args:
         player (Player): An instance of the Player class representing the player.
-        game (Game): An instance of the Game class representing the current game state.
-        manager (Manager): An instance of the Manager class managing game states and assets.
+        game (Game): An instance of the Game class containing the maze and game-related data.
+        manager (Manager): An instance of the Manager class handling game states and assets.
 
     Returns:
         None
@@ -173,27 +173,31 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     maze_surface = pygame.Surface((game.unit_size * maze_size, game.unit_size * len(maze[0])))
     maze_surface.fill(TILE_COLOR)
 
-    player.img = pygame.transform.scale(player.img, (game.unit_size, game.unit_size))
     player_y = player.coordinate[0] * game.unit_size
     player_y, game.player_dif = adjust_player_position(player_y, game.unit_size, maze_size)
+    sprites = {
+        'player_img': pygame.transform.scale(player.img, (game.unit_size, game.unit_size)),
+        'wall': pygame.transform.scale(WALL, (game.unit_size, game.unit_size)),
+        'floor': pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size)),
+        'ghost': pygame.transform.scale(GHOST, (game.unit_size, game.unit_size)),
+        'teacher': pygame.transform.scale(PROF, (game.unit_size, game.unit_size)),
+        'bomb': pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size)),
+        'point': pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2)),
+        'life': pygame.transform.scale(HEART, (game.unit_size, game.unit_size)),
+        'clock': pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size)),
+        'door': pygame.transform.scale(DOOR, (game.unit_size, game.unit_size))
+    }
 
-    wall = pygame.transform.scale(WALL, (game.unit_size, game.unit_size))
-    floor = pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size))
-    ghost = pygame.transform.scale(GHOST, (game.unit_size, game.unit_size))
-    teacher = pygame.transform.scale(PROF, (game.unit_size, game.unit_size))
-    bomb = pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size))
-    point = pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2))
-    life = pygame.transform.scale(HEART, (game.unit_size, game.unit_size))
-    clock = pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size))
-
-    for y in range(0, len(maze) * game.unit_size, game.unit_size):
-        for x in range(0, len(maze[0]) * game.unit_size, game.unit_size):
-            maze_y, maze_x = y // game.unit_size, x // game.unit_size
-            maze_surface.blit(floor, (x, y - game.player_dif))
-            if maze[maze_y][maze_x] == 1:
-                maze_surface.blit(wall, (x, y - game.player_dif))
+    for y, row in enumerate(maze):
+        for x, cell in enumerate(row):
+            maze_y, maze_x = y * game.unit_size, x * game.unit_size
+            if cell == 1:
+                maze_surface.blit(sprites['wall'], (maze_x, maze_y - game.player_dif))
             else:
-                draw_game_elements(maze, maze_y, maze_x, x, y, game, manager, maze_surface, ghost, teacher, bomb, point, life, clock, game.unit_size, game.player_dif, player.img)
+                maze_surface.blit(sprites['floor'], (maze_x, maze_y - game.player_dif))
+                if y == maze_size - 1 and x == len(row) - 1:
+                    maze_surface.blit(sprites['door'], (maze_x, maze_y - game.player_dif))
+                draw_game_elements(game, x, y, manager, maze_surface, sprites)
     screen.blit(maze_surface, (0, 0))
 
 
@@ -218,7 +222,7 @@ def adjust_player_position(player_y: int, unit_size: int, maze_size: int) -> tup
     return player_y, dif
 
 
-def draw_game_elements(maze: list, maze_y: int, maze_x: int, x: int, y: int, game, manager, maze_surface: pygame.Surface, ghost: pygame.Surface, teacher: pygame.Surface, bomb: pygame.Surface, point: pygame.Surface, life: pygame.Surface, clock: pygame.Surface, unit_size: int, player_dif: int, img: pygame.Surface) -> None:
+def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame.Surface, sprites: dict[str, pygame.Surface]) -> None:
     """
     Renders various game elements on the maze surface based on the maze's tile type at specific coordinates.
 
@@ -241,109 +245,166 @@ def draw_game_elements(maze: list, maze_y: int, maze_x: int, x: int, y: int, gam
     player_dif (int): Player difference.
     img (pygame.Surface): General image for other elements.
     """
-    tile_type: dict[str, pygame.Surface] = {'s': ghost, 't': teacher, 'n': point, 'l': life, 'c': clock, 'p': img}
-
-    if isinstance(maze[maze_y][maze_x], str):
-        for i in maze[maze_y][maze_x]:
+    tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img']}
+    maze_y, maze_x = y * game.unit_size, x * game.unit_size
+    if isinstance(game.maze[y][x], str):
+        for i in game.maze[y][x]:
             if i == 'n':
-                maze_surface.blit(tile_type[i], (x + (unit_size // 4), y - player_dif + (unit_size // 4)))
+                maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
             elif i == 'a':
                 continue
             elif i == 'b':
-                maze_surface.blit(bomb, (x, y - player_dif))
+                maze_surface.blit(sprites['bomb'], (maze_x, maze_y - game.player_dif))
                 manager.bomb_sprite.update()
             else:
-                maze_surface.blit(tile_type[i], (x, y - player_dif))
+                maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))
 
 
 def draw_HUD(player: Player, game: Game) -> None:
+    """
+    Renders the Heads-Up Display (HUD) for the game.
+
+    Args:
+        player (Player): An instance of the Player class.
+        game (Game): An instance of the Game class.
+
+    Returns:
+        None
+    """
     hud = pygame.Surface((SIZE), pygame.SRCALPHA)
     hud_height = HEIGHT // 1.3
     hud_y = ((HEIGHT * 1.05) - hud_height) / 2
     hud_width = WIDTH // 4.5
     hud_x = (WIDTH - hud_width) / 1.02
     pygame.draw.rect(hud, DARKGRAY, [hud_x, hud_y, hud_width, hud_height])
-    text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}", f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
+
+    text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}",
+            f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
+
     font = Font('./fonts/dogicapixel.ttf', WIDTH // 60)
     mini_size = FIRST_UNIT * 0.35
     size = (mini_size, mini_size)
-    for i in range(len(text)):
+
+    for i, item in enumerate(text):
         if i == 4:
             icon = pygame.transform.scale(HEART, size)
             for j in range(player.lives):
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i + 1.8)) + j * mini_size, hud_y + (hud_height / height_div), mini_size, mini_size)
+                heart_rect = pygame.Rect(hud_x + (hud_width / (i + 3)) + j * mini_size,
+                                        hud_y + (hud_height / (6 / (i))), mini_size, mini_size)
                 hud.blit(icon, heart_rect)
         elif i == 5:
             icon = pygame.transform.scale(BOMB, size)
             for j in range(player.bombs):
-                bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 0.8)) + j * mini_size, hud_y + (hud_height / (height_div / 1.2)), mini_size, mini_size)
+                bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 2)) + j * mini_size,
+                                        hud_y + (hud_height / (6 / (i - 0.1))), mini_size, mini_size)
                 hud.blit(icon, bomb_rect)
         else:
             height_div = (6 / (i + 1))
-            text_surface = font.render(text[i], True, WHITE)
+            text_surface = font.render(item, True, WHITE)
             text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height / (height_div + 0.3))))
             hud.blit(text_surface, text_rect)
+
     screen.blit(hud, (0, 0))
 
 
 def draw_pause_menu(player: Player, game: Game, manager: Manager) -> list[pygame.Rect]:
+    """
+    Renders the pause menu overlay on the game screen.
+
+    Args:
+        player (Player): An instance of the Player class representing the player.
+        game (Game): An instance of the Game class containing the maze and game-related data.
+        manager (Manager): An instance of the Manager class handling game states and assets.
+
+    Returns:
+        list[pygame.Rect]: A list of pygame.Rect objects representing the positions of the menu buttons.
+    """
     draw_maze(player, game, manager)
     draw_HUD(player, game)
-    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
-    pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
+
+    # Create a semi-transparent overlay
+    surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    pygame.draw.rect(surface, GRAY, surface.get_rect())
+
+    # Draw menu background
+    pygame.draw.rect(surface, BLACK, (menu_x, menu_y, menu_width, menu_height), 0, 20)
+
+    # Display menu options
     button_text = ['Voltar', 'Reiniciar labirinto atual', 'Salvar', 'Novo jogo', 'Sair']
     draw_title('Pausado', subfont, WHITE, surface=surface)
     menu = draw_menu(button_text, 3.5, surface)
+
+    # Blit overlay onto the main screen
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+
     return menu
 
 
 def draw_game_over(game: Game, player: Player, manager: Manager) -> list[pygame.Rect]:
+    """
+    Renders the game over screen with maze, HUD, and menu options.
+
+    Args:
+        game (Game): An instance of the Game class containing the current game state.
+        player (Player): An instance of the Player class representing the player.
+        manager (Manager): An instance of the Manager class handling game states and assets.
+
+    Returns:
+        list[pygame.Rect]: A list of pygame.Rect objects representing the positions of the menu buttons.
+    """
     draw_maze(player, game, manager)
     draw_HUD(player, game)
+
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, RED, [0, 0, WIDTH, HEIGHT])
     pygame.draw.rect(surface, BLACK, [menu_x, menu_y * 1.3, menu_width, menu_height * 0.7], 0, 20)
-    button_text = ['Novo jogo', 'Exibir ganhadores', 'Sair']
+
+    button_text = ['Novo jogo', 'Exibir histórico', 'Sair']
     draw_title('FIM DE JOGO', titlefont, WHITE, surface, BLACK)
     menu = draw_menu(button_text, 2.65, surface)
+
     screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
     return menu
 
 
 def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame.Rect], pygame.Rect, str]:
-    char_button_w = button_width * 0.3
-    char_button_h = button_height * 0.6
+    """
+    Renders a character selection screen in a Pygame application.
+
+    Displays a title, input box for character name, navigation buttons, and character images.
+    Handles the visual feedback for the selected character and navigation arrows.
+
+    Args:
+        manager (Manager): An instance of the Manager class containing the state of the game and user inputs.
+
+    Returns:
+        tuple: A tuple containing button positions, arrow positions, input box position, and the selected character.
+    """
     screen.fill(BACKGROUND)
     draw_title('SELECIONE SEU PERSONAGEM', titlefont, WHITE)
+
+    char_button_w = button_width * 0.3
+    char_button_h = button_height * 0.6
     button_x = [WIDTH // 8, WIDTH // 1.3]
     button_y = HEIGHT // 1.2
+    button_text = ['Voltar', 'Concluir']
+    button_positions: list[pygame.Rect] = []
 
     font = Font('./fonts/PixelTimes.ttf', 24)
-    input_box = pygame.Rect(WIDTH / 3, button_y, WIDTH // 3, button_height * 0.6)
     background_inactive = pygame.Color(BACKGROUND)
     background_active = pygame.Color(WHITE)
     color_active = background_inactive
     color_inactive = background_active
-    if manager.input_active:
-        color = color_active
-        background = background_active
-    else:
-        color = color_inactive
-        background = background_inactive
-    if manager.input_active is False and manager.user_input == "":
-        input_text = font.render("Escolha o nome do seu personagem", True, color)
-    else:
-        input_text = font.render(manager.user_input, True, color)
+    color = color_active if manager.input_active else color_inactive
+
+    input_box = pygame.Rect(WIDTH / 3, button_y, WIDTH // 3, button_height * 0.6)
+    input_text = font.render("Escolha o nome do seu personagem" if not manager.input_active and not manager.user_input else manager.user_input, True, color)
     input_rect = input_text.get_rect(center=(input_box.centerx, input_box.centery))
-    pygame.draw.rect(screen, background, input_box)
+    pygame.draw.rect(screen, background_active if manager.input_active else background_inactive, input_box)
     screen.blit(input_text, input_rect)
-    button_text = ['Voltar', 'Concluir']
-    button_positions: list[pygame.Rect] = []
-    
-    for i in range(2):
-        text_surface = font.render(button_text[i], True, button_textcolor)
+
+    for i, text in enumerate(button_text):
+        text_surface = font.render(text, True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x[i] + (char_button_w / 2), button_y + (char_button_h / 2)))
         pygame.draw.rect(screen, button_backgroundcolor, (button_x[i], button_y, char_button_w, char_button_h))
         screen.blit(text_surface, text_rect)
@@ -353,12 +414,12 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
     character_w = FIRST_UNIT // 0.5
     character_h = FIRST_UNIT // 0.4
     character_distance = 600
-    for i in range(len(CHARACTERS)):
+    for i, character in enumerate(CHARACTERS):
         slide_x = (WIDTH // 2.5 - (character_distance * manager.skin_sel)) + i * character_distance
         if i == manager.skin_sel:
-            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif'), (11, 11))
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + character + '.gif'), (11, 11))
         else:
-            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + CHARACTERS[i] + '.gif').convert_alpha(), (8, 8))
+            character_img = pygame.transform.scale_by(pygame.image.load('img/player/' + character + '.gif').convert_alpha(), (8, 8))
             darken_surface = pygame.Surface(character_img.get_size()).convert_alpha()
             darken_surface.fill((255, 255, 255, 150))
             character_img.blit(darken_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
@@ -371,15 +432,17 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
     arrow_h = FIRST_UNIT // 2
     arrow_left_img = pygame.transform.scale(pygame.image.load('img/arrowLeft.png'), (arrow_w, arrow_h))
     arrow_left_rect = pygame.Rect(WIDTH // 12, HEIGHT // 2.3, arrow_w, arrow_h)
-    screen.blit(arrow_left_img, arrow_left_rect)
     arrow_right_img = pygame.transform.flip(arrow_left_img, True, False)
     arrow_right_rect = pygame.Rect(WIDTH // 1.12, HEIGHT // 2.3, arrow_w, arrow_h)
-    screen.blit(arrow_right_img, arrow_right_rect)
     arrow_positions = [arrow_left_rect, arrow_right_rect]
+
+    screen.blit(arrow_left_img, arrow_left_rect)
+    screen.blit(arrow_right_img, arrow_right_rect)
     pygame.display.flip()
+
     return button_positions, arrow_positions, input_box, skin_choice
 
-
+# Até aqui documentado
 def draw_question(manager: Manager, game: Game):
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     question_rect = pygame.Rect(0, 0, WIDTH // 1.2, HEIGHT // 1.4)
@@ -431,33 +494,37 @@ def draw_question(manager: Manager, game: Game):
     return answer_buttons, answered
 
 
-def draw_winners(game) -> pygame.Rect:
+def draw_winners() -> pygame.Rect:
     back_button = draw_title_button('Histórico')
-    studentes_ordered = get_history()
+    ordered_students = get_history()
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
-    players = len(studentes_ordered)
+    players = len(ordered_students)
     if players > 5:
         players = 5
 
     card_width = menu_width
     card_height = menu_height * 0.2
-    card_x = (WIDTH - card_width) / 2
     card_y = HEIGHT - card_width
 
     for i in range(players):
-        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 150)), card_width, card_height], 2)
+        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 100)), card_width, card_height], 2)
 
-        text_position = textfont.render(f'{(i + 1)}. {studentes_ordered[i].name[:-1]}', True, WHITE)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*150)))
+        skin = pygame.image.load(f'img/player/{ordered_students[i].last_skin}.gif')
+        skin = pygame.transform.scale(skin, (card_height, card_height))
+        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y*0.7)+(i*100)))
+        surface.blit(skin, skin_rect)
+
+        text_position = textfont.render(f'{(i + 1)}. {ordered_students[i].name[:-1]}', True, WHITE)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*100)))
         surface.blit(text_position, text_rect)
 
-        text_points = textfont.render(f'Pontuação: {studentes_ordered[i].points}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*150)))
+        text_points = textfont.render(f'Pontuação: {ordered_students[i].points}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*100)))
         surface.blit(text_points, text_rect)
 
-        text_level = textfont.render(f'Último labirinto: {studentes_ordered[i].level}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*150)))
+        text_level = textfont.render(f'Último labirinto: {ordered_students[i].level}', True, WHITE)
+        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*100)))
         surface.blit(text_level, text_rect)
 
     screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))

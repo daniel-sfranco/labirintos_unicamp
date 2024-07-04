@@ -100,7 +100,7 @@ def get_history():
                 skin = line[6:]
                 count += 1
             if count == 4:
-                students.append(Student(name=name, level=level, points=points))
+                students.append(Student(name=name, level=level, points=points, skin=skin))
                 count = 0
 
     students = sorted(students, key=lambda x: x.points, reverse=True)
