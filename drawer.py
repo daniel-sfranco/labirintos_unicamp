@@ -321,7 +321,7 @@ def draw_question(manager: Manager, game: Game):
     return answer_buttons, answered
 
 
-def draw_winners(game) -> pygame.Rect:
+def draw_winners() -> pygame.Rect:
     back_button = draw_title_button('Histórico')
     ordered_students = get_history()
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
@@ -329,8 +329,6 @@ def draw_winners(game) -> pygame.Rect:
     players = len(ordered_students)
     if players > 5:
         players = 5
-    elif players == 0:
-        print("A")
 
     card_width = menu_width
     card_height = menu_height * 0.2

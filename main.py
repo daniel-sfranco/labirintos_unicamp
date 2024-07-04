@@ -511,7 +511,7 @@ def winners(manager: Manager, game: Game) -> Manager:
     Returns:
         Manager: The updated `manager` instance with potentially modified game state.
     """
-    back_button = drawer.draw_winners(game)
+    back_button = drawer.draw_winners()
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
         manager.part = 'init'
