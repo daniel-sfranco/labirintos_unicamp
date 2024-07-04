@@ -15,7 +15,7 @@ class Student(Player):
     - item: The item chosen randomly from the possibilities.
     """
 
-    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinate: tuple[int, int] = (-1, -1), num: int = 0, lives: int = 3, bombs: int = 0, skin: str = 'superhero'):
+    def __init__(self, name: str = '', level: int = 0, points: int = 0, coordinates: tuple[int, int] = (-1, -1), game: int = 0, lives: int = 3, bombs: int = 0, skin: str = 'superhero'):
         """
         Initializes a student with specific attributes and determines the possible items a student can possess based on their lives and bombs.
 
@@ -29,8 +29,8 @@ class Student(Player):
         - bombs: The number of bombs of the student.
         - skin: The skin of the student.
         """
-        super().__init__(name=name, points=points, coordinate=coordinate, level=level, skin='ghost')
-        self.num = num
+        super().__init__(name=name, points=points, coordinate=coordinates, level=level, skin='ghost')
+        self.num = game
         self.possibilities = ['c']
         self.last_skin = skin.rstrip()
         if lives < 5:
@@ -65,7 +65,7 @@ def get_students(game) -> list[Student]:
             elif data[0] == 'points':
                 points = int(data[1])
             elif data[0] == 'coordinates':
-                coordinates = tuple(map(int, data[1].split(', ')))
+                coordinates = tuple(map(int, data[1].strip('() ').split(', ')))
                 coordinate = coordinates[0], coordinates[1]
             elif data[0] == 'skin':
                 skin = data[1]
@@ -73,13 +73,13 @@ def get_students(game) -> list[Student]:
                 num = int(data[1])
 
                 if 'name' in locals() and level == game.level and coordinate != (0, 0):
-                    students.append(Student(name=name, level=level, points=points, coordinate=coordinate, num=num, skin=skin))
+                    students.append(Student(name=name, level=level, points=points, coordinates=coordinate, game=num, skin=skin))
 
     if len(students) < game.level:
         for i, row in enumerate(game.maze):
             for j, cell in enumerate(row):
                 if cell == 's' and all((i, j) != student.coordinate for student in students):
-                    students.append(Student(name='Student', level=game.level, points=0, coordinate=(i, j), num=len(students) + 1))
+                    students.append(Student(name='Student', level=game.level, points=0, coordinates=(i, j), game=len(students) + 1))
 
     return students
 
@@ -105,7 +105,7 @@ def set_students(game) -> list[Student]:
             coordinate = (coord_x, coord_y)
             if coordinate == (len(game.maze), len(game.maze[-1])):
                 continue
-            students.append(Student(name='Student' + str(i + 1), level=game.level, points=0, coordinate=coordinate, num=num))
+            students.append(Student(name='Student' + str(i + 1), level=game.level, points=0, coordinates=coordinate, game=num))
             i += 1
             if i >= game.level // 2:
                 break
@@ -136,6 +136,10 @@ def get_history() -> list[Student]:
         for line in lines:
             key, value = line.strip().split(': ', 1)
             student_info[key] = value.strip()
+            if isinstance(student_info[key], str) and key == 'coordinates':
+                student_info[key] = tuple(map(int, student_info[key].strip('() ').split(', ')))
+            elif isinstance(student_info[key], str) and student_info[key].isnumeric():
+                student_info[key] = int(student_info[key])
             if len(student_info) == 4:
                 students.append(Student(**student_info))
                 student_info = {}

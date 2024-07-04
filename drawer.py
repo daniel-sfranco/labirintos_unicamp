@@ -245,15 +245,12 @@ def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame
     tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img'], 'b': sprites['bomb']}
     maze_y, maze_x = y * game.unit_size, x * game.unit_size
     if isinstance(game.maze[y][x], str):
-        i = game.maze[y][x]
-        if 'ab' in i:
-            maze_surface.blit(sprites['act_bomb'], (maze_x, maze_y - game.player_dif))
-            manager.bomb_sprite.update()
-            if i != 'ab':
-                maze_surface.blit(tile_type[i.replace('ab', '')], (maze_x, maze_y - game.player_dif))
-        else:
+        for i in game.maze[y][x]:
             if i == 'n':
                 maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
+            elif i == 'x':
+                maze_surface.blit(sprites['act_bomb'], (maze_x, maze_y - game.player_dif))
+                manager.bomb_sprite.update()
             else:
                 maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))
 
