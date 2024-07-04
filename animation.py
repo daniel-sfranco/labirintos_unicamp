@@ -10,7 +10,7 @@ class Animation(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
 
     def update(self):
-        self.current_sprite += 0.25
+        self.current_sprite += 0.15
 
         if self.current_sprite >= len(self.sprites):
             self.current_sprite = 0

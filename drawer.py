@@ -176,7 +176,8 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
         'floor': pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size)),
         'ghost': pygame.transform.scale(GHOST, (game.unit_size, game.unit_size)),
         'teacher': pygame.transform.scale(PROF, (game.unit_size, game.unit_size)),
-        'bomb': pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size)),
+        'bomb': pygame.transform.scale(BOMB, (game.unit_size, game.unit_size)),
+        'active_bomb': pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size)),
         'point': pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2)),
         'life': pygame.transform.scale(HEART, (game.unit_size, game.unit_size)),
         'clock': pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size)),
@@ -240,16 +241,17 @@ def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame
     player_dif (int): Player difference.
     img (pygame.Surface): General image for other elements.
     """
-    tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img']}
+    tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 'b': sprites['bomb'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img']}
     maze_y, maze_x = y * game.unit_size, x * game.unit_size
     if isinstance(game.maze[y][x], str):
         for i in game.maze[y][x]:
+            print(i)
             if i == 'n':
                 maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
             elif i == 'a':
                 continue
-            elif i == 'b':
-                maze_surface.blit(sprites['bomb'], (maze_x, maze_y - game.player_dif))
+            elif i == 'x':
+                maze_surface.blit(sprites['active_bomb'], (maze_x, maze_y - game.player_dif))
                 manager.bomb_sprite.update()
             else:
                 maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))
@@ -292,7 +294,7 @@ def draw_HUD(player: Player, game: Game) -> None:
                 for j in range(3):
                     heart_rect = pygame.Rect(hud_x + (hud_width / (i + 1.8)) + j * mini_size, hud_y + (hud_height / height_div), mini_size, mini_size)
                     hud.blit(icon, heart_rect)
-                text_surface = font.render(f'+ {player.lives-3}', True, WHITE)
+                text_surface = font.render(f'+ {player.lives-3}', True, TITLE_COLOR)
                 text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 1.3), hud_y + (hud_height / 1.42)))
                 hud.blit(text_surface, text_rect)
         elif i == 5:
@@ -306,7 +308,7 @@ def draw_HUD(player: Player, game: Game) -> None:
                 for j in range(3):
                     bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 0.8)) + j * mini_size, hud_y + (hud_height / (height_div / 1.2)), mini_size, mini_size)
                     hud.blit(icon, bomb_rect)
-                text_surface = font.render(f'+ {player.bombs-3}', True, WHITE)
+                text_surface = font.render(f'+ {player.bombs-3}', True, TITLE_COLOR)
                 text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 1.3), hud_y + (hud_height / 1.17)))
                 hud.blit(text_surface, text_rect)
         else:
@@ -539,23 +541,23 @@ def draw_winners() -> pygame.Rect:
     for i in range(players):
         player = ordered_students[i]
 
-        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X, ((MENU_Y * 0.8) + (i * 100)), card_width, card_height], 2)
+        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X, ((MENU_Y * 0.8) + (i * 130)), card_width, card_height], 2)
 
         skin = pygame.image.load(f'img/player/{player.last_skin}.gif')
         skin = pygame.transform.scale(skin, (card_height, card_height))
-        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 100) - 8))
+        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 130) - 8))
         surface.blit(skin, skin_rect)
 
         text_position = TEXTFONT.render(f'{i + 1}. {player.name[:-1]}', True, TITLE_COLOR)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y * 0.7) + (i * 100)))
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y * 0.7) + (i * 130)))
         surface.blit(text_position, text_rect)
 
         text_points = TEXTFONT.render(f'Pontuação: {player.points}', True, TITLE_COLOR)
-        text_rect = text_points.get_rect(bottomleft=(WIDTH / 3.25, (card_y) + (i * 100)))
+        text_rect = text_points.get_rect(bottomleft=(WIDTH / 3.25, (card_y) + (i * 130)))
         surface.blit(text_points, text_rect)
 
         text_level = TEXTFONT.render(f'Último labirinto: {player.level}', True, TITLE_COLOR)
-        text_rect = text_level.get_rect(bottomleft=(WIDTH / 2, (card_y) + (i * 100)))
+        text_rect = text_level.get_rect(bottomleft=(WIDTH / 2, (card_y) + (i * 130)))
         surface.blit(text_level, text_rect)
 
     SCREEN.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))

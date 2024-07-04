@@ -327,7 +327,7 @@ def play() -> tuple[Game, Manager, Player]:
             game.bomb_time = time.perf_counter()
             game.bomb_start = game.bomb_time
             player.bombs -= 1
-            game.maze[player.coordinate[0]][player.coordinate[1]] += 'ab'
+            game.maze[player.coordinate[0]][player.coordinate[1]] = 'x'
             game.bomb_coords = player.coordinate
 
     # Check for level completion
