@@ -176,12 +176,12 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
         'floor': pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size)),
         'ghost': pygame.transform.scale(GHOST, (game.unit_size, game.unit_size)),
         'teacher': pygame.transform.scale(PROF, (game.unit_size, game.unit_size)),
-        'bomb': pygame.transform.scale(BOMB, (game.unit_size, game.unit_size)),
-        'active_bomb': pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size)),
+        'act_bomb': pygame.transform.scale(manager.bomb_sprite.image, (game.unit_size, game.unit_size)),
         'point': pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2)),
         'life': pygame.transform.scale(HEART, (game.unit_size, game.unit_size)),
         'clock': pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size)),
-        'door': pygame.transform.scale(DOOR, (game.unit_size, game.unit_size))
+        'door': pygame.transform.scale(DOOR, (game.unit_size, game.unit_size)),
+        'bomb': pygame.transform.scale(BOMB, (game.unit_size, game.unit_size))
     }
 
     for y, row in enumerate(maze):
@@ -242,17 +242,18 @@ def draw_game_elements(game: Game, x: int, y: int, manager, maze_surface: pygame
     img (pygame.Surface): General image for other elements.
     """
     tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 'b': sprites['bomb'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img']}
+    tile_type: dict[str, pygame.Surface] = {'s': sprites['ghost'], 't': sprites['teacher'], 'n': sprites['point'], 'l': sprites['life'], 'c': sprites['clock'], 'p': sprites['player_img'], 'b': sprites['bomb']}
     maze_y, maze_x = y * game.unit_size, x * game.unit_size
     if isinstance(game.maze[y][x], str):
-        for i in game.maze[y][x]:
-            print(i)
+        i = game.maze[y][x]
+        if 'ab' in i:
+            maze_surface.blit(sprites['act_bomb'], (maze_x, maze_y - game.player_dif))
+            manager.bomb_sprite.update()
+            if i != 'ab':
+                maze_surface.blit(tile_type[i.replace('ab', '')], (maze_x, maze_y - game.player_dif))
+        else:
             if i == 'n':
                 maze_surface.blit(tile_type[i], (maze_x + (game.unit_size // 4), maze_y - game.player_dif + (game.unit_size // 4)))
-            elif i == 'a':
-                continue
-            elif i == 'x':
-                maze_surface.blit(sprites['active_bomb'], (maze_x, maze_y - game.player_dif))
-                manager.bomb_sprite.update()
             else:
                 maze_surface.blit(tile_type[i], (maze_x, maze_y - game.player_dif))
 
@@ -477,7 +478,7 @@ def draw_question(manager: Manager, game: Game):
         color = COLORS['GRAY']
         answered = False
     else:
-        if manager.chosen_answer == manager.question.answer.lower()[0]:
+        if manager.question.alt[manager.chosen_answer][3:] == manager.question.answer:
             color = COLORS['GREEN']
             answered = 'right'
             audio.correct.play(loops=1)
@@ -502,14 +503,15 @@ def draw_question(manager: Manager, game: Game):
     for part in parts:
         draw_title(part, SUBFONT, TITLE_COLOR, surface, color, len(parts) - parts.index(part))
 
-    button_text = [manager.question.a, manager.question.b, manager.question.c, manager.question.d]
+    button_text = [manager.question.alt['a'][3:].rstrip(), manager.question.alt['b'][3:].rstrip(), manager.question.alt['c'][3:].rstrip(), manager.question.alt['d'][3:].rstrip()]
     answer_buttons: list[pygame.Rect] = []
     buttonx = [WIDTH // 7, WIDTH // 1.9]
     buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
     BUTTON_HEIGHT = HEIGHT // 8
+    options = ['A) ', 'B) ', 'C) ', 'D) ']
 
     for i in range(4):
-        text_surface = TEXTFONT.render(button_text[i], True, BUTTON_TEXTCOLOR)
+        text_surface = TEXTFONT.render(options[i] + button_text[i], True, BUTTON_TEXTCOLOR)
         text_rect = text_surface.get_rect(center=(buttonx[i % 2] + (BUTTON_WIDTH / 2), buttony[i // 2] + (BUTTON_HEIGHT / 2)))
         rect = pygame.draw.rect(surface, BUTTON_BACKGROUNDCOLOR, (buttonx[i % 2], buttony[i // 2], BUTTON_WIDTH, BUTTON_HEIGHT))
         surface.blit(text_surface, text_rect)

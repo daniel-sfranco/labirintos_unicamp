@@ -36,7 +36,7 @@ pygame.display.set_caption('Labirintos da Unicamp')
 
 # Setting contants for game mechanics
 BOMB_TIME = 2
-BOMBS = 5
+BOMBS = 0
 CHARACTERS = ['archer', 'barbarian', 'cleric', 'cyborg', 'ninja', 'paladin', 'superhero', 'thief']
 FIRST_LEVEL = 1
 FIRST_UNIT = (3 * WIDTH // 4) // (6 + FIRST_LEVEL) if WIDTH > HEIGHT else (3 * HEIGHT // 4) // (6 + FIRST_LEVEL)
@@ -62,7 +62,7 @@ GHOST = pygame.image.load('img/player/ghost.gif').convert()
 WALL = pygame.image.load("img/tiles/roomWall12.gif").convert()
 FLOOR = pygame.image.load("img/tiles/floor.png").convert()
 PROF = pygame.image.load('img/player/scientist.gif').convert()
-BOMB = pygame.image.load('img/items/bomb/bomb.png')
+BOMB = pygame.image.load('img/items/bomb.png')
 POINT = pygame.image.load('img/electricity.gif').convert()
 HEART = pygame.image.load('img/heart.png')
 CLOCK_ICON = pygame.image.load('img/items/clock.png')
