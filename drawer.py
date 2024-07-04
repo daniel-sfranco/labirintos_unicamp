@@ -186,14 +186,14 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     life = pygame.transform.scale(HEART, (game.unit_size, game.unit_size))
     clock = pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size))
 
-    for y in range(0, maze_size * game.unit_size, game.unit_size):
-        for x in range(0, maze_size * game.unit_size, game.unit_size):
+    for y in range(0, len(maze) * game.unit_size, game.unit_size):
+        for x in range(0, len(maze[0]) * game.unit_size, game.unit_size):
             maze_y, maze_x = y // game.unit_size, x // game.unit_size
+            maze_surface.blit(floor, (x, y - game.player_dif))
             if maze[maze_y][maze_x] == 1:
                 maze_surface.blit(wall, (x, y - game.player_dif))
             else:
                 draw_game_elements(maze, maze_y, maze_x, x, y, game, manager, maze_surface, ghost, teacher, bomb, point, life, clock, game.unit_size, game.player_dif, player.img)
-            maze_surface.blit(floor, (x, y - game.player_dif))
     screen.blit(maze_surface, (0, 0))
 
 
