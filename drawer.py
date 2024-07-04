@@ -1,10 +1,8 @@
 import pygame
 from constants import *
 from pygame.font import Font
-from questions import Question
 from save import return_saves
 from student import get_history
-from animation import Animation
 import audio
 from player import Player
 from game_generator import Game
@@ -12,68 +10,117 @@ from manage import Manager
 
 
 def draw_init() -> list[pygame.Rect]:
+    """
+    Initializes the game screen by filling it with a background color, drawing the game title,
+    creating menu buttons, and updating the display. Returns the positions of the buttons as a list of pygame.Rect objects.
+    """
     screen.fill(BACKGROUND)
     draw_title('LABIRINTOS DA UNICAMP', titlefont, WHITE)
+
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Histórico', 'Informações', 'Sair']
     button_positions: list[pygame.Rect] = draw_menu(button_text, 3)
+
     pygame.display.flip()
+
     return button_positions
 
 
 def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCREEN) -> list[pygame.Rect]:
+    """
+    Create and display a series of buttons on a Pygame surface.
+
+    Args:
+        button_text (list[str]): A list of strings representing the text on each button.
+        div (float): A value used to calculate the vertical position of the buttons.
+        surface (pygame.Surface, optional): Pygame surface where buttons will be drawn. Defaults to SCREEN.
+
+    Returns:
+        list[pygame.Rect]: A list of pygame.Rect objects representing button positions.
+    """
     num_buttons = len(button_text)
     button_x = (WIDTH - button_width) / 2
     button_y = [round(HEIGHT / div) + i * button_distance for i in range(num_buttons)]
     button_positions: list[pygame.Rect] = []
-    for i in range(num_buttons):
-        text_surface = textfont.render(button_text[i], True, button_textcolor)
+
+    for i, text in enumerate(button_text):
+        text_surface = textfont.render(text, True, button_textcolor)
         text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height / 2)))
+
         pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
         surface.blit(text_surface, text_rect)
+
         button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
+
     return button_positions
 
 
-def draw_tittle_button(tittle_text: str) -> pygame.Rect:
-    surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
-    font = Font('./fonts/PixelTimes.ttf', 24)
-    draw_title(tittle_text, subfont, WHITE, surface)
+def draw_title_button(title_text: str) -> pygame.Rect:
+    # Create a transparent surface
+    surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
-    button_w = button_width * 0.3
-    button_h = button_height * 0.6
+    # Draw a black rectangle covering the entire surface
+    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
+
+    # Render the title text using a specific font and draw it on the surface
+    font = pygame.font.Font('./fonts/PixelTimes.ttf', 24)
+    text_surface = font.render(title_text, True, WHITE)
+    text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 8))
+    surface.blit(text_surface, text_rect)
+
+    # Define the button's dimensions and position
+    button_w = WIDTH // 3
+    button_h = HEIGHT // 1.5
     button_x = WIDTH // 12
     button_y = HEIGHT // 1.15
 
-    text_surface = font.render('Voltar', True, button_textcolor)
-    text_rect = text_surface.get_rect(center=(button_x + (button_w / 2), button_y + (button_h / 2)))
+    # Render the button text and draw the button rectangle
+    button_text = 'Voltar'
+    button_text_surface = font.render(button_text, True, button_textcolor)
+    button_text_rect = button_text_surface.get_rect(center=(button_x + button_w // 2, button_y + button_h // 2))
     pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y, button_w, button_h))
-    surface.blit(text_surface, text_rect)
-    back_button = pygame.Rect(button_x, button_y, button_w, button_h)
+    surface.blit(button_text_surface, button_text_rect)
 
+    # Blit the entire surface onto the main screen
     screen.blit(surface, (0, 0))
 
-    return back_button
+    # Return the button's rectangle
+    return pygame.Rect(button_x, button_y, button_w, button_h)
 
 
 def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK, question=0) -> None:
+    """
+    Render a title text on a Pygame surface with optional background color and positioning based on the context.
+
+    Args:
+        text (str): The title text to be displayed.
+        font (Font): The Pygame font object used to render the text.
+        color: The color of the text.
+        surface (pygame.Surface, optional): The Pygame surface where the text will be drawn. Defaults to SCREEN.
+        back: The background color for the text rectangle. Defaults to BLACK.
+        question (int, optional): An integer to adjust the vertical position of the text. Defaults to 0.
+    """
     title = font.render(text, True, color)
-    title_rect = title.get_rect()
-    match question:
-        case 0:
-            title_rect.top = HEIGHT // 10
-        case 1:
-            title_rect.top = HEIGHT // 5
-        case 2:
-            title_rect.top = round(HEIGHT / 3.5)
-    title_rect.centerx = WIDTH // 2
-    pygame.draw.rect(surface, back, (title_rect.left - 30, title_rect.top - 20, title_rect.width + 60, title_rect.height + 40), border_radius=20)
+    title_rect = title.get_rect(center=(WIDTH // 2, {0: HEIGHT // 10, 1: HEIGHT // 5, 2: round(HEIGHT / 3.5)}.get(question)))
+    pygame.draw.rect(surface, back, title_rect.inflate(60, 40), border_radius=20)
     surface.blit(title, title_rect)
 
 
 def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game = Game(1), manager = Manager()) -> list[pygame.Rect]:
+    """
+    Create a graphical interface for selecting a saved game to load or delete.
+
+    Args:
+        type (str): Type of action ('load' or 'delete').
+        player (Player): Current player instance.
+        game (Game): Current game state instance.
+        manager (Manager): Game state manager instance.
+
+    Returns:
+        list[pygame.Rect]: List of pygame.Rect objects representing menu button positions.
+    """
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
+
     if type == 'load':
         pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
         draw_title('Escolha um jogo salvo', subfont, WHITE, surface)
@@ -82,41 +129,54 @@ def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game
         pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
         draw_title('Escolha um jogo para sobreescrever', subfont, WHITE, surface)
         pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
+
     games = return_saves()
-    button_text = []
-    for save in games:
-        button_text.append(f'{save[2].name}: nível {save[1].level}, {save[2].lives} vidas')
-    button_text.append('Limpar jogos salvos')
-    button_text.append('Voltar')
+    button_text = [f'{save[2].name}: nível {save[1].level}, {save[2].lives} vidas' for save in games]
+    button_text.extend(['Limpar jogos salvos', 'Voltar'])
+
     menu: list[pygame.Rect] = draw_menu(button_text, 3.5, surface)
     screen.blit(surface, (0, 0))
     pygame.display.flip()
+
     return menu
 
 
 def draw_pause_button() -> pygame.Rect:
+    """
+    Create and display a pause button on the game screen.
+
+    Returns:
+    pygame.Rect: Rectangle representing the position and size of the pause button.
+    """
     button_size = FIRST_UNIT // 4
     pause_img = pygame.transform.scale(pygame.image.load('img/arrowRight.png').convert(), (button_size, button_size))
-    pause_rect = pygame.Rect(WIDTH - 2 * button_size, button_size, button_size, button_size)
+    pause_rect = pause_img.get_rect(topleft=(WIDTH - 2 * button_size, button_size))
     screen.blit(pause_img, pause_rect)
     return pause_rect
 
 
 def draw_maze(player: Player, game: Game, manager: Manager) -> None:
+    """
+    Render the maze, player, and game elements on the screen.
+
+    Args:
+        player (Player): An instance of the Player class representing the player.
+        game (Game): An instance of the Game class representing the current game state.
+        manager (Manager): An instance of the Manager class managing game states and assets.
+
+    Returns:
+        None
+    """
     screen.fill(BACKGROUND)
     maze = game.maze
-    maze_height = maze_width = len(maze)
-    maze_surface = pygame.Surface((game.unit_size * len(maze), game.unit_size * len(maze[0])))
+    maze_size = len(maze)
+    maze_surface = pygame.Surface((game.unit_size * maze_size, game.unit_size * len(maze[0])))
     maze_surface.fill(TILE_COLOR)
+
     player.img = pygame.transform.scale(player.img, (game.unit_size, game.unit_size))
     player_y = player.coordinate[0] * game.unit_size
-    dif = 0
-    max = len(maze) * game.unit_size
-    while player_y > HEIGHT // 2 and max > HEIGHT:
-        dif += game.unit_size
-        player_y -= game.unit_size
-        max -= game.unit_size
-    game.player_dif = dif
+    player_y, game.player_dif = adjust_player_position(player_y, game.unit_size, maze_size)
+
     wall = pygame.transform.scale(WALL, (game.unit_size, game.unit_size))
     floor = pygame.transform.scale(FLOOR, (game.unit_size, game.unit_size))
     ghost = pygame.transform.scale(GHOST, (game.unit_size, game.unit_size))
@@ -125,27 +185,75 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     point = pygame.transform.scale(POINT, (game.unit_size // 2, game.unit_size // 2))
     life = pygame.transform.scale(HEART, (game.unit_size, game.unit_size))
     clock = pygame.transform.scale(CLOCK_ICON, (game.unit_size, game.unit_size))
-    for y in range(0, maze_height * game.unit_size, game.unit_size):
-        for x in range(0, maze_width * game.unit_size, game.unit_size):
-            maze_y = y // game.unit_size
-            maze_x = x // game.unit_size
+
+    for y in range(0, maze_size * game.unit_size, game.unit_size):
+        for x in range(0, maze_size * game.unit_size, game.unit_size):
+            maze_y, maze_x = y // game.unit_size, x // game.unit_size
             if maze[maze_y][maze_x] == 1:
                 maze_surface.blit(wall, (x, y - game.player_dif))
             else:
-                tile_type = {'s': ghost, 't': teacher, 'n': point, 'l': life, 'c': clock, 'p': player.img}
-                maze_surface.blit(floor, (x, y - game.player_dif))
-                if isinstance(maze[maze_y][maze_x], str):
-                    for i in maze[maze_y][maze_x]:
-                        if i == 'n':
-                            maze_surface.blit(tile_type[i], (x + (game.unit_size // 4), y - game.player_dif + (game.unit_size // 4)))
-                        elif i == 'a':
-                            continue
-                        elif i == 'b':
-                            maze_surface.blit(bomb, (x, y - game.player_dif))
-                            manager.bomb_sprite.update()
-                        else:
-                            maze_surface.blit(tile_type[i], (x, y - game.player_dif))
+                draw_game_elements(maze, maze_y, maze_x, x, y, game, manager, maze_surface, ghost, teacher, bomb, point, life, clock, game.unit_size, game.player_dif, player.img)
+            maze_surface.blit(floor, (x, y - game.player_dif))
     screen.blit(maze_surface, (0, 0))
+
+
+def adjust_player_position(player_y: int, unit_size: int, maze_size: int) -> tuple[int, int]:
+    """
+    Adjusts the vertical position of the player within the maze to keep the player centered on the screen.
+
+    Args:
+        player_y (int): The current vertical position of the player in pixels.
+        unit_size (int): The size of one unit (tile) in the maze in pixels.
+        maze_size (int): The total number of units (tiles) in the maze vertically.
+
+    Returns:
+        Tuple[int, int]: The adjusted vertical position of the player and the total adjustment made.
+    """
+    dif = 0
+    max_height = maze_size * unit_size
+    while player_y > HEIGHT // 2 and max_height > HEIGHT:
+        dif += unit_size
+        player_y -= unit_size
+        max_height -= unit_size
+    return player_y, dif
+
+
+def draw_game_elements(maze: list, maze_y: int, maze_x: int, x: int, y: int, game, manager, maze_surface: pygame.Surface, ghost: pygame.Surface, teacher: pygame.Surface, bomb: pygame.Surface, point: pygame.Surface, life: pygame.Surface, clock: pygame.Surface, unit_size: int, player_dif: int, img: pygame.Surface) -> None:
+    """
+    Renders various game elements on the maze surface based on the maze's tile type at specific coordinates.
+
+    Args:
+    maze (list): The maze structure containing different tile types.
+    maze_y (int): The y-coordinate in the maze.
+    maze_x (int): The x-coordinate in the maze.
+    x (int): The x-coordinate on the surface.
+    y (int): The y-coordinate on the surface.
+    game (Any): The game instance containing game-related data.
+    manager (Any): The manager instance handling game states and assets.
+    maze_surface (pygame.Surface): The surface where the maze is drawn.
+    ghost (pygame.Surface): Image for ghost.
+    teacher (pygame.Surface): Image for teacher.
+    bomb (pygame.Surface): Image for bomb.
+    point (pygame.Surface): Image for point.
+    life (pygame.Surface): Image for life.
+    clock (pygame.Surface): Image for clock.
+    unit_size (int): Size of the game elements.
+    player_dif (int): Player difference.
+    img (pygame.Surface): General image for other elements.
+    """
+    tile_type: dict[str, pygame.Surface] = {'s': ghost, 't': teacher, 'n': point, 'l': life, 'c': clock, 'p': img}
+
+    if isinstance(maze[maze_y][maze_x], str):
+        for i in maze[maze_y][maze_x]:
+            if i == 'n':
+                maze_surface.blit(tile_type[i], (x + (unit_size // 4), y - player_dif + (unit_size // 4)))
+            elif i == 'a':
+                continue
+            elif i == 'b':
+                maze_surface.blit(bomb, (x, y - player_dif))
+                manager.bomb_sprite.update()
+            else:
+                maze_surface.blit(tile_type[i], (x, y - player_dif))
 
 
 def draw_HUD(player: Player, game: Game) -> None:
@@ -323,9 +431,9 @@ def draw_question(manager: Manager, game: Game):
     return answer_buttons, answered
 
 
-def draw_winners(game) -> list[pygame.Rect]:
-    back_button = draw_tittle_button('Histórico')
-    studentes_ordered = get_history(game)
+def draw_winners(game) -> pygame.Rect:
+    back_button = draw_title_button('Histórico')
+    studentes_ordered = get_history()
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
     players = len(studentes_ordered)
@@ -359,7 +467,7 @@ def draw_winners(game) -> list[pygame.Rect]:
 
 
 def draw_info() -> pygame.Rect:
-    back_button = draw_tittle_button('Informações')
+    back_button = draw_title_button('Informações')
 
     pygame.display.flip()
     return back_button

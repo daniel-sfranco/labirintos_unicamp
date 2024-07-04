@@ -511,7 +511,7 @@ def winners(manager: Manager, game: Game) -> Manager:
     Returns:
         Manager: The updated `manager` instance with potentially modified game state.
     """
-    back_button = drawer.draw_winners()
+    back_button = drawer.draw_winners(Game)
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
         manager.part = 'init'
@@ -566,13 +566,13 @@ def main():
             'character_sel': lambda: character_sel(manager, player),
             'load': lambda: (load(), setattr(manager, 'part', 'play')),
             'question': lambda: (question(game, manager), None),
-            'winners': lambda: (winners(manager, game), None),
-            'info': info,
             'play': lambda: play(manager, player),
             'pause': lambda: pause(game, manager, player),
-            'select_save': select_save,
-            'over_save': over_save,
-            'game_over': game_over,
+            'select_save': lambda: select_save(manager),
+            'over_save': lambda: over_save(manager),
+            'game_over': lambda: game_over(manager),
+            'winners': lambda: (winners(manager, game), None),
+            'info': lambda: info(manager),
             'quit': lambda: setattr(manager, 'running', False)
         }
 
