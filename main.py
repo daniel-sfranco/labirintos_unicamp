@@ -35,6 +35,8 @@ def handle_keydown_event(event: pygame.event.Event, manager: Manager) -> Manager
         elif manager.part == 'pause':
             game.time_dif += trunc(time.perf_counter() - manager.start_pause_time)
             manager.part = 'play'
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
         elif manager.part == 'character_sel':
             manager.part = "init"
         elif manager.part == 'init':
@@ -183,6 +185,8 @@ def character_sel():
                 name = f'Jogador {len(history)}'
             game, player = new(name, skin_choice)
             manager.part = 'play'
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
 
 
 def load() -> tuple[Game, Player]:
@@ -454,6 +458,8 @@ def select_save() -> Manager:
                     pygame.mixer.music.stop()
                     manager.is_music_playing = False
                     manager.part = 'play'
+                    pygame.mixer.music.stop()
+                    manager.is_music_playing = False
                     break
 
     return manager
@@ -526,6 +532,9 @@ def game_over() -> Manager:
                 manager.is_music_playing = False
                 break
         manager.mouse_pressed = False
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('./audio/8bit Dungeon Level.mp3')
+        manager.is_music_playing = False
 
     return manager
 
@@ -577,7 +586,7 @@ def info() -> Manager:
         elif buttons[1].collidepoint(manager.mouse_x, manager.mouse_y):
             if manager.info_type == 'story':
                 manager.info_type = 'info'
-            else: 
+            else:
                 manager.info_type = 'story'
             audio.select.play()
     return manager
@@ -617,7 +626,6 @@ def main():
             'info': info,
             'quit': lambda: setattr(manager, 'running', False)
         }
-
         if manager.part in parts_functions:
             result = parts_functions[manager.part]()
             if result is not None:
