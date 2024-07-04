@@ -174,7 +174,7 @@ def character_sel():
 def load() -> tuple[Game, Player]:
     """
     Retrieves a saved game and player state from a list of saved games,
-    draws the maze on the screen, updates the game's time difference, and returns the game and player objects.
+    draws the maze on the SCREEN, updates the game's time difference, and returns the game and player objects.
     """
     global game, player
     games = save.return_saves()
@@ -470,7 +470,7 @@ def over_save() -> Manager:
 
 def game_over() -> Manager:
     """
-    Handles the end-of-game scenario by displaying the game over screen, saving the player's score if not saved,
+    Handles the end-of-game scenario by displaying the game over SCREEN, saving the player's score if not saved,
     and updating the game state based on user input.
 
     Args:
@@ -500,9 +500,9 @@ def game_over() -> Manager:
 
 def winners() -> Manager:
     """
-    Handles the display of the winners' screen in the game.
+    Handles the display of the winners' SCREEN in the game.
 
-    Draws the winners' screen using the `drawer.draw_winners` function and checks if the user has clicked the back button to return to the initial game state.
+    Draws the winners' SCREEN using the `drawer.draw_winners` function and checks if the user has clicked the back button to return to the initial game state.
 
     Args:
         manager (Manager): An instance of the `Manager` class, which holds the current state of the game and user interactions.
@@ -522,7 +522,7 @@ def winners() -> Manager:
 
 def info() -> Manager:
     """
-    Handles the display and interaction for the information screen in the game.
+    Handles the display and interaction for the information SCREEN in the game.
 
     Args:
     manager (Manager): An instance of the Manager class that holds the game state and user interactions.
@@ -531,6 +531,8 @@ def info() -> Manager:
     Manager: The updated manager instance with potentially modified state.
     """
     back_button = drawer.draw_info()
+
+    keys = pygame.key.get_pressed()
 
     if manager.mouse_pressed and back_button.collidepoint(manager.mouse_x, manager.mouse_y):
         manager.part = 'init'
@@ -599,7 +601,7 @@ def main():
         else:
             manager.part = 'init'
 
-game: Game = Game(0)
+game: Game = Game(FIRST_LEVEL - 1)
 player: Player = Player('')
 manager: Manager = Manager()
 

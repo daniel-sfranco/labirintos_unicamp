@@ -1,7 +1,7 @@
 import pygame
 import os
 import audio
-from constants import SPEED, BOMBS, LIVES, move_keys
+from constants import BOMBS, LIVES, MOVE_KEYS, SPEED
 
 
 class Player:
@@ -29,7 +29,7 @@ class Player:
         keys = pygame.key.get_pressed()
         y, x = self.coordinate
         actual_key = 0
-        for key in move_keys:
+        for key in MOVE_KEYS:
             if keys[key]:
                 actual_key = key
                 break

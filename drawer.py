@@ -11,11 +11,11 @@ from manage import Manager
 
 def draw_init() -> list[pygame.Rect]:
     """
-    Initializes the game screen by filling it with a background color, drawing the game title,
+    Initializes the game SCREEN by filling it with a background color, drawing the game title,
     creating menu buttons, and updating the display. Returns the positions of the buttons as a list of pygame.Rect objects.
     """
-    screen.fill(BACKGROUND)
-    draw_title('LABIRINTOS DA UNICAMP', titlefont, WHITE)
+    SCREEN.fill(BACKGROUND)
+    draw_title('LABIRINTOS DA UNICAMP', TITLEFONT, TITLE_COLOR)
 
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Histórico', 'Informações', 'Sair']
     button_positions: list[pygame.Rect] = draw_menu(button_text, 3)
@@ -38,56 +38,52 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
         list[pygame.Rect]: A list of pygame.Rect objects representing button positions.
     """
     num_buttons = len(button_text)
-    button_x = (WIDTH - button_width) / 2
-    button_y = [round(HEIGHT / div) + i * button_distance for i in range(num_buttons)]
+    button_x = (WIDTH - BUTTON_WIDTH) / 2
+    button_y = [round(HEIGHT / div) + i * BUTTON_DISTANCE for i in range(num_buttons)]
     button_positions: list[pygame.Rect] = []
 
     for i, text in enumerate(button_text):
-        text_surface = textfont.render(text, True, button_textcolor)
-        text_rect = text_surface.get_rect(center=(button_x + (button_width / 2), button_y[i] + (button_height / 2)))
+        text_surface = TEXTFONT.render(text, True, BUTTON_TEXTCOLOR)
+        text_rect = text_surface.get_rect(center=(button_x + (BUTTON_WIDTH / 2), button_y[i] + (BUTTON_HEIGHT / 2)))
 
-        pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y[i], button_width, button_height))
+        pygame.draw.rect(surface, BUTTON_BACKGROUNDCOLOR, (button_x, button_y[i], BUTTON_WIDTH, BUTTON_HEIGHT))
         surface.blit(text_surface, text_rect)
 
-        button_positions.append(pygame.Rect(button_x, button_y[i], button_width, button_height))
+        button_positions.append(pygame.Rect(button_x, button_y[i], BUTTON_WIDTH, BUTTON_HEIGHT))
 
     return button_positions
 
 
-def draw_title_button(title_text: str) -> pygame.Rect:
-    # Create a transparent surface
+def draw_back_button(title_text: str) -> pygame.Rect:
+    """
+    Create a back button on a Pygame surface with a title and return the button's rectangle.
+
+    Args:
+        title_text (str): The title text to be displayed at the top of the SCREEN.
+
+    Returns:
+        pygame.Rect: A rectangle representing the back button's position and size.
+    """
     surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    pygame.draw.rect(surface, BACKGROUND, [0, 0, WIDTH, HEIGHT])
 
-    # Draw a black rectangle covering the entire surface
-    pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
+    draw_title(title_text, TEXTFONT, TITLE_COLOR, surface, BACKGROUND, 0, 8)
 
-    # Render the title text using a specific font and draw it on the surface
-    font = pygame.font.Font('./fonts/PixelTimes.ttf', 24)
-    text_surface = font.render(title_text, True, WHITE)
-    text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 8))
-    surface.blit(text_surface, text_rect)
+    button_w, button_h = WIDTH // 6, HEIGHT // 12
+    button_x, button_y = WIDTH // 12, HEIGHT // 1.15
 
-    # Define the button's dimensions and position
-    button_w = WIDTH // 3
-    button_h = HEIGHT // 1.5
-    button_x = WIDTH // 12
-    button_y = HEIGHT // 1.15
-
-    # Render the button text and draw the button rectangle
     button_text = 'Voltar'
-    button_text_surface = font.render(button_text, True, button_textcolor)
+    button_text_surface = TEXTFONT.render(button_text, True, BUTTON_TEXTCOLOR)
     button_text_rect = button_text_surface.get_rect(center=(button_x + button_w // 2, button_y + button_h // 2))
-    pygame.draw.rect(surface, button_backgroundcolor, (button_x, button_y, button_w, button_h))
+    pygame.draw.rect(surface, BUTTON_BACKGROUNDCOLOR, (button_x, button_y, button_w, button_h))
     surface.blit(button_text_surface, button_text_rect)
 
-    # Blit the entire surface onto the main screen
-    screen.blit(surface, (0, 0))
+    SCREEN.blit(surface, (0, 0))
 
-    # Return the button's rectangle
     return pygame.Rect(button_x, button_y, button_w, button_h)
 
 
-def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BLACK, question=0) -> None:
+def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, back=BACKGROUND, question=0, div=10) -> None:
     """
     Render a title text on a Pygame surface with optional background color and positioning based on the context.
 
@@ -96,11 +92,12 @@ def draw_title(text: str, font: Font, color, surface: pygame.Surface = SCREEN, b
         font (Font): The Pygame font object used to render the text.
         color: The color of the text.
         surface (pygame.Surface, optional): The Pygame surface where the text will be drawn. Defaults to SCREEN.
-        back: The background color for the text rectangle. Defaults to BLACK.
+        back: The background color for the text rectangle. Defaults to BACKGROUND.
         question (int, optional): An integer to adjust the vertical position of the text. Defaults to 0.
     """
     title = font.render(text, True, color)
-    title_rect = title.get_rect(center=(WIDTH // 2, {0: HEIGHT // 10, 1: HEIGHT // 5, 2: round(HEIGHT / 3.5)}.get(question)))
+    dif = 220 if question > 0 else 0
+    title_rect = title.get_rect(center=(WIDTH // 2, HEIGHT // div - 60 * question + dif))
     pygame.draw.rect(surface, back, title_rect.inflate(60, 40), border_radius=20)
     surface.blit(title, title_rect)
 
@@ -119,23 +116,22 @@ def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game
         list[pygame.Rect]: List of pygame.Rect objects representing menu button positions.
     """
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
 
     if type == 'load':
-        pygame.draw.rect(surface, BLACK, [0, 0, WIDTH, HEIGHT])
-        draw_title('Escolha um jogo salvo', subfont, WHITE, surface)
+        pygame.draw.rect(surface, BACKGROUND, [0, 0, WIDTH, HEIGHT])
+        draw_title('Escolha um jogo salvo', TITLEFONT, TITLE_COLOR, surface)
     elif type == 'delete':
         draw_maze(player, game, manager)
-        pygame.draw.rect(surface, GRAY, [0, 0, WIDTH, HEIGHT])
-        draw_title('Escolha um jogo para sobreescrever', subfont, WHITE, surface)
-        pygame.draw.rect(surface, BLACK, [menu_x, menu_y, menu_width, menu_height], 0, 20)
+        pygame.draw.rect(surface, FADED_COLOR, [0, 0, WIDTH, HEIGHT])
+        draw_title('Escolha um jogo para sobreescrever', SUBFONT, TITLE_COLOR, surface)
+        pygame.draw.rect(surface, BACKGROUND, [MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT], 0, 20)
 
     games = return_saves()
     button_text = [f'{save[2].name}: nível {save[1].level}, {save[2].lives} vidas' for save in games]
     button_text.extend(['Limpar jogos salvos', 'Voltar'])
 
     menu: list[pygame.Rect] = draw_menu(button_text, 3.5, surface)
-    screen.blit(surface, (0, 0))
+    SCREEN.blit(surface, (0, 0))
     pygame.display.flip()
 
     return menu
@@ -143,7 +139,7 @@ def draw_select_save(type: str = 'load', player: Player = Player(''), game: Game
 
 def draw_pause_button() -> pygame.Rect:
     """
-    Create and display a pause button on the game screen.
+    Create and display a pause button on the game SCREEN.
 
     Returns:
     pygame.Rect: Rectangle representing the position and size of the pause button.
@@ -151,13 +147,13 @@ def draw_pause_button() -> pygame.Rect:
     button_size = FIRST_UNIT // 4
     pause_img = pygame.transform.scale(pygame.image.load('img/arrowRight.png').convert(), (button_size, button_size))
     pause_rect = pause_img.get_rect(topleft=(WIDTH - 2 * button_size, button_size))
-    screen.blit(pause_img, pause_rect)
+    SCREEN.blit(pause_img, pause_rect)
     return pause_rect
 
 
 def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     """
-    Renders the maze and its elements on the screen.
+    Renders the maze and its elements on the SCREEN.
 
     Args:
         player (Player): An instance of the Player class representing the player.
@@ -167,11 +163,10 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
     Returns:
         None
     """
-    screen.fill(BACKGROUND)
+    SCREEN.fill(BACKGROUND)
     maze = game.maze
     maze_size = len(maze)
     maze_surface = pygame.Surface((game.unit_size * maze_size, game.unit_size * len(maze[0])))
-    maze_surface.fill(TILE_COLOR)
 
     player_y = player.coordinate[0] * game.unit_size
     player_y, game.player_dif = adjust_player_position(player_y, game.unit_size, maze_size)
@@ -198,12 +193,12 @@ def draw_maze(player: Player, game: Game, manager: Manager) -> None:
                 if y == maze_size - 1 and x == len(row) - 1:
                     maze_surface.blit(sprites['door'], (maze_x, maze_y - game.player_dif))
                 draw_game_elements(game, x, y, manager, maze_surface, sprites)
-    screen.blit(maze_surface, (0, 0))
+    SCREEN.blit(maze_surface, (0, 0))
 
 
 def adjust_player_position(player_y: int, unit_size: int, maze_size: int) -> tuple[int, int]:
     """
-    Adjusts the vertical position of the player within the maze to keep the player centered on the screen.
+    Adjusts the vertical position of the player within the maze to keep the player centered on the SCREEN.
 
     Args:
         player_y (int): The current vertical position of the player in pixels.
@@ -276,7 +271,7 @@ def draw_HUD(player: Player, game: Game) -> None:
     hud_y = ((HEIGHT * 1.05) - hud_height) / 2
     hud_width = WIDTH // 4.5
     hud_x = (WIDTH - hud_width) / 1.02
-    pygame.draw.rect(hud, DARKGRAY, [hud_x, hud_y, hud_width, hud_height])
+    pygame.draw.rect(hud, HUD_COLOR, [hud_x, hud_y, hud_width, hud_height])
 
     text = [f"Labirinto: {game.level}", f"Pontos: {game.points}", f"Total: {player.points}",
             f"Tempo: {game.time}", f"S2: {player.lives}", f"Bombas: {player.bombs}"]
@@ -300,16 +295,16 @@ def draw_HUD(player: Player, game: Game) -> None:
                 hud.blit(icon, bomb_rect)
         else:
             height_div = (6 / (i + 1))
-            text_surface = font.render(item, True, WHITE)
+            text_surface = font.render(item, True, TITLE_COLOR)
             text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 2.2), hud_y + (hud_height / (height_div + 0.3))))
             hud.blit(text_surface, text_rect)
 
-    screen.blit(hud, (0, 0))
+    SCREEN.blit(hud, (0, 0))
 
 
 def draw_pause_menu(player: Player, game: Game, manager: Manager) -> list[pygame.Rect]:
     """
-    Renders the pause menu overlay on the game screen.
+    Renders the pause menu overlay on the game SCREEN.
 
     Args:
         player (Player): An instance of the Player class representing the player.
@@ -324,25 +319,25 @@ def draw_pause_menu(player: Player, game: Game, manager: Manager) -> list[pygame
 
     # Create a semi-transparent overlay
     surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-    pygame.draw.rect(surface, GRAY, surface.get_rect())
+    pygame.draw.rect(surface, FADED_COLOR, surface.get_rect())
 
     # Draw menu background
-    pygame.draw.rect(surface, BLACK, (menu_x, menu_y, menu_width, menu_height), 0, 20)
+    pygame.draw.rect(surface, BACKGROUND, (MENU_X, MENU_Y, MENU_WIDTH, MENU_HEIGHT), 0, 20)
 
     # Display menu options
     button_text = ['Voltar', 'Reiniciar labirinto atual', 'Salvar', 'Novo jogo', 'Sair']
-    draw_title('Pausado', subfont, WHITE, surface=surface)
+    draw_title('Pausado', SUBFONT, TITLE_COLOR, surface=surface)
     menu = draw_menu(button_text, 3.5, surface)
 
-    # Blit overlay onto the main screen
-    screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+    # Blit overlay onto the main SCREEN
+    SCREEN.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
     return menu
 
 
 def draw_game_over(game: Game, player: Player, manager: Manager) -> list[pygame.Rect]:
     """
-    Renders the game over screen with maze, HUD, and menu options.
+    Renders the game over SCREEN with maze, HUD, and menu options.
 
     Args:
         game (Game): An instance of the Game class containing the current game state.
@@ -356,20 +351,20 @@ def draw_game_over(game: Game, player: Player, manager: Manager) -> list[pygame.
     draw_HUD(player, game)
 
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
-    pygame.draw.rect(surface, RED, [0, 0, WIDTH, HEIGHT])
-    pygame.draw.rect(surface, BLACK, [menu_x, menu_y * 1.3, menu_width, menu_height * 0.7], 0, 20)
+    pygame.draw.rect(surface, COLORS['RED'], [0, 0, WIDTH, HEIGHT])
+    pygame.draw.rect(surface, BACKGROUND, [MENU_X, MENU_Y * 1.3, MENU_WIDTH, MENU_HEIGHT * 0.7], 0, 20)
 
     button_text = ['Novo jogo', 'Exibir histórico', 'Sair']
-    draw_title('FIM DE JOGO', titlefont, WHITE, surface, BLACK)
+    draw_title('FIM DE JOGO', TITLEFONT, TITLE_COLOR, surface)
     menu = draw_menu(button_text, 2.65, surface)
 
-    screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+    SCREEN.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
     return menu
 
 
 def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame.Rect], pygame.Rect, str]:
     """
-    Renders a character selection screen in a Pygame application.
+    Renders a character selection SCREEN in a Pygame application.
 
     Displays a title, input box for character name, navigation buttons, and character images.
     Handles the visual feedback for the selected character and navigation arrows.
@@ -380,11 +375,11 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
     Returns:
         tuple: A tuple containing button positions, arrow positions, input box position, and the selected character.
     """
-    screen.fill(BACKGROUND)
-    draw_title('SELECIONE SEU PERSONAGEM', titlefont, WHITE)
+    SCREEN.fill(BACKGROUND)
+    draw_title('SELECIONE SEU PERSONAGEM', TITLEFONT, TITLE_COLOR)
 
-    char_button_w = button_width * 0.3
-    char_button_h = button_height * 0.6
+    char_button_w = BUTTON_WIDTH * 0.3
+    char_button_h = BUTTON_HEIGHT * 0.6
     button_x = [WIDTH // 8, WIDTH // 1.3]
     button_y = HEIGHT // 1.2
     button_text = ['Voltar', 'Concluir']
@@ -392,22 +387,22 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
 
     font = Font('./fonts/PixelTimes.ttf', 24)
     background_inactive = pygame.Color(BACKGROUND)
-    background_active = pygame.Color(WHITE)
+    background_active = pygame.Color(TITLE_COLOR)
     color_active = background_inactive
     color_inactive = background_active
     color = color_active if manager.input_active else color_inactive
 
-    input_box = pygame.Rect(WIDTH / 3, button_y, WIDTH // 3, button_height * 0.6)
+    input_box = pygame.Rect(WIDTH / 3, button_y, WIDTH // 3, BUTTON_HEIGHT * 0.6)
     input_text = font.render("Escolha o nome do seu personagem" if not manager.input_active and not manager.user_input else manager.user_input, True, color)
     input_rect = input_text.get_rect(center=(input_box.centerx, input_box.centery))
-    pygame.draw.rect(screen, background_active if manager.input_active else background_inactive, input_box)
-    screen.blit(input_text, input_rect)
+    pygame.draw.rect(SCREEN, background_active if manager.input_active else background_inactive, input_box)
+    SCREEN.blit(input_text, input_rect)
 
     for i, text in enumerate(button_text):
-        text_surface = font.render(text, True, button_textcolor)
+        text_surface = font.render(text, True, BUTTON_TEXTCOLOR)
         text_rect = text_surface.get_rect(center=(button_x[i] + (char_button_w / 2), button_y + (char_button_h / 2)))
-        pygame.draw.rect(screen, button_backgroundcolor, (button_x[i], button_y, char_button_w, char_button_h))
-        screen.blit(text_surface, text_rect)
+        pygame.draw.rect(SCREEN, BUTTON_BACKGROUNDCOLOR, (button_x[i], button_y, char_button_w, char_button_h))
+        SCREEN.blit(text_surface, text_rect)
         button_positions.append(pygame.Rect(button_x[i], button_y, char_button_w, char_button_h))
 
     slide_y = HEIGHT // 4
@@ -424,7 +419,7 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
             darken_surface.fill((255, 255, 255, 150))
             character_img.blit(darken_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         character_rect = pygame.Rect(slide_x, slide_y, character_w, character_h)
-        screen.blit(character_img, character_rect)
+        SCREEN.blit(character_img, character_rect)
 
     skin_choice: str = CHARACTERS[manager.skin_sel]
 
@@ -436,105 +431,125 @@ def draw_character_sel(manager: Manager) -> tuple[list[pygame.Rect], list[pygame
     arrow_right_rect = pygame.Rect(WIDTH // 1.12, HEIGHT // 2.3, arrow_w, arrow_h)
     arrow_positions = [arrow_left_rect, arrow_right_rect]
 
-    screen.blit(arrow_left_img, arrow_left_rect)
-    screen.blit(arrow_right_img, arrow_right_rect)
+    SCREEN.blit(arrow_left_img, arrow_left_rect)
+    SCREEN.blit(arrow_right_img, arrow_right_rect)
     pygame.display.flip()
 
     return button_positions, arrow_positions, input_box, skin_choice
 
-# Até aqui documentado
+
 def draw_question(manager: Manager, game: Game):
+    """
+    Renders a question interface on the SCREEN, displaying the question text and answer buttons.
+    Handles visual feedback for correct or incorrect answers by changing the background color and playing audio effects.
+
+    Args:
+        manager (Manager): An instance of the Manager class containing game state and question details.
+        game (Game): An instance of the Game class representing the current game state.
+
+    Returns:
+        tuple: A tuple containing a list of pygame.Rect objects representing the answer buttons and a boolean or string
+        indicating whether the question was answered correctly, incorrectly, or not at all.
+    """
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     question_rect = pygame.Rect(0, 0, WIDTH // 1.2, HEIGHT // 1.4)
     question_rect.center = (WIDTH // 2, HEIGHT // 2)
+
     if manager.chosen_answer == '':
-        color = LIGHTGRAY
+        color = COLORS['GRAY']
         answered = False
     else:
         if manager.chosen_answer == manager.question.answer.lower()[0]:
-            color = GREEN
+            color = COLORS['GREEN']
             answered = 'right'
             audio.correct.play(loops=1)
         else:
-            color = DARKRED
+            color = COLORS['DARKRED']
             answered = 'wrong'
             audio.wrong.play()
-    pygame.draw.rect(surface, color, question_rect, 0, 20)
-    screen.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
 
-    subfont = pygame.font.Font('./fonts/dogicapixelbold.ttf', WIDTH // 45)
-    pos = []
-    for i in range(len(manager.question.question), 0, -1):
-        if manager.question.question[i - 1] == " ":
-            pos.append(i)
-    if len(pos) < 7:
-        title = subfont.render(manager.question.question, True, WHITE)
-        title_rect = title.get_rect()
-        title_rect.top, title_rect.centerx = (HEIGHT // 4, WIDTH // 2)
-        surface.blit(title, title_rect)
-    else:
-        part1 = manager.question.question[0:pos[len(pos) // 2]]
-        part2 = manager.question.question[pos[len(pos) // 2]:len(manager.question.question)]
-        draw_title(part1, subfont, WHITE, surface, question=1, back=color)
-        draw_title(part2, subfont, WHITE, surface, question=2, back=color)
+    surface.fill(BACKGROUND)
+    pygame.draw.rect(surface, color, question_rect, 0, 20)
+    SCREEN.blit(surface, (0, 0, WIDTH, HEIGHT), (0, 0, WIDTH, HEIGHT))
+
+    SUBFONT = pygame.font.Font('./fonts/dogicapixelbold.ttf', WIDTH // 45)
+    question_parts = manager.question.question.split()
+    parts = ['']
+    for i, value in enumerate(question_parts):
+            if len(parts[-1]) < 30:
+                parts[-1] += ' ' + value
+            else:
+                parts.append('')
+                parts[-1] += value
+    for part in parts:
+        draw_title(part, SUBFONT, TITLE_COLOR, surface, color, len(parts) - parts.index(part))
+
     button_text = [manager.question.a, manager.question.b, manager.question.c, manager.question.d]
     answer_buttons: list[pygame.Rect] = []
     buttonx = [WIDTH // 7, WIDTH // 1.9]
     buttony = [HEIGHT // 2.4, HEIGHT // 1.6]
-    button_height = HEIGHT // 8
+    BUTTON_HEIGHT = HEIGHT // 8
 
     for i in range(4):
-        text_surface = textfont.render(button_text[i], True, button_textcolor)
-        text_rect = text_surface.get_rect(center=(buttonx[i % 2] + (button_width / 2), buttony[i // 2] + (button_height / 2)))
-        rect = pygame.draw.rect(surface, button_backgroundcolor, (buttonx[i % 2], buttony[i // 2], button_width, button_height))
+        text_surface = TEXTFONT.render(button_text[i], True, BUTTON_TEXTCOLOR)
+        text_rect = text_surface.get_rect(center=(buttonx[i % 2] + (BUTTON_WIDTH / 2), buttony[i // 2] + (BUTTON_HEIGHT / 2)))
+        rect = pygame.draw.rect(surface, BUTTON_BACKGROUNDCOLOR, (buttonx[i % 2], buttony[i // 2], BUTTON_WIDTH, BUTTON_HEIGHT))
         surface.blit(text_surface, text_rect)
         answer_buttons.append(rect)
-    screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
+
+    SCREEN.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
     pygame.display.flip()
+
     return answer_buttons, answered
 
 
 def draw_winners() -> pygame.Rect:
-    back_button = draw_title_button('Histórico')
+    """
+    Displays the top players' history on the SCREEN, including their names, points, and levels,
+    along with a back button to return to the previous menu.
+
+    Returns:
+    pygame.Rect: A pygame.Rect object representing the back button's position and size.
+    """
+    back_button = draw_back_button('Histórico')
     ordered_students = get_history()
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
 
-    players = len(ordered_students)
-    if players > 5:
-        players = 5
-
-    card_width = menu_width
-    card_height = menu_height * 0.2
+    players = min(len(ordered_students), 5)
+    card_width = MENU_WIDTH
+    card_height = MENU_HEIGHT * 0.2
     card_y = HEIGHT - card_width
 
     for i in range(players):
-        pygame.draw.rect(surface, WHITE, [menu_x, ((menu_y * 0.8) + (i * 100)), card_width, card_height], 2)
+        player = ordered_students[i]
 
-        skin = pygame.image.load(f'img/player/{ordered_students[i].last_skin}.gif')
+        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X, ((MENU_Y * 0.8) + (i * 100)), card_width, card_height], 2)
+
+        skin = pygame.image.load(f'img/player/{player.last_skin}.gif')
         skin = pygame.transform.scale(skin, (card_height, card_height))
-        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y*0.7)+(i*100)))
+        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 100) - 8))
         surface.blit(skin, skin_rect)
 
-        text_position = textfont.render(f'{(i + 1)}. {ordered_students[i].name[:-1]}', True, WHITE)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y*0.7)+(i*100)))
+        text_position = TEXTFONT.render(f'{i + 1}. {player.name[:-1]}', True, TITLE_COLOR)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 3.25, (card_y * 0.7) + (i * 100)))
         surface.blit(text_position, text_rect)
 
-        text_points = textfont.render(f'Pontuação: {ordered_students[i].points}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 3.25, (card_y)+(i*100)))
+        text_points = TEXTFONT.render(f'Pontuação: {player.points}', True, TITLE_COLOR)
+        text_rect = text_points.get_rect(bottomleft=(WIDTH / 3.25, (card_y) + (i * 100)))
         surface.blit(text_points, text_rect)
 
-        text_level = textfont.render(f'Último labirinto: {ordered_students[i].level}', True, WHITE)
-        text_rect = text_position.get_rect(bottomleft=(WIDTH / 2, (card_y)+(i*100)))
+        text_level = TEXTFONT.render(f'Último labirinto: {player.level}', True, TITLE_COLOR)
+        text_rect = text_level.get_rect(bottomleft=(WIDTH / 2, (card_y) + (i * 100)))
         surface.blit(text_level, text_rect)
 
-    screen.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
+    SCREEN.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))
     pygame.display.flip()
 
     return back_button
 
 
 def draw_info() -> pygame.Rect:
-    back_button = draw_title_button('Informações')
+    back_button = draw_back_button('Informações')
 
     pygame.display.flip()
     return back_button
