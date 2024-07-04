@@ -270,14 +270,30 @@ def draw_HUD(player: Player, game: Game) -> None:
     for i in range(len(text)):
         if i == 4:
             icon = pygame.transform.scale(HEART, size)
-            for j in range(player.lives):
-                heart_rect = pygame.Rect(hud_x + (hud_width / (i + 1.8)) + j * mini_size, hud_y + (hud_height / height_div), mini_size, mini_size)
-                hud.blit(icon, heart_rect)
+            if player.lives <= 3:
+                for j in range(player.lives):
+                    heart_rect = pygame.Rect(hud_x + (hud_width / (i + 1.8)) + j * mini_size, hud_y + (hud_height / height_div), mini_size, mini_size)
+                    hud.blit(icon, heart_rect)
+            else:
+                for j in range(3):
+                    heart_rect = pygame.Rect(hud_x + (hud_width / (i + 1.8)) + j * mini_size, hud_y + (hud_height / height_div), mini_size, mini_size)
+                    hud.blit(icon, heart_rect)
+                text_surface = font.render(f'+ {player.lives-3}', True, WHITE)
+                text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 1.3), hud_y + (hud_height / 1.42)))
+                hud.blit(text_surface, text_rect)
         elif i == 5:
             icon = pygame.transform.scale(BOMB, size)
-            for j in range(player.bombs):
-                bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 0.8)) + j * mini_size, hud_y + (hud_height / (height_div / 1.2)), mini_size, mini_size)
-                hud.blit(icon, bomb_rect)
+            if player.bombs <= 3:
+                for j in range(player.bombs):
+                    bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 0.8)) + j * mini_size, hud_y + (hud_height / (height_div / 1.2)), mini_size, mini_size)
+                    hud.blit(icon, bomb_rect)
+            else:
+                for j in range(3):
+                    bomb_rect = pygame.Rect(hud_x + (hud_width / (i + 0.8)) + j * mini_size, hud_y + (hud_height / (height_div / 1.2)), mini_size, mini_size)
+                    hud.blit(icon, bomb_rect)
+                text_surface = font.render(f'+ {player.bombs-3}', True, WHITE)
+                text_rect = text_surface.get_rect(center=(hud_x + (hud_width / 1.3), hud_y + (hud_height / 1.17)))
+                hud.blit(text_surface, text_rect)
         else:
             height_div = (6 / (i + 1))
             text_surface = font.render(text[i], True, WHITE)
