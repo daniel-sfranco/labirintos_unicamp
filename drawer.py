@@ -588,6 +588,24 @@ def draw_info_history():
     continue_rect = continue_img.get_rect(topleft=(WIDTH - 2 * button_size, HEIGHT * 0.88))
     SCREEN.blit(continue_img, continue_rect)
 
+    """background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
+    background_rect.center = (WIDTH // 2, HEIGHT // 2)
+    pygame.draw.rect(SCREEN, FADED_COLOR, background_rect, 0, 20)"""
+
+    history = ['Você estava na Unicamp em um dia comum, preocupado com o projeto de programação',
+               'que precisava entregar nesse dia. Até que de repente soa um barulho estranho, vindo',
+               'do Instituto de Física, o IFGW. Você olha para o instituto e vê uma onda eletromagnética',
+               'vindo na sua direção, quando de repente tudo fica branco, e você se vê em um universo',
+               'paralelo, preso na Unicamp da idade média, onde os professores são muito mais perigosos',
+               'e os espíritos de falecidos alunos podem te ajudar. Será que você vai conseguir sair dessa?',
+               'Criado por: Daniel Franco e Vinícius Oliveira']
+
+    for i, part in enumerate(history):
+        part = TEXTFONT.render(part, True, TITLE_COLOR)
+        part_rect = part.get_rect(center=(WIDTH // 2, HEIGHT // 10 * (i + 2)))
+        pygame.draw.rect(SCREEN, BACKGROUND, part_rect.inflate(60, 40), border_radius=20)
+        SCREEN.blit(part, part_rect)
+
     return continue_rect
 
 def draw_info_icons():
@@ -598,9 +616,9 @@ def draw_info_icons():
     card_height = MENU_HEIGHT * 0.2
     card_y = HEIGHT - MENU_WIDTH
 
-    background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
+    """background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
     background_rect.center = (WIDTH // 2, HEIGHT // 2)
-    pygame.draw.rect(surface, FADED_COLOR, background_rect, 0, 20)
+    pygame.draw.rect(surface, FADED_COLOR, background_rect, 0, 20)"""
     SCREEN.blit(return_img, return_rect)
 
     card_width = MENU_WIDTH * 2.05

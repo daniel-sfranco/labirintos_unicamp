@@ -55,7 +55,7 @@ MOVE_KEYS: list[int] = [
 ]
 SAVE = 'save.che'
 SPEED = 150
-TIME = 60
+TIME = 20
 
 # Setting maze assets
 GHOST = pygame.image.load('img/player/ghost.gif').convert()
