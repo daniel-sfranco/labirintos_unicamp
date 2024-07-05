@@ -75,7 +75,7 @@ def delete_save(game_number: int, file: str = SAVE) -> None:
 
     Args:
         game_number (int): The number of the game whose save data needs to be deleted.
-        file (str): The path to the save file (default is 'SAVE').
+        file (str): The path to the save file (default is SAVE).
     """
     with open(file, 'r') as save_file:
         lines: list[str] = save_file.readlines()
@@ -92,13 +92,13 @@ def delete_save(game_number: int, file: str = SAVE) -> None:
             save_file.write(line)
 
 
-def order_saves(saves: list[tuple[int, Game, Player]], file: str = 'SAVE') -> None:
+def order_saves(saves: list[tuple[int, Game, Player]], file: str = SAVE) -> None:
     """
     Sorts a list of game saves by their game number and writes them back to a file in the sorted order.
 
     Args:
         saves (List[Tuple[int, Game, Player]]): A list of tuples containing a game number, a Game instance, and a Player instance.
-        file (str): An optional string specifying the file to save to, defaulting to 'SAVE'.
+        file (str): An optional string specifying the file to save to, defaulting to SAVE.
 
     Returns:
         None
@@ -116,7 +116,7 @@ def return_saves(file: str = SAVE) -> list[tuple[int, Game, Player]]:
     Reads a save file and reconstructs a list of saved game states.
 
     Args:
-        file (str): The path to the save file (default is 'SAVE').
+        file (str): The path to the save file (default is SAVE).
 
     Returns:
         List[Tuple[int, Game, Player]]: A list of tuples, each containing a game number, a Game object, and a Player object.
