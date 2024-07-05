@@ -67,6 +67,13 @@ def handle_keydown_event(event: pygame.event.Event, manager: Manager) -> Manager
     elif manager.part == 'new':
         manager.part = 'init'
 
+    elif manager.part == 'info':
+        if event.key in [pygame.K_RETURN, pygame.K_ESCAPE]:
+            manager.part = 'init'
+        elif event.key == pygame.K_RIGHT and manager.info_type == 'story':
+            manager.info_type = 'info'
+        elif event.key == pygame.K_LEFT and manager.info_type == 'info':
+            manager.info_type = 'story'
     return manager
 
 
