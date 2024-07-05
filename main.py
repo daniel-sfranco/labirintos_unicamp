@@ -72,8 +72,10 @@ def handle_keydown_event(event: pygame.event.Event, manager: Manager) -> Manager
             manager.part = 'init'
         elif event.key == pygame.K_RIGHT and manager.info_type == 'story':
             manager.info_type = 'info'
+            audio.select.play()
         elif event.key == pygame.K_LEFT and manager.info_type == 'info':
             manager.info_type = 'story'
+            audio.select.play()
     return manager
 
 
