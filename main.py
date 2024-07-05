@@ -595,8 +595,6 @@ def info() -> Manager:
     """
     buttons = drawer.draw_info(manager.info_type)
 
-    keys = pygame.key.get_pressed()
-
     if manager.mouse_pressed:
         if buttons[0].collidepoint(manager.mouse_x, manager.mouse_y):
             manager.part = 'init'

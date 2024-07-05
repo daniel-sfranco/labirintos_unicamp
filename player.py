@@ -1,5 +1,4 @@
 import pygame
-import os
 import audio
 from constants import BOMBS, LIVES, MOVE_KEYS, SPEED
 
