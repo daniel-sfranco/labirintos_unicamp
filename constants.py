@@ -33,6 +33,7 @@ SCREEN = pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
 
 #Setting window caption
 pygame.display.set_caption('Labirintos da Unicamp')
+pygame.display.set_icon(pygame.image.load('img/electricity.gif'))
 
 # Setting contants for game mechanics
 BOMB_TIME = 2
