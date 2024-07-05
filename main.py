@@ -396,6 +396,7 @@ def pause() -> tuple[Game, Manager, Player]:
     Returns:
         tuple[Game, Manager, Player]: Updated instances of game, manager, and player.
     """
+    global game
     pause_menu = drawer.draw_pause_menu(player, game, manager)
     pygame.display.flip()
     if manager.is_music_playing:
@@ -435,6 +436,7 @@ def pause() -> tuple[Game, Manager, Player]:
 
         elif pause_menu[4].collidepoint(mouse_x, mouse_y):
             manager.part = 'init'
+            game = Game(FIRST_LEVEL - 1)
             pygame.mixer.music.stop()
             manager.is_music_playing = False
             audio.select.play()

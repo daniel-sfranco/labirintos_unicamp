@@ -214,8 +214,8 @@ def store_save(game: Game, player: Player) -> None:
 
 
 if __name__ == "__main__":
-    num_games = count_saves(HISTORY)
+    num_games = count_saves(SAVE)
     game = Game(num_games + 1)
     player = Player('Ieremies')
     player.points = (num_games + 1) * 1000
-    store_save(game, player)
+    save(game, player)
