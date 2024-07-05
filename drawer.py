@@ -16,6 +16,7 @@ def draw_init() -> list[pygame.Rect]:
     creating menu buttons, and updating the display. Returns the positions of the buttons as a list of pygame.Rect objects.
     """
     SCREEN.fill(BACKGROUND)
+
     draw_title('LABIRINTOS DA UNICAMP', TITLEFONT, TITLE_COLOR)
 
     button_text = ['Novo Jogo', 'Carregar Jogo', 'Exibir Histórico', 'Informações', 'Sair']
@@ -38,6 +39,7 @@ def draw_menu(button_text: list[str], div: float, surface: pygame.Surface = SCRE
     Returns:
         list[pygame.Rect]: A list of pygame.Rect objects representing button positions.
     """
+
     num_buttons = len(button_text)
     button_x = (WIDTH - BUTTON_WIDTH) / 2
     button_y = [round(HEIGHT / div) + i * BUTTON_DISTANCE for i in range(num_buttons)]
@@ -473,7 +475,7 @@ def draw_question(manager: Manager, game: Game):
     question_rect.center = (WIDTH // 2, HEIGHT // 2)
 
     if manager.chosen_answer == '':
-        color = COLORS['GRAY']
+        color = COLORS['DARKGREEN']
         answered = False
     else:
         if manager.question.alt[manager.chosen_answer][3:] == manager.question.answer:
@@ -566,81 +568,93 @@ def draw_winners() -> pygame.Rect:
     return back_button
 
 
-def draw_info(info_type:str) -> list[pygame.Rect]:
+def draw_info(info_type: str) -> list[pygame.Rect]:
+    """
+    Renders different informational screens in a Pygame application based on the provided `info_type`.
+
+    Args:
+    info_type (str): Determines which informational screen to display ('story' or 'icons').
+
+    Returns:
+    list[pygame.Rect]: A list of pygame.Rect objects representing the positions and sizes of the buttons on the screen.
+    """
     buttons = []
+
     if info_type == 'story':
-        back_button = draw_back_button('História')
-        buttons.append(back_button)
-        continue_button = draw_info_history()
-        buttons.append(continue_button)
+        buttons.append(draw_back_button('História'))
+        buttons.append(draw_info_history())
     else:
-        back_button = draw_back_button('Ícones')
-        buttons.append(back_button)
-        return_button = draw_info_icons()
-        buttons.append(return_button)
+        buttons.append(draw_back_button('Ícones'))
+        buttons.append(draw_info_icons())
 
     pygame.display.flip()
     return buttons
 
-def draw_info_history():
+
+def draw_info_history() -> pygame.Rect:
+    """
+    Renders a historical narrative on the game screen and displays a "continue" button.
+
+    Returns:
+        pygame.Rect: Position and size of the "continue" button.
+    """
     button_size = FIRST_UNIT // 4
     continue_img = pygame.transform.scale(pygame.image.load('img/arrowRight.png').convert(), (button_size, button_size))
     continue_rect = continue_img.get_rect(topleft=(WIDTH - 2 * button_size, HEIGHT * 0.88))
     SCREEN.blit(continue_img, continue_rect)
-
-    """background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
-    background_rect.center = (WIDTH // 2, HEIGHT // 2)
-    pygame.draw.rect(SCREEN, FADED_COLOR, background_rect, 0, 20)"""
 
     history = ['Você estava na Unicamp em um dia comum, preocupado com o projeto de programação',
                'que precisava entregar nesse dia. Até que de repente soa um barulho estranho, vindo',
                'do Instituto de Física, o IFGW. Você olha para o instituto e vê uma onda eletromagnética',
                'vindo na sua direção, quando de repente tudo fica branco, e você se vê em um universo',
                'paralelo, preso na Unicamp da idade média, onde os professores são muito mais perigosos',
-               'e os espíritos de falecidos alunos podem te ajudar. Será que você vai conseguir sair dessa?',
+               'e os  colegas que se perderam podem te ajudar. Será que você vai conseguir sair dessa?',
                'Criado por: Daniel Franco e Vinícius Oliveira']
 
     for i, part in enumerate(history):
-        part = TEXTFONT.render(part, True, TITLE_COLOR)
-        part_rect = part.get_rect(center=(WIDTH // 2, HEIGHT // 10 * (i + 2)))
+        part_rendered = TEXTFONT.render(part, True, TITLE_COLOR)
+        part_rect = part_rendered.get_rect(center=(WIDTH // 2, HEIGHT // 10 * (i + 2)))
         pygame.draw.rect(SCREEN, BACKGROUND, part_rect.inflate(60, 40), border_radius=20)
-        SCREEN.blit(part, part_rect)
+        SCREEN.blit(part_rendered, part_rect)
 
     return continue_rect
 
-def draw_info_icons():
+
+def draw_info_icons() -> pygame.Rect:
+    """
+    Renders an informational screen in a Pygame application, displaying various game icons along with their descriptions.
+    Includes a return button to navigate back to the previous screen.
+
+    Returns:
+        pygame.Rect: Position and size of the return button.
+    """
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     button_size = FIRST_UNIT // 4
     return_img = pygame.transform.scale(pygame.image.load('img/arrowLeft.png').convert(), (button_size, button_size))
     return_rect = return_img.get_rect(topleft=(WIDTH * 0.3, HEIGHT * 0.88))
-    card_height = MENU_HEIGHT * 0.2
     card_y = HEIGHT - MENU_WIDTH
 
-    """background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
-    background_rect.center = (WIDTH // 2, HEIGHT // 2)
-    pygame.draw.rect(surface, FADED_COLOR, background_rect, 0, 20)"""
     SCREEN.blit(return_img, return_rect)
 
     card_width = MENU_WIDTH * 2.05
-    card_height = card_height / 1.2
+    card_height = MENU_HEIGHT * 0.2 / 1.2
 
-    icon_names = ['Coração', 'Bomba', 'Relógio', 'Pontos', 'Fantasma', 'Professor',]
+    icon_names = ['Coração', 'Bomba', 'Relógio', 'Pontos', 'Fantasma', 'Professor']
     icons = [HEART, BOMB, CLOCK_ICON, POINT, GHOST, PROF]
     icon_description = ['Representam a quantidade de vida que o jogador tem, e aumenta 1 vida se o jogador estiver sobre ele.',
                         'Este item, ao ser colocado no chão, explode em um área de 3x3. Caso o jogador esteja dentro da área da explosão, ele perderá 1 vida.',
                         'Ao coletar o relógio, 15 segundos são somados ao tempo restante para completar o labirinto.',
                         'Ao coletar este item, o jogador ganha pontos extras.',
-                        'Representam alunos que ser perderam no labirinto. Cada um possui uma pergunta, caso o jogador acerte, o aluno é',
-                        'libertado e deixa uma recompensa.',
-                        'Os professores perseguem jogadores que estão no seu campo de visão. Caso ele chegue perto do jogador, uma pergunta será',
-                        'feita e, se a resposta for correta, o professor deixará um item de pontos como recompensa.']
+                        'Representam alunos que se perderam no labirinto. Cada um possui uma pergunta, caso o jogador acerte, o aluno é libertado e',
+                        'deixa uma recompensa.',
+                        'Os professores perseguem jogadores que estão no seu campo de visão. Caso ele chegue perto do jogador, uma pergunta será feita e, se ',
+                        'a resposta for correta, o professor deixará um item de pontos como recompensa.']
 
     for i in range(len(icon_names)):
         base_y = i * HEIGHT // 9
         pygame.draw.rect(surface, TITLE_COLOR, [MENU_X // 2.6, ((MENU_Y * 0.8) + base_y), card_width, card_height], 2)
 
-        icon = icons[i]
-        icon = pygame.transform.scale(icon, (card_height, card_height))
+        icon = pygame.transform.scale(icons[i], (int(card_height), int(card_height)))
         icon_rect = icon.get_rect(topleft=(WIDTH / 8.25 - card_height - 20, (card_y * 0.69) + base_y - 8))
         surface.blit(icon, icon_rect)
 
@@ -652,18 +666,11 @@ def draw_info_icons():
             text_points = INFOFONT.render(icon_description[i], True, TITLE_COLOR)
             text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.91) + base_y))
             surface.blit(text_points, text_rect)
-        elif i == 4:
-            text_points = INFOFONT.render(icon_description[i], True, TITLE_COLOR)
+        else:
+            text_points = INFOFONT.render(icon_description[i + i % 2], True, TITLE_COLOR)
             text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + base_y))
             surface.blit(text_points, text_rect)
-            text_points = INFOFONT.render(icon_description[i + 1], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.96) + base_y))
-            surface.blit(text_points, text_rect)
-        elif i == 5:
-            text_points = INFOFONT.render(icon_description[i + 1], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + base_y))
-            surface.blit(text_points, text_rect)
-            text_points = INFOFONT.render(icon_description[i + 2], True, TITLE_COLOR)
+            text_points = INFOFONT.render(icon_description[i + 1 + i % 2], True, TITLE_COLOR)
             text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.96) + base_y))
             surface.blit(text_points, text_rect)
 

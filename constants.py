@@ -55,7 +55,7 @@ MOVE_KEYS: list[int] = [
 ]
 SAVE = 'save.che'
 SPEED = 150
-TIME = 20
+TIME = 60
 
 # Setting maze assets
 GHOST = pygame.image.load('img/player/ghost.gif').convert()
@@ -70,25 +70,18 @@ DOOR = pygame.image.load('img/tiles/openDoor13.gif')
 
 # Style
 COLORS = {
-    'GRAY': (128, 128, 128, 120),
-    'DARKGRAY': '#282828',
-    'LIGHTGRAY': '#575757',
-    'GREEN': '#22C900',
-    'DARKRED': '#E40000',
-    'RED': (255, 0, 0, 120),
+    'GREEN': '#185018',
+    'DARKRED': '#800000',
+    'RED': (128, 0, 0, 120),
     'WHITE': '#FFFFFF',
     'BLACK': '#000000',
-    'YELLOW': '#FFFF00',
-    'ORANGE': '#FF8000',
-    'BROWN': '#964B00',
-    'PINK': '#FFC0CB',
-    'CYAN': '#00FFFF',
+    'DARKGREEN': '#011D01'
 }
 BACKGROUND = COLORS['BLACK']
 BUTTON_BACKGROUNDCOLOR = COLORS['WHITE']
 BUTTON_TEXTCOLOR = COLORS['BLACK']
-FADED_COLOR = COLORS['GRAY']
-HUD_COLOR = COLORS['DARKGRAY']
+FADED_COLOR = COLORS['DARKGREEN']
+HUD_COLOR = COLORS['DARKGREEN']
 TITLE_COLOR = COLORS['WHITE']
 INFOFONT = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 80)
 SUBFONT = pygame.font.Font('./fonts/PixelTimes.ttf', 28)
