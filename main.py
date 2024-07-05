@@ -506,8 +506,8 @@ def over_save() -> Manager:
                     manager.mouse_pressed = False
                     break
                 elif buttons[i] == 'clear':
-                    if os.path.exists('save.che'):
-                        os.remove('save.che')
+                    if os.path.exists(SAVE):
+                        os.remove(SAVE)
                 else:
                     game_number = int(buttons[i].replace('game ', ''))
                     save.delete_save(game_number)
