@@ -137,6 +137,9 @@ def character_sel():
     - Updated player object with the selected character and name.
     """
     global game, player
+    if not manager.is_music_playing:
+        audio.music_setter('dungeon_level')
+        manager.is_music_playing = True
     buttons_char, arrows, input_box, skin_choice = drawer.draw_character_sel(manager)
 
     if manager.mouse_pressed:
@@ -416,7 +419,9 @@ def pause() -> tuple[Game, Manager, Player]:
             audio.select.play()
 
         elif pause_menu[3].collidepoint(mouse_x, mouse_y):
-            manager.part = 'new'
+            manager.part = 'character_sel'
+            pygame.mixer.music.stop()
+            manager.is_music_playing = False
             audio.select.play()
 
         elif pause_menu[4].collidepoint(mouse_x, mouse_y):
