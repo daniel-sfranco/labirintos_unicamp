@@ -430,6 +430,7 @@ def pause() -> tuple[Game, Manager, Player]:
 
         elif pause_menu[3].collidepoint(mouse_x, mouse_y):
             manager.part = 'character_sel'
+            game = Game(FIRST_LEVEL - 1)
             pygame.mixer.music.stop()
             manager.is_music_playing = False
             audio.select.play()
