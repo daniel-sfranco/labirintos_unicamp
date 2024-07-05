@@ -547,7 +547,7 @@ def draw_winners() -> pygame.Rect:
 
         skin = pygame.image.load(f'img/player/{player.last_skin}.gif')
         skin = pygame.transform.scale(skin, (card_height, card_height))
-        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 - card_height - 30, (card_y * 0.7) + (i * 130) - 8))
+        skin_rect = skin.get_rect(topleft=(WIDTH / 3.25 + card_width + 30, (card_y * 0.7) + (i * 130) - 8))
         surface.blit(skin, skin_rect)
 
         text_position = TEXTFONT.render(f'{i + 1}. {player.name}', True, TITLE_COLOR)
@@ -608,7 +608,7 @@ def draw_info_history() -> pygame.Rect:
                'do Instituto de Física, o IFGW. Você olha para o instituto e vê uma onda eletromagnética',
                'vindo na sua direção, quando de repente tudo fica branco, e você se vê em um universo',
                'paralelo, preso na Unicamp da idade média, onde os professores são muito mais perigosos',
-               'e os  colegas que se perderam podem te ajudar. Será que você vai conseguir sair dessa?',
+               'e os colegas que se perderam podem te ajudar. Será que você vai conseguir sair dessa?',
                'Criado por: Daniel Franco e Vinícius Oliveira']
 
     for i, part in enumerate(history):
@@ -635,6 +635,10 @@ def draw_info_icons() -> pygame.Rect:
     card_y = HEIGHT - MENU_WIDTH
 
     SCREEN.blit(return_img, return_rect)
+
+    background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
+    background_rect.center = (WIDTH // 2, HEIGHT // 2)
+    pygame.draw.rect(surface, FADED_COLOR, background_rect, 0, 20)
 
     card_width = MENU_WIDTH * 2.05
     card_height = MENU_HEIGHT * 0.2 / 1.2
