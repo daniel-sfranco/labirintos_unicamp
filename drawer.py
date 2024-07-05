@@ -9,6 +9,7 @@ from game_generator import Game
 from manage import Manager
 
 
+
 def draw_init() -> list[pygame.Rect]:
     """
     Initializes the game SCREEN by filling it with a background color, drawing the game title,
@@ -67,7 +68,7 @@ def draw_back_button(title_text: str) -> pygame.Rect:
     surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     pygame.draw.rect(surface, BACKGROUND, [0, 0, WIDTH, HEIGHT])
 
-    draw_title(title_text, TEXTFONT, TITLE_COLOR, surface, BACKGROUND, 0, 8)
+    draw_title(title_text, TEXTFONT, TITLE_COLOR, surface, BACKGROUND, 0, 10)
 
     button_w, button_h = WIDTH // 6, HEIGHT // 12
     button_x, button_y = WIDTH // 12, HEIGHT // 1.15
@@ -586,61 +587,66 @@ def draw_info_history():
     continue_img = pygame.transform.scale(pygame.image.load('img/arrowRight.png').convert(), (button_size, button_size))
     continue_rect = continue_img.get_rect(topleft=(WIDTH - 2 * button_size, HEIGHT * 0.88))
     SCREEN.blit(continue_img, continue_rect)
-    
-    return continue_rect
 
+    return continue_rect
 
 def draw_info_icons():
     surface = pygame.Surface((SIZE), pygame.SRCALPHA)
     button_size = FIRST_UNIT // 4
     return_img = pygame.transform.scale(pygame.image.load('img/arrowLeft.png').convert(), (button_size, button_size))
     return_rect = return_img.get_rect(topleft=(WIDTH * 0.3, HEIGHT * 0.88))
-    card_width = MENU_WIDTH
     card_height = MENU_HEIGHT * 0.2
-    card_y = HEIGHT - card_width
+    card_y = HEIGHT - MENU_WIDTH
 
     background_rect = pygame.Rect(0, 0, WIDTH // 1.1, HEIGHT // 1.4)
     background_rect.center = (WIDTH // 2, HEIGHT // 2)
     pygame.draw.rect(surface, FADED_COLOR, background_rect, 0, 20)
     SCREEN.blit(return_img, return_rect)
-    
-    card_width = card_width * 2.05
+
+    card_width = MENU_WIDTH * 2.05
     card_height = card_height / 1.2
 
     icon_names = ['Coração', 'Bomba', 'Relógio', 'Pontos', 'Fantasma', 'Professor',]
     icons = [HEART, BOMB, CLOCK_ICON, POINT, GHOST, PROF]
-    icon_description = ['Representam a quantidade de vida que o jogador tem.', 'Este item, ao ser colocado no chão, explode em um área de 3x3. Caso o jogador esteja dentro da área da explosão, ele perderá 1 vida.', 'Ao coletar o relógio, 15 segundos são somados ao tempo restante para completar o labirinto.', 'Ao coletar este item, o jogador ganha pontos extras.', 'Representam alunos que ser perderam no labirinto. Cada um possui uma pergunta, caso o jogador acerte, o aluno é libertado', 'e deixa uma recompensa.', 'Os professores perseguem jogadores que estão no seu campo de visão. Caso ele chegue perto do jogador, uma pergunta será feita e,', 'se a resposta for correta, o professor deixará um item de pontos como recompensa.']
-    #Falta a descrição dos pontos
+    icon_description = ['Representam a quantidade de vida que o jogador tem, e aumenta 1 vida se o jogador estiver sobre ele.',
+                        'Este item, ao ser colocado no chão, explode em um área de 3x3. Caso o jogador esteja dentro da área da explosão, ele perderá 1 vida.',
+                        'Ao coletar o relógio, 15 segundos são somados ao tempo restante para completar o labirinto.',
+                        'Ao coletar este item, o jogador ganha pontos extras.',
+                        'Representam alunos que ser perderam no labirinto. Cada um possui uma pergunta, caso o jogador acerte, o aluno é',
+                        'libertado e deixa uma recompensa.',
+                        'Os professores perseguem jogadores que estão no seu campo de visão. Caso ele chegue perto do jogador, uma pergunta será',
+                        'feita e, se a resposta for correta, o professor deixará um item de pontos como recompensa.']
 
     for i in range(len(icon_names)):
-        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X // 2.6, ((MENU_Y * 0.8) + (i * 120)), card_width, card_height], 2)
+        base_y = i * HEIGHT // 9
+        pygame.draw.rect(surface, TITLE_COLOR, [MENU_X // 2.6, ((MENU_Y * 0.8) + base_y), card_width, card_height], 2)
 
         icon = icons[i]
         icon = pygame.transform.scale(icon, (card_height, card_height))
-        icon_rect = icon.get_rect(topleft=(WIDTH / 8.25 - card_height - 30, (card_y * 0.7) + (i * 120) - 8))
+        icon_rect = icon.get_rect(topleft=(WIDTH / 8.25 - card_height - 20, (card_y * 0.69) + base_y - 8))
         surface.blit(icon, icon_rect)
 
-        text_position = TEXTFONT.render(icon_names[i], True, TITLE_COLOR)
-        text_rect = text_position.get_rect(topleft=(WIDTH / 8.25, (card_y * 0.7) + (i * 120)))
+        text_position = INFOFONT.render(icon_names[i], True, TITLE_COLOR)
+        text_rect = text_position.get_rect(topleft=(WIDTH / 8.25, (card_y * 0.69) + base_y))
         surface.blit(text_position, text_rect)
 
         if i < 4:
-            text_points = TEXTFONT.render(icon_description[i], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.9) + (i * 120)))
+            text_points = INFOFONT.render(icon_description[i], True, TITLE_COLOR)
+            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.91) + base_y))
             surface.blit(text_points, text_rect)
         elif i == 4:
-            text_points = TEXTFONT.render(icon_description[i], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + (i * 120)))
+            text_points = INFOFONT.render(icon_description[i], True, TITLE_COLOR)
+            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + base_y))
             surface.blit(text_points, text_rect)
-            text_points = TEXTFONT.render(icon_description[i + 1], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.95) + (i * 120)))
+            text_points = INFOFONT.render(icon_description[i + 1], True, TITLE_COLOR)
+            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.96) + base_y))
             surface.blit(text_points, text_rect)
         elif i == 5:
-            text_points = TEXTFONT.render(icon_description[i + 1], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + (i * 120)))
+            text_points = INFOFONT.render(icon_description[i + 1], True, TITLE_COLOR)
+            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.86) + base_y))
             surface.blit(text_points, text_rect)
-            text_points = TEXTFONT.render(icon_description[i + 2], True, TITLE_COLOR)
-            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.95) + (i * 120)))
+            text_points = INFOFONT.render(icon_description[i + 2], True, TITLE_COLOR)
+            text_rect = text_points.get_rect(bottomleft=(WIDTH / 8.25, (card_y * 0.96) + base_y))
             surface.blit(text_points, text_rect)
 
     SCREEN.blit(surface, (0, 0, WIDTH // 8, HEIGHT // 8), (0, 0, WIDTH, HEIGHT))

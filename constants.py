@@ -90,6 +90,7 @@ BUTTON_TEXTCOLOR = COLORS['BLACK']
 FADED_COLOR = COLORS['GRAY']
 HUD_COLOR = COLORS['DARKGRAY']
 TITLE_COLOR = COLORS['WHITE']
+INFOFONT = pygame.font.Font('./fonts/PixelTimes.ttf', WIDTH // 80)
 SUBFONT = pygame.font.Font('./fonts/PixelTimes.ttf', 28)
 TEXTFONT = pygame.font.Font('./fonts/PixelTimes.ttf', 24)
 TITLEFONT = pygame.font.Font('./fonts/dogicabold.ttf', WIDTH // 25)
