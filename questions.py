@@ -10,7 +10,6 @@ class Question:
             number (int): The question number.
         """
         self.number = number
-        self.shuffled = shuffled
         with open('questions.che', 'r', encoding='utf-8') as file:
             lines = file.readlines()
         index = self._find_index(lines)
@@ -25,14 +24,11 @@ class Question:
     def _extract_data(self, lines: list[str], index: int) -> None:
         self.question = lines[index].lstrip('.0123456789 ')
         poss =[lines[index + i] for i in range(2, 6)]
-        shuffle(poss)
         self.alt = {'a': poss[0], 'b': poss[1], 'c': poss[2], 'd': poss[3]}
         self.answer = lines[index + 7][14:]
-        self.shuffled = True
 
     def __str__(self) -> str:
         poss = ['a', 'b', 'c', 'd']
-        shuffle(poss)
         """
         Returns a formatted string representation of the question and its possible answers.
 
