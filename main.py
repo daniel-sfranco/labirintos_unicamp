@@ -307,7 +307,7 @@ def play() -> tuple[Game, Manager, Player]:
             game.bomb_coords = (-1, -1)
 
     # Check player lives and game over conditions
-    if game.time == 0:
+    if game.time <= 0:
         player.lives -= 1
         game.act_points = 0
         if player.lives > 0:
